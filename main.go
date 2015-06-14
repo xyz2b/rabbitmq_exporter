@@ -38,6 +38,5 @@ func main() {
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Starting RabbitMQ exporter")
 
-	http.ListenAndServe(":"+config.PUBLISH_PORT, nil)
-
+	log.Fatal(http.ListenAndServe(":"+config.PUBLISH_PORT, nil))
 }
