@@ -31,8 +31,8 @@ func unpackQueueMetrics(d *json.Decoder) map[string]*QueueMetrics {
 			messages_unacknowledged_count: v["messages_unacknowledged"].(float64),
 			consumers_count:               v["consumers"].(float64),
 			message_bytes:                 v["message_bytes"].(float64),
-			disk_reads_count:              v["disk_reads"].(float64),
-			disk_writes_count:             v["disk_writes"].(float64),
+			//disk_reads_count:              v["disk_reads"].(float64),
+			//disk_writes_count:             v["disk_writes"].(float64),
 		}
 	}
 	return metrics
