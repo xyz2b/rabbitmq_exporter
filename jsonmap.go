@@ -1,0 +1,70 @@
+package main
+
+import (
+	"encoding/json"
+
+	log "github.com/Sirupsen/logrus"
+)
+
+type metricMap map[string]float64
+
+//MakeQueueMap creates a map of queues from json input. Only keys with float values are mapped.
+func MakeQueueMap(d *json.Decoder) map[string]metricMap {
+	queueMap := make(map[string]metricMap)
+	var jsonArr []map[string]interface{}
+
+	if d == nil {
+		log.Error("JSON decoder not iniatilized")
+		return queueMap
+	}
+
+	if err := d.Decode(&jsonArr); err != nil {
+		log.WithField("error", err).Error("Error while decoding json")
+		return queueMap
+	}
+	for _, el := range jsonArr {
+		log.WithField("element", el).WithField("name", el["name"]).Debug("Iterate over array")
+		if name, ok := el["name"]; ok {
+			flMap := make(metricMap)
+			addFields(&flMap, "", el)
+			queueMap[name.(string)] = flMap
+		}
+	}
+
+	return queueMap
+}
+
+//MakeMap creates a map from json input. Only keys with float values are mapped.
+func MakeMap(d *json.Decoder) metricMap {
+	flMap := make(metricMap)
+	var output map[string]interface{}
+
+	if d == nil {
+		log.Error("JSON decoder not iniatilized")
+		return flMap
+	}
+
+	if err := d.Decode(&output); err != nil {
+		log.WithField("error", err).Error("Error while decoding json")
+		return flMap
+	}
+
+	addFields(&flMap, "", output)
+
+	return flMap
+}
+
+func addFields(toMap *metricMap, basename string, source map[string]interface{}) {
+	prefix := ""
+	if basename != "" {
+		prefix = basename + "."
+	}
+	for k, v := range source {
+		switch value := v.(type) {
+		case float64:
+			(*toMap)[prefix+k] = value
+		case map[string]interface{}:
+			addFields(toMap, prefix+k, value)
+		}
+	}
+}
