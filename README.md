@@ -15,7 +15,7 @@ Prometheus exporter for RabbitMQ metrics, based on RabbitMQ HTTP API.
 
 2. Start rabbitmq_exporter in container.
 
-        $ docker run -d --net=container:my-rabbit rabbitmq_exporter
+        $ docker run -d --net=container:my-rabbit kbudde/rabbitmq-exporter
 
 Now your metrics are available through [http://localhost:9090/metrics](http://localhost:9090/metrics).
 
