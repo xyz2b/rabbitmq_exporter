@@ -7,24 +7,35 @@ Prometheus exporter for RabbitMQ metrics, based on RabbitMQ HTTP API.
 * Prometheus [client](https://github.com/prometheus/client_golang) for Golang
 * [Logging](https://github.com/Sirupsen/logrus)
 
-[Update]
-* [rabbit-hole](https://github.com/michaelklishin/rabbit-hole) HTTP API was removed from the project because of lacking support for HTTPS
+### Setting up locally rabbitMQ and exporter with docker
 
-### Setting up locally
+1. Start rabbitMQ
 
-1. You need **RabbitMQ**. For local setup I recommend this [docker box](https://github.com/mikaelhg/docker-rabbitmq). It's "one-click" solution.
+        $ docker run -d -e RABBITMQ_NODENAME=my-rabbit --name my-rabbit -p 15672:15672 -p 9090:9090 rabbitmq:3-management
 
-2. For OS-specific **Docker** installation checkout these [instructions](https://docs.docker.com/installation/).
+2. Start rabbitmq_exporter in container.
 
-3. Building rabbitmq_exporter:
+        $ docker run -d --net=container:my-rabbit rabbitmq_exporter
 
-        $ docker build -t rabbitmq_exporter .
+Now your metrics are available through [http://localhost:9090/metrics](http://localhost:9090/metrics).
 
-4. Running:
+The rabbitmq_exporter is sharing the network interface with the rabbitmq container -> it is possible to use localhost and default user/password.
+Disadvantage: you have to publish the port (9090) in the rabbitmq container.
 
-        $ docker run --publish 6060:9672 --rm rabbitmq_exporter
+### Configuration
 
-Now your metrics are available through [http://localhost:6060/metrics](http://localhost:6060/metrics).
+Rabbitmq_exporter uses environment variables for configuration.
+Settings:
+
+* RABBIT_URL:      "http://localhost:15672",
+* RABBIT_USER:     "guest",
+* RABBIT_PASSWORD: "guest",
+* PUBLISH_PORT:    "9090",
+* OUTPUT_FORMAT:   "TTY", //change to JSON if needed
+
+Example
+
+    OUTPUT_FORMAT=JSON PUBLISH_PORT=9099 ./rabbitmq_exporter
 
 ### Metrics
 

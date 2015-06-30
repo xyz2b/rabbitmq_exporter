@@ -1,3 +1,3 @@
 FROM golang:onbuild
-MAINTAINER Michal Kobus <michal.kobus@syncano.com>
-EXPOSE 9672
+MAINTAINER Kris Budde <Kris.Budde@gmail.com>
+EXPOSE 9090

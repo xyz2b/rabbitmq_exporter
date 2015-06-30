@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/prometheus/log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func getMetrics(config rabbitExporterConfig, endpoint string) *json.Decoder {
@@ -15,7 +15,7 @@ func getMetrics(config rabbitExporterConfig, endpoint string) *json.Decoder {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Error(err)
+		log.WithFields(log.Fields{"error": err, "host": config.RABBIT_URL}).Error("Error while retrieving data from rabbitHost")
 		return nil
 	}
 	return json.NewDecoder(resp.Body)
