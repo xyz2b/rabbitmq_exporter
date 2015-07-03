@@ -1,4 +1,4 @@
-# RabbitMQ Exporter
+# RabbitMQ Exporter [![Build Status](https://travis-ci.org/kbudde/rabbitmq_exporter.svg?branch=master)](https://travis-ci.org/kbudde/rabbitmq_exporter) [![Coverage Status](https://coveralls.io/repos/kbudde/rabbitmq_exporter/badge.svg)](https://coveralls.io/r/kbudde/rabbitmq_exporter)
 
 Prometheus exporter for RabbitMQ metrics, based on RabbitMQ HTTP API.
 
