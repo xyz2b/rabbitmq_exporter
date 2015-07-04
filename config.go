@@ -2,6 +2,9 @@ package main
 
 import (
 	"os"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -22,18 +25,28 @@ type rabbitExporterConfig struct {
 	OUTPUT_FORMAT   string
 }
 
-func init() {
+func initConfig() {
+
 	if url := os.Getenv("RABBIT_URL"); url != "" {
-		config.RABBIT_URL = url
+		if valid, _ := regexp.MatchString("https?://[a-zA-Z.]+", strings.ToLower(url)); valid {
+			config.RABBIT_URL = url
+		}
+
 	}
+
 	if user := os.Getenv("RABBIT_USER"); user != "" {
 		config.RABBIT_USER = user
 	}
+
 	if pass := os.Getenv("RABBIT_PASSWORD"); pass != "" {
 		config.RABBIT_PASSWORD = pass
 	}
+
 	if port := os.Getenv("PUBLISH_PORT"); port != "" {
-		config.PUBLISH_PORT = port
+		if _, err := strconv.Atoi(port); err == nil {
+			config.PUBLISH_PORT = port
+		}
+
 	}
 	if output := os.Getenv("OUTPUT_FORMAT"); output != "" {
 		config.OUTPUT_FORMAT = output

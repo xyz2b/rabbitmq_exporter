@@ -1,12 +1,13 @@
 package main
 
 import (
+	"net/http"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
-	"net/http"
 )
 
-func init() {
+func initLogger() {
 	if config.OUTPUT_FORMAT == "JSON" {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
@@ -16,6 +17,8 @@ func init() {
 }
 
 func main() {
+	initConfig()
+	initLogger()
 	exporter := newExporter()
 	prometheus.MustRegister(exporter)
 
