@@ -14,8 +14,12 @@ func getMetrics(config rabbitExporterConfig, endpoint string) *json.Decoder {
 
 	resp, err := client.Do(req)
 
-	if err != nil {
-		log.WithFields(log.Fields{"error": err, "host": config.RABBIT_URL}).Error("Error while retrieving data from rabbitHost")
+	if err != nil || resp == nil || resp.StatusCode != 200 {
+		status := 0
+		if resp != nil {
+			status = resp.StatusCode
+		}
+		log.WithFields(log.Fields{"error": err, "host": config.RABBIT_URL, "statusCode": status}).Error("Error while retrieving data from rabbitHost")
 		return nil
 	}
 	return json.NewDecoder(resp.Body)
