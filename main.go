@@ -2,13 +2,14 @@ package main
 
 import (
 	"net/http"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 func initLogger() {
-	if config.OUTPUT_FORMAT == "JSON" {
+	if strings.ToUpper(config.OUTPUT_FORMAT) == "JSON" {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
 		// The TextFormatter is default, you don't actually have to do this.
