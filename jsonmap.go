@@ -6,11 +6,12 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-type metricMap map[string]float64
+//MetricMap maps name to float64 metric
+type MetricMap map[string]float64
 
 //MakeQueueMap creates a map of queues from json input. Only keys with float values are mapped.
-func MakeQueueMap(d *json.Decoder) map[string]metricMap {
-	queueMap := make(map[string]metricMap)
+func MakeQueueMap(d *json.Decoder) map[string]MetricMap {
+	queueMap := make(map[string]MetricMap)
 	var jsonArr []map[string]interface{}
 
 	if d == nil {
@@ -25,7 +26,7 @@ func MakeQueueMap(d *json.Decoder) map[string]metricMap {
 	for _, el := range jsonArr {
 		log.WithField("element", el).WithField("name", el["name"]).Debug("Iterate over array")
 		if name, ok := el["name"]; ok {
-			flMap := make(metricMap)
+			flMap := make(MetricMap)
 			addFields(&flMap, "", el)
 			queueMap[name.(string)] = flMap
 		}
@@ -35,8 +36,8 @@ func MakeQueueMap(d *json.Decoder) map[string]metricMap {
 }
 
 //MakeMap creates a map from json input. Only keys with float values are mapped.
-func MakeMap(d *json.Decoder) metricMap {
-	flMap := make(metricMap)
+func MakeMap(d *json.Decoder) MetricMap {
+	flMap := make(MetricMap)
 	var output map[string]interface{}
 
 	if d == nil {
@@ -54,7 +55,7 @@ func MakeMap(d *json.Decoder) metricMap {
 	return flMap
 }
 
-func addFields(toMap *metricMap, basename string, source map[string]interface{}) {
+func addFields(toMap *MetricMap, basename string, source map[string]interface{}) {
 	prefix := ""
 	if basename != "" {
 		prefix = basename + "."

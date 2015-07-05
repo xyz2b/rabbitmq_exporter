@@ -8,71 +8,79 @@ import (
 func TestEnvironmentSettingURL_HTTPS(t *testing.T) {
 	newValue := "https://testURL"
 	os.Setenv("RABBIT_URL", newValue)
+	defer os.Unsetenv("RABBIT_URL")
 	initConfig()
-	if config.RABBIT_URL != newValue {
-		t.Errorf("Expected config.RABBIT_URL to be modified. Found=%v, expected=%v", config.RABBIT_URL, newValue)
+	if config.RabbitURL != newValue {
+		t.Errorf("Expected config.RABBIT_URL to be modified. Found=%v, expected=%v", config.RabbitURL, newValue)
 	}
 }
 
 func TestEnvironmentSettingURL_HTTP(t *testing.T) {
 	newValue := "http://testURL"
 	os.Setenv("RABBIT_URL", newValue)
+	defer os.Unsetenv("RABBIT_URL")
 	initConfig()
-	if config.RABBIT_URL != newValue {
-		t.Errorf("Expected config.RABBIT_URL to be modified. Found=%v, expected=%v", config.RABBIT_URL, newValue)
+	if config.RabbitURL != newValue {
+		t.Errorf("Expected config.RABBIT_URL to be modified. Found=%v, expected=%v", config.RabbitURL, newValue)
 	}
 }
 
 func TestEnvironmentSettingUser(t *testing.T) {
 	newValue := "username"
 	os.Setenv("RABBIT_USER", newValue)
+	defer os.Unsetenv("RABBIT_USER")
 	initConfig()
-	if config.RABBIT_USER != newValue {
-		t.Errorf("Expected config.RABBIT_USER to be modified. Found=%v, expected=%v", config.RABBIT_USER, newValue)
+	if config.RabbitUsername != newValue {
+		t.Errorf("Expected config.RABBIT_USER to be modified. Found=%v, expected=%v", config.RabbitUsername, newValue)
 	}
 }
 
 func TestEnvironmentSettingPassword(t *testing.T) {
 	newValue := "password"
 	os.Setenv("RABBIT_PASSWORD", newValue)
+	defer os.Unsetenv("RABBIT_PASSWORD")
 	initConfig()
-	if config.RABBIT_PASSWORD != newValue {
-		t.Errorf("Expected config.RABBIT_PASSWORD to be modified. Found=%v, expected=%v", config.RABBIT_PASSWORD, newValue)
+	if config.RabbitPassword != newValue {
+		t.Errorf("Expected config.RABBIT_PASSWORD to be modified. Found=%v, expected=%v", config.RabbitPassword, newValue)
 	}
 }
 
 func TestEnvironmentSettingPort(t *testing.T) {
 	newValue := "9091"
 	os.Setenv("PUBLISH_PORT", newValue)
+	defer os.Unsetenv("PUBLISH_PORT")
 	initConfig()
-	if config.PUBLISH_PORT != newValue {
-		t.Errorf("Expected config.PUBLISH_PORT to be modified. Found=%v, expected=%v", config.PUBLISH_PORT, newValue)
+	if config.PublishPort != newValue {
+		t.Errorf("Expected config.PUBLISH_PORT to be modified. Found=%v, expected=%v", config.PublishPort, newValue)
 	}
 }
 
 func TestEnvironmentSettingFormat(t *testing.T) {
 	newValue := "json"
 	os.Setenv("OUTPUT_FORMAT", newValue)
+	defer os.Unsetenv("OUTPUT_FORMAT")
 	initConfig()
-	if config.OUTPUT_FORMAT != newValue {
-		t.Errorf("Expected config.OUTPUT_FORMAT to be modified. Found=%v, expected=%v", config.OUTPUT_FORMAT, newValue)
+	if config.OutputFormat != newValue {
+		t.Errorf("Expected config.OUTPUT_FORMAT to be modified. Found=%v, expected=%v", config.OutputFormat, newValue)
 	}
 }
 
 func TestConfig_Port(t *testing.T) {
-	port := config.PUBLISH_PORT
+	port := config.PublishPort
 	os.Setenv("PUBLISH_PORT", "noNumber")
+	defer os.Unsetenv("PUBLISH_PORT")
 	initConfig()
-	if config.PUBLISH_PORT != port {
-		t.Errorf("Invalid Portnumber. It should not be set. expected=%v,got=%v", port, config.PUBLISH_PORT)
+	if config.PublishPort != port {
+		t.Errorf("Invalid Portnumber. It should not be set. expected=%v,got=%v", port, config.PublishPort)
 	}
 }
 
 func TestConfig_Http_URL(t *testing.T) {
-	url := config.RABBIT_URL
+	url := config.RabbitURL
 	os.Setenv("RABBIT_URL", "ftp://test")
+	defer os.Unsetenv("RABBIT_URL")
 	initConfig()
-	if config.RABBIT_URL != url {
-		t.Errorf("Invalid URL. It should start with http(s)://. expected=%v,got=%v", url, config.RABBIT_URL)
+	if config.RabbitURL != url {
+		t.Errorf("Invalid URL. It should start with http(s)://. expected=%v,got=%v", url, config.RabbitURL)
 	}
 }

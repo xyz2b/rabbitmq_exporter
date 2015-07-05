@@ -9,7 +9,7 @@ import (
 )
 
 func initLogger() {
-	if strings.ToUpper(config.OUTPUT_FORMAT) == "JSON" {
+	if strings.ToUpper(config.OutputFormat) == "JSON" {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
 		// The TextFormatter is default, you don't actually have to do this.
@@ -35,12 +35,12 @@ func main() {
 	})
 
 	log.WithFields(log.Fields{
-		"PUBLISH_PORT":  config.PUBLISH_PORT,
-		"RABBIT_URL":    config.RABBIT_URL,
-		"RABBIT_USER":   config.RABBIT_USER,
-		"OUTPUT_FORMAT": config.OUTPUT_FORMAT,
+		"PUBLISH_PORT":  config.PublishPort,
+		"RABBIT_URL":    config.RabbitURL,
+		"RABBIT_USER":   config.RabbitUsername,
+		"OUTPUT_FORMAT": config.OutputFormat,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Starting RabbitMQ exporter")
 
-	log.Fatal(http.ListenAndServe(":"+config.PUBLISH_PORT, nil))
+	log.Fatal(http.ListenAndServe(":"+config.PublishPort, nil))
 }

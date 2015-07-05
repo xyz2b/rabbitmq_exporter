@@ -28,7 +28,7 @@ func TestOverview(t *testing.T) {
 	defer server.Close()
 
 	config := &rabbitExporterConfig{
-		RABBIT_URL: server.URL,
+		RabbitURL: server.URL,
 	}
 
 	overview := getOverviewMap(*config)
@@ -42,7 +42,7 @@ func TestOverview(t *testing.T) {
 	defer errorServer.Close()
 
 	config = &rabbitExporterConfig{
-		RABBIT_URL: errorServer.URL,
+		RabbitURL: errorServer.URL,
 	}
 
 	overview = getOverviewMap(*config)
@@ -56,7 +56,7 @@ func TestQueues(t *testing.T) {
 	defer server.Close()
 
 	config := &rabbitExporterConfig{
-		RABBIT_URL: server.URL,
+		RabbitURL: server.URL,
 	}
 
 	queues := getQueueMap(*config)
@@ -73,7 +73,7 @@ func TestQueues(t *testing.T) {
 	defer errorServer.Close()
 
 	config = &rabbitExporterConfig{
-		RABBIT_URL: errorServer.URL,
+		RabbitURL: errorServer.URL,
 	}
 
 	queues = getQueueMap(*config)

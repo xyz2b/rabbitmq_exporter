@@ -9,8 +9,8 @@ import (
 
 func getMetrics(config rabbitExporterConfig, endpoint string) *json.Decoder {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", config.RABBIT_URL+"/api/"+endpoint, nil)
-	req.SetBasicAuth(config.RABBIT_USER, config.RABBIT_PASSWORD)
+	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint, nil)
+	req.SetBasicAuth(config.RabbitUsername, config.RabbitPassword)
 
 	resp, err := client.Do(req)
 
@@ -19,19 +19,19 @@ func getMetrics(config rabbitExporterConfig, endpoint string) *json.Decoder {
 		if resp != nil {
 			status = resp.StatusCode
 		}
-		log.WithFields(log.Fields{"error": err, "host": config.RABBIT_URL, "statusCode": status}).Error("Error while retrieving data from rabbitHost")
+		log.WithFields(log.Fields{"error": err, "host": config.RabbitURL, "statusCode": status}).Error("Error while retrieving data from rabbitHost")
 		return nil
 	}
 	return json.NewDecoder(resp.Body)
 }
 
-func getQueueMap(config rabbitExporterConfig) map[string]metricMap {
+func getQueueMap(config rabbitExporterConfig) map[string]MetricMap {
 	metric := getMetrics(config, "queues")
 	qm := MakeQueueMap(metric)
 	return qm
 }
 
-func getOverviewMap(config rabbitExporterConfig) metricMap {
+func getOverviewMap(config rabbitExporterConfig) MetricMap {
 	metric := getMetrics(config, "overview")
 	overview := MakeMap(metric)
 	return overview

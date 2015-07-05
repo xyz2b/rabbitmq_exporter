@@ -8,47 +8,48 @@ import (
 )
 
 var (
-	config = rabbitExporterConfig{
-		RABBIT_URL:      "http://localhost:15672",
-		RABBIT_USER:     "guest",
-		RABBIT_PASSWORD: "guest",
-		PUBLISH_PORT:    "9090",
-		OUTPUT_FORMAT:   "TTY", //JSON
+	config        rabbitExporterConfig
+	defaultConfig = rabbitExporterConfig{
+		RabbitURL:      "http://localhost:15672",
+		RabbitUsername: "guest",
+		RabbitPassword: "guest",
+		PublishPort:    "9090",
+		OutputFormat:   "TTY", //JSON
 	}
 )
 
 type rabbitExporterConfig struct {
-	RABBIT_URL      string
-	RABBIT_USER     string
-	RABBIT_PASSWORD string
-	PUBLISH_PORT    string
-	OUTPUT_FORMAT   string
+	RabbitURL      string
+	RabbitUsername string
+	RabbitPassword string
+	PublishPort    string
+	OutputFormat   string
 }
 
 func initConfig() {
-
+	config = defaultConfig
 	if url := os.Getenv("RABBIT_URL"); url != "" {
-		if valid, _ := regexp.MatchString("https?://[a-zA-Z.]+", strings.ToLower(url)); valid {
-			config.RABBIT_URL = url
+		if valid, _ := regexp.MatchString("https?://[a-zA-Z.0-9]+", strings.ToLower(url)); valid {
+			config.RabbitURL = url
 		}
 
 	}
 
 	if user := os.Getenv("RABBIT_USER"); user != "" {
-		config.RABBIT_USER = user
+		config.RabbitUsername = user
 	}
 
 	if pass := os.Getenv("RABBIT_PASSWORD"); pass != "" {
-		config.RABBIT_PASSWORD = pass
+		config.RabbitPassword = pass
 	}
 
 	if port := os.Getenv("PUBLISH_PORT"); port != "" {
 		if _, err := strconv.Atoi(port); err == nil {
-			config.PUBLISH_PORT = port
+			config.PublishPort = port
 		}
 
 	}
 	if output := os.Getenv("OUTPUT_FORMAT"); output != "" {
-		config.OUTPUT_FORMAT = output
+		config.OutputFormat = output
 	}
 }
