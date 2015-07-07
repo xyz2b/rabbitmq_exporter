@@ -8,15 +8,17 @@ import (
 )
 
 type exporter struct {
-	mutex           sync.RWMutex
-	queueMetrics    map[string]*prometheus.GaugeVec
-	overviewMetrics map[string]prometheus.Gauge
+	mutex               sync.RWMutex
+	queueMetricsGauge   map[string]*prometheus.GaugeVec
+	queueMetricsCounter map[string]*prometheus.CounterVec
+	overviewMetrics     map[string]prometheus.Gauge
 }
 
 func newExporter() *exporter {
 	return &exporter{
-		queueMetrics:    queueMetricDescription,
-		overviewMetrics: overviewMetricDescription,
+		queueMetricsGauge:   queueGaugeVec,
+		queueMetricsCounter: queueCounterVec,
+		overviewMetrics:     overviewMetricDescription,
 	}
 }
 
@@ -35,11 +37,21 @@ func (e *exporter) fetchRabbit() {
 	}
 
 	log.WithField("queueData", rabbitMqQueueData).Debug("Queue data")
-	for key, gaugevec := range e.queueMetrics {
+	for key, gaugevec := range e.queueMetricsGauge {
 		for queue, data := range rabbitMqQueueData {
 			if value, ok := data[key]; ok {
 				log.WithFields(log.Fields{"queue": queue, "key": key, "value": value}).Debug("Set queue metric for key")
 				gaugevec.WithLabelValues(queue).Set(value)
+			} else {
+				//log.WithFields(log.Fields{"queue": queue, "key": key}).Warn("Queue data not found")
+			}
+		}
+	}
+	for key, countvec := range e.queueMetricsCounter {
+		for queue, data := range rabbitMqQueueData {
+			if value, ok := data[key]; ok {
+				log.WithFields(log.Fields{"queue": queue, "key": key, "value": value}).Debug("Set queue metric for key")
+				countvec.WithLabelValues(queue).Set(value)
 			} else {
 				//log.WithFields(log.Fields{"queue": queue, "key": key}).Warn("Queue data not found")
 			}
@@ -54,8 +66,11 @@ func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 		gauge.Describe(ch)
 	}
 
-	for _, gaugevec := range e.queueMetrics {
+	for _, gaugevec := range e.queueMetricsGauge {
 		gaugevec.Describe(ch)
+	}
+	for _, countervec := range e.queueMetricsCounter {
+		countervec.Describe(ch)
 	}
 }
 
@@ -63,8 +78,11 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	e.mutex.Lock() // To protect metrics from concurrent collects.
 	defer e.mutex.Unlock()
 
-	for _, gaugevec := range e.queueMetrics {
+	for _, gaugevec := range e.queueMetricsGauge {
 		gaugevec.Reset()
+	}
+	for _, countvec := range e.queueMetricsCounter {
+		countvec.Reset()
 	}
 
 	e.fetchRabbit()
@@ -73,7 +91,10 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 		gauge.Collect(ch)
 	}
 
-	for _, gaugevec := range e.queueMetrics {
+	for _, gaugevec := range e.queueMetricsGauge {
 		gaugevec.Collect(ch)
+	}
+	for _, countervec := range e.queueMetricsCounter {
+		countervec.Collect(ch)
 	}
 }

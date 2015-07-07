@@ -70,3 +70,11 @@ For each queue the number of:
 * consumers
 * consumer_utilisation
 * memory
+* messages_published_total
+* messages_confirmend_total
+* messages_delivered_total
+* messages_delivered_noack_total
+* messages_get_total
+* messages_get_noack_total
+* messages_redelivered_total
+* messages_returned_total
