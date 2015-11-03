@@ -2,13 +2,17 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+const defaultLogLevel = log.InfoLevel
+
 func initLogger() {
+	log.SetLevel(getLogLevel())
 	if strings.ToUpper(config.OutputFormat) == "JSON" {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
@@ -43,4 +47,25 @@ func main() {
 	}).Info("Starting RabbitMQ exporter")
 
 	log.Fatal(http.ListenAndServe(":"+config.PublishPort, nil))
+}
+
+func getLogLevel() log.Level {
+	var level log.Level
+	switch strings.ToLower(os.Getenv("LOG_LEVEL")) {
+	case "debug":
+		level = log.DebugLevel
+	case "info":
+		level = log.InfoLevel
+	case "warn":
+		level = log.WarnLevel
+	case "error":
+		level = log.ErrorLevel
+	case "panic":
+		level = log.PanicLevel
+	case "fatal":
+		level = log.FatalLevel
+	default:
+		level = defaultLogLevel
+	}
+	return level
 }
