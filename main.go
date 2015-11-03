@@ -50,21 +50,9 @@ func main() {
 }
 
 func getLogLevel() log.Level {
-	var level log.Level
-	switch strings.ToLower(os.Getenv("LOG_LEVEL")) {
-	case "debug":
-		level = log.DebugLevel
-	case "info":
-		level = log.InfoLevel
-	case "warn":
-		level = log.WarnLevel
-	case "error":
-		level = log.ErrorLevel
-	case "panic":
-		level = log.PanicLevel
-	case "fatal":
-		level = log.FatalLevel
-	default:
+	lvl := strings.ToLower(os.Getenv("LOG_LEVEL"))
+	level, err := log.ParseLevel(lvl)
+	if err != nil {
 		level = defaultLogLevel
 	}
 	return level
