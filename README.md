@@ -78,3 +78,15 @@ For each queue the number of:
 * messages_get_noack_total
 * messages_redelivered_total
 * messages_returned_total
+
+## Docker
+
+There are two options to build the docker image locally.
+
+1. Build using the sdurrheimer/alpine-golang-make-onbuild images (Go 1.5.3 is used)
+
+       docker -t rabbitmq-exporter:onbuild .
+    
+2. Build using the scratch image with static binary (go has to be installed locally)
+
+       make docker
