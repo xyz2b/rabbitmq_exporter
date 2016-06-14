@@ -29,13 +29,13 @@ func getMetrics(config rabbitExporterConfig, endpoint string) io.ReadCloser {
 func getQueueMap(config rabbitExporterConfig) map[string]MetricMap {
 	metric := getMetrics(config, "queues")
 	qm := MakeQueueMap(json.NewDecoder(metric))
-	defer metric.Close()
+	metric.Close()
 	return qm
 }
 
 func getOverviewMap(config rabbitExporterConfig) MetricMap {
 	metric := getMetrics(config, "overview")
 	overview := MakeMap(json.NewDecoder(metric))
-	defer metric.Close()
+	metric.Close()
 	return overview
 }
