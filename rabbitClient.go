@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"io"
 
 	log "github.com/Sirupsen/logrus"
 )
 
-func getMetrics(config rabbitExporterConfig, endpoint string) *json.Decoder {
+func getMetrics(config rabbitExporterConfig, endpoint string) io.ReadCloser {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint, nil)
 	req.SetBasicAuth(config.RabbitUsername, config.RabbitPassword)
@@ -22,17 +23,19 @@ func getMetrics(config rabbitExporterConfig, endpoint string) *json.Decoder {
 		log.WithFields(log.Fields{"error": err, "host": config.RabbitURL, "statusCode": status}).Error("Error while retrieving data from rabbitHost")
 		return nil
 	}
-	return json.NewDecoder(resp.Body)
+	return resp.Body
 }
 
 func getQueueMap(config rabbitExporterConfig) map[string]MetricMap {
 	metric := getMetrics(config, "queues")
-	qm := MakeQueueMap(metric)
+	qm := MakeQueueMap(json.NewDecoder(metric))
+	defer metric.Close()
 	return qm
 }
 
 func getOverviewMap(config rabbitExporterConfig) MetricMap {
 	metric := getMetrics(config, "overview")
-	overview := MakeMap(metric)
+	overview := MakeMap(json.NewDecoder(metric))
+	defer metric.Close()
 	return overview
 }
