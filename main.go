@@ -43,6 +43,10 @@ func main() {
 		"RABBIT_URL":    config.RabbitURL,
 		"RABBIT_USER":   config.RabbitUsername,
 		"OUTPUT_FORMAT": config.OutputFormat,
+		"VERSION":       Version,
+		"REVISION":      Revision,
+		"BRANCH":        Branch,
+		"BUILD_DATE":    BuildDate,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Starting RabbitMQ exporter")
 

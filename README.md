@@ -81,12 +81,7 @@ For each queue the number of:
 
 ## Docker
 
-There are two options to build the docker image locally.
-
-1. Build using the sdurrheimer/alpine-golang-make-onbuild images (Go 1.5.3 is used)
-
-       docker -t rabbitmq-exporter:onbuild .
-    
-2. Build using the scratch image with static binary (go has to be installed locally)
+To create a docker image locally it is recommened to use the Makefile.
+Promu is used for building the statically linked binary which is added to the scratch image.
 
        make docker

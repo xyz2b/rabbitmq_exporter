@@ -2,3 +2,4 @@
 dependencies-stamp
 rabbitmq_exporter
 rabbitmq_exporter.exe
+.tarballs/

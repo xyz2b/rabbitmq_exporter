@@ -1,0 +1,22 @@
+go: 1.6.2
+verbose: true
+repository:
+    path: github.com/kbudde/rabbitmq_exporter
+build:
+    flags: -a -tags netgo
+    ldflags: |
+        -X main.Version={{.Version}}
+        -X main.Revision={{.Revision}}
+        -X main.Branch={{.Branch}}
+        -X main.BuildDate={{date "20060102-15:04:05"}}
+tarball:
+    files:
+        - LICENSE
+crossbuild:
+    platforms:
+        - linux/amd64
+        - linux/386
+        - darwin/amd64
+        - darwin/386
+        - windows/amd64
+        - windows/386

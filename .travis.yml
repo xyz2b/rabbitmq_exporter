@@ -11,12 +11,14 @@ env:
   global:
     - PATH=/home/travis/gopath/bin:$PATH
     - COMMIT=${TRAVIS_COMMIT::8}
+    - REPO=kbudde/rabbitmq-exporter
 before_install:
   - go get github.com/mitchellh/gox
-  - go get github.com/tcnksm/ghr
+
   - go get github.com/axw/gocov/gocov
   - go get github.com/mattn/goveralls
   - go get golang.org/x/tools/cmd/cover
+  - go get github.com/aktau/github-release
 
 install:
   - go get -t ./...
@@ -25,17 +27,15 @@ script:
   - go test -v -covermode=count -coverprofile=coverage.out ./...
 
 after_success:
-#Build Dockerfile.scratch image
-  - CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o rabbitmq_exporter_static .
+#Build Docker image
   - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASSWORD
-  - export REPO=kbudde/rabbitmq-exporter
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-  - docker build -f Dockerfile.scratch -t $REPO:$TAG .
+  - make docker DOCKER_IMAGE_NAME=$REPO DOCKER_IMAGE_TAG=$TAG
   - docker push $REPO
   
 #Build dist releases 
-  - gox -os="linux windows darwin" -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}"
-  - ghr --username kbudde --token $GITHUB_TOKEN --replace --prerelease --debug pre-release dist/
+  - make tarballs
+  - promu release -v
   
 #Submit coverage
   - goveralls -coverprofile=coverage.out -service travis-ci -repotoken $COVERALLS_TOKEN
