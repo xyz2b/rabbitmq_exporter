@@ -39,7 +39,7 @@ var (
 		"disk_reads":                  newQueueCounterVec("disk_reads", "Total number of times messages have been read from disk by this queue since it started."),
 		"disk_writes":                 newQueueCounterVec("disk_writes", "Total number of times messages have been written to disk by this queue since it started."),
 		"message_stats.publish":       newQueueCounterVec("messages_published_total", "Count of messages published."),
-		"message_stats.confirm":       newQueueCounterVec("messages_confirmend_total", "Count of messages confirmed. "),
+		"message_stats.confirm":       newQueueCounterVec("messages_confirmed_total", "Count of messages confirmed. "),
 		"message_stats.deliver":       newQueueCounterVec("messages_delivered_total", "Count of messages delivered in acknowledgement mode to consumers."),
 		"message_stats.deliver_noack": newQueueCounterVec("messages_delivered_noack_total", "Count of messages delivered in no-acknowledgement mode to consumers. "),
 		"message_stats.get":           newQueueCounterVec("messages_get_total", "Count of messages delivered in acknowledgement mode in response to basic.get."),
