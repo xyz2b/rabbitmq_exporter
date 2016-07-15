@@ -32,6 +32,7 @@ Settings:
 * RABBIT_PASSWORD: "guest",
 * PUBLISH_PORT:    "9090",
 * OUTPUT_FORMAT:   "TTY", //change to JSON if needed
+* LOG_LEVEL:       "info", // can be "debug", "info", "warning", "error", "fatal", or "panic"
 
 Example
 

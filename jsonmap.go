@@ -9,30 +9,42 @@ import (
 //MetricMap maps name to float64 metric
 type MetricMap map[string]float64
 
-//MakeQueueMap creates a map of queues from json input. Only keys with float values are mapped.
-func MakeQueueMap(d *json.Decoder) map[string]MetricMap {
-	queueMap := make(map[string]MetricMap)
+//QueueInfo describes a queue: its name, vhost it belongs to, and all associated metrics.
+type QueueInfo struct {
+	name    string
+	vhost   string
+	metrics MetricMap
+}
+
+//MakeQueueInfo creates a slice if QueueInfo from json input. Only keys with float values are mapped into `metrics`.
+func MakeQueueInfo(d *json.Decoder) []QueueInfo {
+	queues := make([]QueueInfo, 0)
 	var jsonArr []map[string]interface{}
 
 	if d == nil {
 		log.Error("JSON decoder not iniatilized")
-		return queueMap
+		return queues
 	}
 
 	if err := d.Decode(&jsonArr); err != nil {
 		log.WithField("error", err).Error("Error while decoding json")
-		return queueMap
+		return queues
 	}
 	for _, el := range jsonArr {
-		log.WithField("element", el).WithField("name", el["name"]).Debug("Iterate over array")
+		log.WithFields(log.Fields{"element": el, "vhost": el["vhost"], "name": el["name"]}).Debug("Iterate over array")
 		if name, ok := el["name"]; ok {
-			flMap := make(MetricMap)
-			addFields(&flMap, "", el)
-			queueMap[name.(string)] = flMap
+			queue := QueueInfo{}
+			queue.name = name.(string)
+			if vhost, ok := el["vhost"]; ok {
+				queue.vhost = vhost.(string)
+			}
+			queue.metrics = make(MetricMap)
+			addFields(&queue.metrics, "", el)
+			queues = append(queues, queue)
 		}
 	}
 
-	return queueMap
+	return queues
 }
 
 //MakeMap creates a map from json input. Only keys with float values are mapped.

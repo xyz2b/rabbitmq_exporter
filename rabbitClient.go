@@ -26,12 +26,12 @@ func loadMetrics(config rabbitExporterConfig, endpoint string, build func(d *jso
 	resp.Body.Close()
 }
 
-func getQueueMap(config rabbitExporterConfig) map[string]MetricMap {
-	var qm map[string]MetricMap
+func getQueueInfo(config rabbitExporterConfig) []QueueInfo {
+	var q []QueueInfo
 	loadMetrics(config, "queues", func(d *json.Decoder) {
-		qm = MakeQueueMap(d)
+		q = MakeQueueInfo(d)
 	})
-	return qm
+	return q
 }
 
 func getOverviewMap(config rabbitExporterConfig) MetricMap {

@@ -7,7 +7,7 @@ const (
 )
 
 var (
-	queueLabelNames = []string{"queue"}
+	queueLabelNames = []string{"vhost", "queue"}
 
 	overviewMetricDescription = map[string]prometheus.Gauge{
 		"object_totals.channels":    newMetric("channelsTotal", "Total number of open channels."),

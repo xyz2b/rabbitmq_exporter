@@ -24,7 +24,7 @@ func newExporter() *exporter {
 
 func (e *exporter) fetchRabbit() {
 	rabbitMqOverviewData := getOverviewMap(config)
-	rabbitMqQueueData := getQueueMap(config)
+	rabbitMqQueueData := getQueueInfo(config)
 
 	log.WithField("overviewData", rabbitMqOverviewData).Debug("Overview data")
 	for key, gauge := range e.overviewMetrics {
@@ -38,20 +38,20 @@ func (e *exporter) fetchRabbit() {
 
 	log.WithField("queueData", rabbitMqQueueData).Debug("Queue data")
 	for key, gaugevec := range e.queueMetricsGauge {
-		for queue, data := range rabbitMqQueueData {
-			if value, ok := data[key]; ok {
-				log.WithFields(log.Fields{"queue": queue, "key": key, "value": value}).Debug("Set queue metric for key")
-				gaugevec.WithLabelValues(queue).Set(value)
+		for _, queue := range rabbitMqQueueData {
+			if value, ok := queue.metrics[key]; ok {
+				log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
+				gaugevec.WithLabelValues(queue.vhost, queue.name).Set(value)
 			} else {
 				//log.WithFields(log.Fields{"queue": queue, "key": key}).Warn("Queue data not found")
 			}
 		}
 	}
 	for key, countvec := range e.queueMetricsCounter {
-		for queue, data := range rabbitMqQueueData {
-			if value, ok := data[key]; ok {
-				log.WithFields(log.Fields{"queue": queue, "key": key, "value": value}).Debug("Set queue metric for key")
-				countvec.WithLabelValues(queue).Set(value)
+		for _, queue := range rabbitMqQueueData {
+			if value, ok := queue.metrics[key]; ok {
+				log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
+				countvec.WithLabelValues(queue.vhost, queue.name).Set(value)
 			} else {
 				//log.WithFields(log.Fields{"queue": queue, "key": key}).Warn("Queue data not found")
 			}

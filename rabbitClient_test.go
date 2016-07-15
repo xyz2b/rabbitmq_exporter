@@ -52,21 +52,25 @@ func TestOverview(t *testing.T) {
 
 func TestQueues(t *testing.T) {
 	// Test server that always responds with 200 code, and specific payload
-	server := createTestserver(200, `[{"name":"Queue1","nonFloat":"bob@example.com","float1":1.23456789101112,"number":2},{"name":"Queue2","nonFloat":"bob@example.com","float1":3.23456789101112,"number":3}]`)
+	server := createTestserver(200, `[{"name":"Queue1","nonFloat":"bob@example.com","float1":1.23456789101112,"number":2},{"name":"Queue2","vhost":"Vhost2","nonFloat":"bob@example.com","float1":3.23456789101112,"number":3}]`)
 	defer server.Close()
 
 	config := &rabbitExporterConfig{
 		RabbitURL: server.URL,
 	}
 
-	queues := getQueueMap(*config)
+	queues := getQueueInfo(*config)
 	expect(t, len(queues), 2)
-	expect(t, len(queues["Queue1"]), 2)
-	expect(t, len(queues["Queue2"]), 2)
-	expect(t, queues["Queue1"]["float1"], 1.23456789101112)
-	expect(t, queues["Queue2"]["float1"], 3.23456789101112)
-	expect(t, queues["Queue1"]["number"], 2.0)
-	expect(t, queues["Queue2"]["number"], 3.0)
+	expect(t, queues[0].name, "Queue1")
+	expect(t, queues[0].vhost, "")
+	expect(t, queues[1].name, "Queue2")
+	expect(t, queues[1].vhost, "Vhost2")
+	expect(t, len(queues[0].metrics), 2)
+	expect(t, len(queues[1].metrics), 2)
+	expect(t, queues[0].metrics["float1"], 1.23456789101112)
+	expect(t, queues[1].metrics["float1"], 3.23456789101112)
+	expect(t, queues[0].metrics["number"], 2.0)
+	expect(t, queues[1].metrics["number"], 3.0)
 
 	//Unknown error Server
 	errorServer := createTestserver(500, http.StatusText(500))
@@ -76,7 +80,7 @@ func TestQueues(t *testing.T) {
 		RabbitURL: errorServer.URL,
 	}
 
-	queues = getQueueMap(*config)
+	queues = getQueueInfo(*config)
 
 	expect(t, len(queues), 0)
 }
