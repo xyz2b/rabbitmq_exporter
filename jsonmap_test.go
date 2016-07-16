@@ -12,15 +12,15 @@ func TestWithInvalidJSON(t *testing.T) {
 	if mm := MakeMap(invalidJSONDecoder); mm == nil {
 		t.Errorf("Json is invalid. Empty map should be returned. Value: %v", mm)
 	}
-	if qm := MakeQueueMap(invalidJSONDecoder); qm == nil {
-		t.Errorf("Json is invalid. Empty map should be returned. Value: %v", qm)
+	if qi := MakeQueueInfo(invalidJSONDecoder); qi == nil {
+		t.Errorf("Json is invalid. Empty map should be returned. Value: %v", qi)
 	}
 
 	if mm := MakeMap(nil); mm == nil {
 		t.Errorf("Empty map should be returned. Value: %v", mm)
 	}
-	if qm := MakeQueueMap(nil); qm == nil {
-		t.Errorf("Empty map should be returned.. Value: %v", qm)
+	if qi := MakeQueueInfo(nil); qi == nil {
+		t.Errorf("Empty map should be returned.. Value: %v", qi)
 	}
 }
 
@@ -50,17 +50,20 @@ func TestMakeMap(t *testing.T) {
 	checkMap(flMap, t, 0)
 }
 
-func TestMakeQueueMap(t *testing.T) {
-	jsonArray := strings.NewReader(`[{"name":"q1", "FloatKey":14,"nes":{"ted":15}},{"name":"q2", "FloatKey":24,"nes":{"ted":25}}]`)
+func TestMakeQueueInfo(t *testing.T) {
+	jsonArray := strings.NewReader(`[{"name":"q1", "FloatKey":14,"nes":{"ted":15}},{"name":"q2", "vhost":"foo", "FloatKey":24,"nes":{"ted":25}}]`)
 	decoder := json.NewDecoder(jsonArray)
 
-	qmap := MakeQueueMap(decoder)
-	if _, ok := qmap["q1"]; !ok {
-		t.Error("map should contain queue map. queue=q1")
+	qinfo := MakeQueueInfo(decoder)
+	if qinfo[0].name != "q1" {
+		t.Errorf("unexpected qinfo name: %v", qinfo[0].name)
 	}
-	if _, ok := qmap["q2"]; !ok {
-		t.Error("map should contain queue map. queue=q2")
+	if qinfo[1].name != "q2" {
+		t.Errorf("unexpected qinfo name: %v", qinfo[0].name)
 	}
-	checkMap(qmap["q1"], t, 10)
-	checkMap(qmap["q2"], t, 20)
+	if qinfo[1].vhost != "foo" {
+		t.Errorf("unexpected qinfo name: %v", qinfo[0].name)
+	}
+	checkMap(qinfo[0].metrics, t, 10)
+	checkMap(qinfo[1].metrics, t, 20)
 }
