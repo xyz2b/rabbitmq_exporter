@@ -3,12 +3,14 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 )
 
+var client = &http.Client{Timeout: 10 * time.Second}
+
 func loadMetrics(config rabbitExporterConfig, endpoint string, build func(d *json.Decoder)) {
-	client := &http.Client{}
 	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint, nil)
 	req.SetBasicAuth(config.RabbitUsername, config.RabbitPassword)
 
