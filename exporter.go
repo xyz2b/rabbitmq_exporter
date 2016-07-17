@@ -97,4 +97,6 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	for _, countervec := range e.queueMetricsCounter {
 		countervec.Collect(ch)
 	}
+
+	BuildInfo.Collect(ch)
 }
