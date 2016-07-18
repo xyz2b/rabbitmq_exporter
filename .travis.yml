@@ -24,7 +24,7 @@ install:
   - go get -t ./...
 
 script:
-  - go test -v -covermode=count -coverprofile=coverage.out ./...
+  - go test -v -covermode=count -coverprofile=coverage.out ./
 
 after_success:
 #Build Docker image
