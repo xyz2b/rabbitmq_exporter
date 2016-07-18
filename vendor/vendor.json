@@ -3,11 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "htjvdG/znrHmFYRQBqA2vHrJsF4=",
-			"origin": "github.com/kbudde/rabbitmq_exporter/vendor/github.com/Sirupsen/logrus",
+			"checksumSHA1": "yXrS4e4yxaRBu/MX+39X3cS4kbg=",
 			"path": "github.com/Sirupsen/logrus",
-			"revision": "cd7d1bbe41066b6c1f19780f895901052150a575",
-			"revisionTime": "2016-04-25T09:32:37Z"
+			"revision": "a283a10442df8dc09befd873fab202bf8a253d6a",
+			"revisionTime": "2016-07-16T02:56:31Z"
 		},
 		{
 			"checksumSHA1": "4QnLdmB1kG3N+KlDd1N+G9TWAGQ=",
@@ -28,35 +27,20 @@
 			"revisionTime": "2016-04-24T11:30:07Z"
 		},
 		{
-			"checksumSHA1": "DflE+1TlvvJcrqOCTi2Z2Oo/KjI=",
-			"origin": "github.com/kbudde/rabbitmq_exporter/vendor/github.com/prometheus/client_golang/prometheus",
 			"path": "github.com/prometheus/client_golang/prometheus",
-			"revision": "d38f1ef46f0d78136db3e585f7ebe1bcc3476f73",
-			"revisionTime": "2016-05-17T09:07:30Z"
-		},
-		{
-			"checksumSHA1": "DvwvOlPNAgRntBzt3b3OSRMS2N4=",
-			"path": "github.com/prometheus/client_model/go",
-			"revision": "fa8ad6fec33561be4280a8f0514318c79d7f6cb6",
-			"revisionTime": "2015-02-12T10:17:44Z"
-		},
-		{
-			"checksumSHA1": "DOkbYZAGVR8Xv/dqg5PZbsS6Aeg=",
-			"path": "github.com/prometheus/common/expfmt",
-			"revision": "a715f9d07a512e8339f70a275ace0e67c0f9a65f",
-			"revisionTime": "2016-05-20T11:43:19Z"
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "GWlM3d2vPYyNATtTFgftS10/A9w=",
 			"path": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
-			"revision": "a715f9d07a512e8339f70a275ace0e67c0f9a65f",
-			"revisionTime": "2016-05-20T11:43:19Z"
+			"revision": "4402f4e5ea79ec15f3c574773b6a5198fbea215f",
+			"revisionTime": "2016-06-23T15:14:27Z"
 		},
 		{
-			"checksumSHA1": "phCwHdzGarRNOEboPL96LZxI/Fc=",
+			"checksumSHA1": "Jx0GXl5hGnO25s3ryyvtdWHdCpw=",
 			"path": "github.com/prometheus/common/model",
-			"revision": "a715f9d07a512e8339f70a275ace0e67c0f9a65f",
-			"revisionTime": "2016-05-20T11:43:19Z"
+			"revision": "4402f4e5ea79ec15f3c574773b6a5198fbea215f",
+			"revisionTime": "2016-06-23T15:14:27Z"
 		},
 		{
 			"checksumSHA1": "W218eJZPXJG783fUr/z6IaAZyes=",
@@ -65,34 +49,10 @@
 			"revisionTime": "2016-04-11T19:08:41Z"
 		},
 		{
-			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
-			"path": "golang.org/x/net/context",
-			"revision": "be28236b9034a52ec04f37f16f355b4bde7807e2",
-			"revisionTime": "2016-07-16T21:40:20Z"
-		},
-		{
-			"checksumSHA1": "WHc3uByvGaMcnSoI21fhzYgbOgg=",
-			"path": "golang.org/x/net/context/ctxhttp",
-			"revision": "be28236b9034a52ec04f37f16f355b4bde7807e2",
-			"revisionTime": "2016-07-16T21:40:20Z"
-		},
-		{
 			"checksumSHA1": "8fD/im5Kwvy3JgmxulDTambmE8w=",
 			"path": "golang.org/x/sys/unix",
 			"revision": "a646d33e2ee3172a661fc09bca23bb4889a41bc8",
 			"revisionTime": "2016-07-15T05:43:45Z"
-		},
-		{
-			"checksumSHA1": "XdxvIIqZLQ67wuI4ngmvwHkj6XE=",
-			"path": "gopkg.in/airbrake/gobrake.v2",
-			"revision": "31c8ff1fb8b79a6947e6565e9a6df535f98a6b94",
-			"revisionTime": "2016-04-02T08:12:50Z"
-		},
-		{
-			"checksumSHA1": "YV5g4hWLzjjsc8bi/iMIw7/gAnU=",
-			"path": "gopkg.in/gemnasium/logrus-airbrake-hook.v2",
-			"revision": "31e6fd4bd5a98d8ee7673d24bc54ec73c31810dd",
-			"revisionTime": "2015-10-06T01:16:14Z"
 		}
 	],
 	"rootPath": "github.com/kbudde/rabbitmq_exporter"
