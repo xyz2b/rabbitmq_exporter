@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -10,7 +13,7 @@ import (
 
 var client = &http.Client{Timeout: 10 * time.Second}
 
-func loadMetrics(config rabbitExporterConfig, endpoint string, build func(d *json.Decoder)) {
+func loadMetrics(config rabbitExporterConfig, endpoint string) (*json.Decoder, error) {
 	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint, nil)
 	req.SetBasicAuth(config.RabbitUsername, config.RabbitPassword)
 
@@ -22,24 +25,38 @@ func loadMetrics(config rabbitExporterConfig, endpoint string, build func(d *jso
 			status = resp.StatusCode
 		}
 		log.WithFields(log.Fields{"error": err, "host": config.RabbitURL, "statusCode": status}).Error("Error while retrieving data from rabbitHost")
-		return
+		return nil, errors.New("Error while retrieving data from rabbitHost")
 	}
-	build(json.NewDecoder(resp.Body))
+
+	body, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	return json.NewDecoder(bytes.NewBuffer(body)), nil
 }
 
-func getQueueInfo(config rabbitExporterConfig) []QueueInfo {
+func getQueueInfo(config rabbitExporterConfig) ([]QueueInfo, error) {
 	var q []QueueInfo
-	loadMetrics(config, "queues", func(d *json.Decoder) {
-		q = MakeQueueInfo(d)
-	})
-	return q
+
+	d, err := loadMetrics(config, "queues")
+	if err != nil {
+		return q, err
+	}
+
+	q = MakeQueueInfo(d)
+
+	return q, nil
 }
 
-func getOverviewMap(config rabbitExporterConfig) MetricMap {
+func getOverviewMap(config rabbitExporterConfig) (MetricMap, error) {
 	var overview MetricMap
-	loadMetrics(config, "overview", func(d *json.Decoder) {
-		overview = MakeMap(d)
-	})
-	return overview
+
+	d, err := loadMetrics(config, "overview")
+	if err != nil {
+		return overview, err
+	}
+
+	return MakeMap(d), nil
 }

@@ -9,6 +9,8 @@ const (
 var (
 	queueLabelNames = []string{"vhost", "queue"}
 
+	upMetricDescription = newMetric("up", "Was the last scrape of rabbitmq successful.")
+
 	overviewMetricDescription = map[string]prometheus.Gauge{
 		"object_totals.channels":    newMetric("channelsTotal", "Total number of open channels."),
 		"object_totals.connections": newMetric("connectionsTotal", "Total number of open connections."),

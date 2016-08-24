@@ -57,4 +57,5 @@ func TestWholeApp(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_queue_memory{queue="myQueue4",vhost="vhost4"} 13912`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_published_total{queue="myQueue1",vhost="/"} 6`)
 	expectSubstring(t, body, `rabbitmq_queue_disk_writes{queue="myQueue1",vhost="/"} 6`)
+	expectSubstring(t, body, `rabbitmq_up 1`)
 }
