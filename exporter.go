@@ -12,6 +12,7 @@ type exporter struct {
 	queueMetricsGauge   map[string]*prometheus.GaugeVec
 	queueMetricsCounter map[string]*prometheus.CounterVec
 	overviewMetrics     map[string]prometheus.Gauge
+	upMetric            prometheus.Gauge
 }
 
 func newExporter() *exporter {
@@ -19,12 +20,19 @@ func newExporter() *exporter {
 		queueMetricsGauge:   queueGaugeVec,
 		queueMetricsCounter: queueCounterVec,
 		overviewMetrics:     overviewMetricDescription,
+		upMetric:            upMetricDescription,
 	}
 }
 
 func (e *exporter) fetchRabbit() {
-	rabbitMqOverviewData := getOverviewMap(config)
-	rabbitMqQueueData := getQueueInfo(config)
+	rabbitMqOverviewData, overviewError := getOverviewMap(config)
+	rabbitMqQueueData, queueError := getQueueInfo(config)
+
+	if overviewError != nil || queueError != nil {
+		e.upMetric.Set(0)
+	} else {
+		e.upMetric.Set(1)
+	}
 
 	log.WithField("overviewData", rabbitMqOverviewData).Debug("Overview data")
 	for key, gauge := range e.overviewMetrics {
@@ -86,6 +94,8 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	e.fetchRabbit()
+
+	e.upMetric.Collect(ch)
 
 	for _, gauge := range e.overviewMetrics {
 		gauge.Collect(ch)

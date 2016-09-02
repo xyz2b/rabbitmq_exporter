@@ -31,7 +31,7 @@ func TestOverview(t *testing.T) {
 		RabbitURL: server.URL,
 	}
 
-	overview := getOverviewMap(*config)
+	overview, _ := getOverviewMap(*config)
 
 	expect(t, len(overview), 2)
 	expect(t, overview["float1"], 1.23456789101112)
@@ -45,7 +45,7 @@ func TestOverview(t *testing.T) {
 		RabbitURL: errorServer.URL,
 	}
 
-	overview = getOverviewMap(*config)
+	overview, _ = getOverviewMap(*config)
 
 	expect(t, len(overview), 0)
 }
@@ -59,7 +59,7 @@ func TestQueues(t *testing.T) {
 		RabbitURL: server.URL,
 	}
 
-	queues := getQueueInfo(*config)
+	queues, _ := getQueueInfo(*config)
 	expect(t, len(queues), 2)
 	expect(t, queues[0].name, "Queue1")
 	expect(t, queues[0].vhost, "")
@@ -80,7 +80,7 @@ func TestQueues(t *testing.T) {
 		RabbitURL: errorServer.URL,
 	}
 
-	queues = getQueueInfo(*config)
+	queues, _ = getQueueInfo(*config)
 
 	expect(t, len(queues), 0)
 }
