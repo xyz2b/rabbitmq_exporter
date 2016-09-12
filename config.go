@@ -10,20 +10,24 @@ import (
 var (
 	config        rabbitExporterConfig
 	defaultConfig = rabbitExporterConfig{
-		RabbitURL:      "http://localhost:15672",
-		RabbitUsername: "guest",
-		RabbitPassword: "guest",
-		PublishPort:    "9090",
-		OutputFormat:   "TTY", //JSON
+		RabbitURL:          "http://localhost:15672",
+		RabbitUsername:     "guest",
+		RabbitPassword:     "guest",
+		PublishPort:        "9090",
+		OutputFormat:       "TTY", //JSON
+		CAFile:             "ca.pem",
+		InsecureSkipVerify: false,
 	}
 )
 
 type rabbitExporterConfig struct {
-	RabbitURL      string
-	RabbitUsername string
-	RabbitPassword string
-	PublishPort    string
-	OutputFormat   string
+	RabbitURL          string
+	RabbitUsername     string
+	RabbitPassword     string
+	PublishPort        string
+	OutputFormat       string
+	CAFile             string
+	InsecureSkipVerify bool
 }
 
 func initConfig() {
@@ -51,5 +55,12 @@ func initConfig() {
 	}
 	if output := os.Getenv("OUTPUT_FORMAT"); output != "" {
 		config.OutputFormat = output
+	}
+
+	if cafile := os.Getenv("CAFILE"); cafile != "" {
+		config.CAFile = cafile
+	}
+	if insecureSkipVerify := os.Getenv("SKIPVERIFY"); insecureSkipVerify == "true" || insecureSkipVerify == "1" {
+		config.InsecureSkipVerify = true
 	}
 }
