@@ -33,6 +33,7 @@ func loadMetrics(config rabbitExporterConfig, endpoint string) (*json.Decoder, e
 	if err != nil {
 		return nil, err
 	}
+	log.WithFields(log.Fields{"body": string(body), "endpoint": endpoint}).Debug("Metrics loaded")
 
 	return json.NewDecoder(bytes.NewBuffer(body)), nil
 }
