@@ -151,6 +151,7 @@ func TestWholeApp(t *testing.T) {
 
 	exporter := newExporter()
 	prometheus.MustRegister(exporter)
+	defer prometheus.Unregister(exporter)
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
@@ -168,4 +169,30 @@ func TestWholeApp(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_queue_disk_writes{queue="myQueue1",vhost="/"} 6`)
 	expectSubstring(t, body, `rabbitmq_up 1`)
 	expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{queue="myQueue1",vhost="/"} 0`)
+
+}
+
+func TestRabbitError(t *testing.T) {
+	server := createTestserver(500, http.StatusText(500))
+	defer server.Close()
+	os.Setenv("RABBIT_URL", server.URL)
+	initConfig()
+
+	exporter := newExporter()
+	prometheus.MustRegister(exporter)
+	defer prometheus.Unregister(exporter)
+
+	req, _ := http.NewRequest("GET", "", nil)
+	w := httptest.NewRecorder()
+	prometheus.Handler().ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("Home page didn't return %v", http.StatusOK)
+	}
+	body := w.Body.String()
+	// fmt.Println(body)
+	expectSubstring(t, body, `rabbitmq_up 0`)
+	if strings.Contains(body, "rabbitmq_channelsTotal") {
+		t.Errorf("Metric 'rabbitmq_channelsTotal' unexpected as the server  did not respond")
+	}
 }

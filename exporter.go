@@ -14,6 +14,9 @@ type exporter struct {
 	overviewMetrics     map[string]prometheus.Gauge
 	upMetric            prometheus.Gauge
 	exchangeMetrics     map[string]*prometheus.CounterVec
+	overviewFetched     bool
+	queuesFetched       bool
+	exchangesFetched    bool
 }
 
 func newExporter() *exporter {
@@ -30,6 +33,10 @@ func (e *exporter) fetchRabbit() {
 	rabbitMqOverviewData, overviewError := getMetricMap(config, "overview")
 	rabbitMqQueueData, queueError := getStatsInfo(config, "queues")
 	exchangeData, exchangeError := getStatsInfo(config, "exchanges")
+
+	e.overviewFetched = overviewError == nil
+	e.queuesFetched = queueError == nil
+	e.exchangesFetched = exchangeError == nil
 
 	if overviewError != nil || queueError != nil || exchangeError != nil {
 		e.upMetric.Set(0)
@@ -64,6 +71,7 @@ func (e *exporter) fetchRabbit() {
 				log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
 				countvec.WithLabelValues(queue.vhost, queue.name).Set(value)
 			} else {
+				countvec.WithLabelValues(queue.vhost, queue.name).Set(0)
 				//log.WithFields(log.Fields{"queue": queue, "key": key}).Warn("Queue data not found")
 			}
 		}
@@ -97,6 +105,9 @@ func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 	for _, exchangeMetric := range e.exchangeMetrics {
 		exchangeMetric.Describe(ch)
 	}
+
+	e.upMetric.Describe(ch)
+	BuildInfo.Describe(ch)
 }
 
 func (e *exporter) Collect(ch chan<- prometheus.Metric) {
@@ -117,20 +128,25 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 
 	e.upMetric.Collect(ch)
 
-	for _, gauge := range e.overviewMetrics {
-		gauge.Collect(ch)
+	if e.overviewFetched {
+		for _, gauge := range e.overviewMetrics {
+			gauge.Collect(ch)
+		}
 	}
 
-	for _, gaugevec := range e.queueMetricsGauge {
-		gaugevec.Collect(ch)
-	}
-	for _, countervec := range e.queueMetricsCounter {
-		countervec.Collect(ch)
-	}
-
-	for _, exchangeMetric := range e.exchangeMetrics {
-		exchangeMetric.Collect(ch)
+	if e.queuesFetched {
+		for _, gaugevec := range e.queueMetricsGauge {
+			gaugevec.Collect(ch)
+		}
+		for _, countervec := range e.queueMetricsCounter {
+			countervec.Collect(ch)
+		}
 	}
 
+	if e.exchangesFetched {
+		for _, exchangeMetric := range e.exchangeMetrics {
+			exchangeMetric.Collect(ch)
+		}
+	}
 	BuildInfo.Collect(ch)
 }
