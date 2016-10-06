@@ -32,6 +32,8 @@ Settings:
 * PUBLISH_PORT:    "9090",
 * OUTPUT_FORMAT:   "TTY", //change to JSON if needed
 * LOG_LEVEL:       "info", // can be "debug", "info", "warning", "error", "fatal", or "panic"
+* CAFILE:          "ca.pem", // default is ca.pem. If file does not exist it will be ignored.
+* SKIPVERIFY:      false or 0, true or 1 // will skip hostname/certificate check at all
 
 Example
 

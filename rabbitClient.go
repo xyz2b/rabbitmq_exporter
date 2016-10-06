@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -12,6 +14,31 @@ import (
 )
 
 var client = &http.Client{Timeout: 10 * time.Second}
+
+func InitClient() {
+	roots := x509.NewCertPool()
+
+	if data, err := ioutil.ReadFile(config.CAFile); err == nil {
+		if !roots.AppendCertsFromPEM(data) {
+			log.WithField("filename", config.CAFile).Error("Adding certificate to rootCAs failed")
+		}
+	} else {
+		log.Info("Using default certificate pool")
+	}
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: config.InsecureSkipVerify,
+			RootCAs:            roots,
+		},
+	}
+
+	client = &http.Client{
+		Transport: tr,
+		Timeout:   10 * time.Second,
+	}
+
+}
 
 func loadMetrics(config rabbitExporterConfig, endpoint string) (*json.Decoder, error) {
 	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint, nil)
