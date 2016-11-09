@@ -39,43 +39,33 @@ var (
 	}
 
 	queueCounterVec = map[string]*prometheus.CounterVec{
-		"disk_reads":                  newCounterVec("queue_disk_reads", "Total number of times messages have been read from disk by this queue since it started.", queueLabels),
-		"disk_writes":                 newCounterVec("queue_disk_writes", "Total number of times messages have been written to disk by this queue since it started.", queueLabels),
-		"message_stats.publish":       newCounterVec("queue_messages_published_total", "Count of messages published.", queueLabels),
-		"message_stats.confirm":       newCounterVec("queue_messages_confirmed_total", "Count of messages confirmed. ", queueLabels),
-		"message_stats.deliver":       newCounterVec("queue_messages_delivered_total", "Count of messages delivered in acknowledgement mode to consumers.", queueLabels),
-		"message_stats.deliver_noack": newCounterVec("queue_messages_delivered_noack_total", "Count of messages delivered in no-acknowledgement mode to consumers. ", queueLabels),
-		"message_stats.get":           newCounterVec("queue_messages_get_total", "Count of messages delivered in acknowledgement mode in response to basic.get.", queueLabels),
-		"message_stats.get_noack":     newCounterVec("queue_messages_get_noack_total", "Count of messages delivered in no-acknowledgement mode in response to basic.get.", queueLabels),
-		"message_stats.redeliver":     newCounterVec("queue_messages_redelivered_total", "Count of subset of messages in deliver_get which had the redelivered flag set.", queueLabels),
-		"message_stats.return":        newCounterVec("queue_messages_returned_total", "Count of messages returned to publisher as unroutable.", queueLabels),
+		"disk_reads":                  newDesc("queue_disk_reads", "Total number of times messages have been read from disk by this queue since it started.", queueLabels),
+		"disk_writes":                 newDesc("queue_disk_writes", "Total number of times messages have been written to disk by this queue since it started.", queueLabels),
+		"message_stats.publish":       newDesc("queue_messages_published_total", "Count of messages published.", queueLabels),
+		"message_stats.confirm":       newDesc("queue_messages_confirmed_total", "Count of messages confirmed. ", queueLabels),
+		"message_stats.deliver":       newDesc("queue_messages_delivered_total", "Count of messages delivered in acknowledgement mode to consumers.", queueLabels),
+		"message_stats.deliver_noack": newDesc("queue_messages_delivered_noack_total", "Count of messages delivered in no-acknowledgement mode to consumers. ", queueLabels),
+		"message_stats.get":           newDesc("queue_messages_get_total", "Count of messages delivered in acknowledgement mode in response to basic.get.", queueLabels),
+		"message_stats.get_noack":     newDesc("queue_messages_get_noack_total", "Count of messages delivered in no-acknowledgement mode in response to basic.get.", queueLabels),
+		"message_stats.redeliver":     newDesc("queue_messages_redelivered_total", "Count of subset of messages in deliver_get which had the redelivered flag set.", queueLabels),
+		"message_stats.return":        newDesc("queue_messages_returned_total", "Count of messages returned to publisher as unroutable.", queueLabels),
 	}
 
 	exchangeCounterVec = map[string]*prometheus.CounterVec{
-		"message_stats.publish":           newCounterVec("exchange_messages_published_total", "Count of messages published.", exchangeLabels),
-		"message_stats.publish_in":        newCounterVec("exchange_messages_published_in_total", "Count of messages published in to an exchange, i.e. not taking account of routing.", exchangeLabels),
-		"message_stats.publish_out":       newCounterVec("exchange_messages_published_out_total", "Count of messages published out of an exchange, i.e. taking account of routing.", exchangeLabels),
-		"message_stats.confirm":           newCounterVec("exchange_messages_confirmed_total", "Count of messages confirmed. ", exchangeLabels),
-		"message_stats.deliver":           newCounterVec("exchange_messages_delivered_total", "Count of messages delivered in acknowledgement mode to consumers.", exchangeLabels),
-		"message_stats.deliver_noack":     newCounterVec("exchange_messages_delivered_noack_total", "Count of messages delivered in no-acknowledgement mode to consumers. ", exchangeLabels),
-		"message_stats.get":               newCounterVec("exchange_messages_get_total", "Count of messages delivered in acknowledgement mode in response to basic.get.", exchangeLabels),
-		"message_stats.get_noack":         newCounterVec("exchange_messages_get_noack_total", "Count of messages delivered in no-acknowledgement mode in response to basic.get.", exchangeLabels),
-		"message_stats.ack":               newCounterVec("exchange_messages_ack_total", "Count of messages delivered in acknowledgement mode in response to basic.get.", exchangeLabels),
-		"message_stats.redeliver":         newCounterVec("exchange_messages_redelivered_total", "Count of subset of messages in deliver_get which had the redelivered flag set.", exchangeLabels),
-		"message_stats.return_unroutable": newCounterVec("exchange_messages_returned_total", "Count of messages returned to publisher as unroutable.", exchangeLabels),
+		"message_stats.publish":           newDesc("exchange_messages_published_total", "Count of messages published.", exchangeLabels),
+		"message_stats.publish_in":        newDesc("exchange_messages_published_in_total", "Count of messages published in to an exchange, i.e. not taking account of routing.", exchangeLabels),
+		"message_stats.publish_out":       newDesc("exchange_messages_published_out_total", "Count of messages published out of an exchange, i.e. taking account of routing.", exchangeLabels),
+		"message_stats.confirm":           newDesc("exchange_messages_confirmed_total", "Count of messages confirmed. ", exchangeLabels),
+		"message_stats.deliver":           newDesc("exchange_messages_delivered_total", "Count of messages delivered in acknowledgement mode to consumers.", exchangeLabels),
+		"message_stats.deliver_noack":     newDesc("exchange_messages_delivered_noack_total", "Count of messages delivered in no-acknowledgement mode to consumers. ", exchangeLabels),
+		"message_stats.get":               newDesc("exchange_messages_get_total", "Count of messages delivered in acknowledgement mode in response to basic.get.", exchangeLabels),
+		"message_stats.get_noack":         newDesc("exchange_messages_get_noack_total", "Count of messages delivered in no-acknowledgement mode in response to basic.get.", exchangeLabels),
+		"message_stats.ack":               newDesc("exchange_messages_ack_total", "Count of messages delivered in acknowledgement mode in response to basic.get.", exchangeLabels),
+		"message_stats.redeliver":         newDesc("exchange_messages_redelivered_total", "Count of subset of messages in deliver_get which had the redelivered flag set.", exchangeLabels),
+		"message_stats.return_unroutable": newDesc("exchange_messages_returned_total", "Count of messages returned to publisher as unroutable.", exchangeLabels),
 	}
 )
 
-func newCounterVec(metricName string, docString string, labels []string) *prometheus.CounterVec {
-	return prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: namespace,
-			Name:      metricName,
-			Help:      docString,
-		},
-		labels,
-	)
-}
 func newGaugeVec(metricName string, docString string, labels []string) *prometheus.GaugeVec {
 	return prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -95,4 +85,12 @@ func newGauge(metricName string, docString string) prometheus.Gauge {
 			Help:      docString,
 		},
 	)
+}
+
+func newDesc(metricName string, docString string, labels []string) *prometheus.Desc {
+	return prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", metricName),
+		docString,
+		labels,
+		nil)
 }
