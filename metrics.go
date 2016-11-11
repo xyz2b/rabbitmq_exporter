@@ -38,7 +38,7 @@ var (
 		"memory":                       newGaugeVec("queue_memory", "Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures.", queueLabels),
 	}
 
-	queueCounterVec = map[string]*prometheus.CounterVec{
+	queueCounterVec = map[string]*prometheus.Desc{
 		"disk_reads":                  newDesc("queue_disk_reads", "Total number of times messages have been read from disk by this queue since it started.", queueLabels),
 		"disk_writes":                 newDesc("queue_disk_writes", "Total number of times messages have been written to disk by this queue since it started.", queueLabels),
 		"message_stats.publish":       newDesc("queue_messages_published_total", "Count of messages published.", queueLabels),
@@ -51,7 +51,7 @@ var (
 		"message_stats.return":        newDesc("queue_messages_returned_total", "Count of messages returned to publisher as unroutable.", queueLabels),
 	}
 
-	exchangeCounterVec = map[string]*prometheus.CounterVec{
+	exchangeCounterVec = map[string]*prometheus.Desc{
 		"message_stats.publish":           newDesc("exchange_messages_published_total", "Count of messages published.", exchangeLabels),
 		"message_stats.publish_in":        newDesc("exchange_messages_published_in_total", "Count of messages published in to an exchange, i.e. not taking account of routing.", exchangeLabels),
 		"message_stats.publish_out":       newDesc("exchange_messages_published_out_total", "Count of messages published out of an exchange, i.e. taking account of routing.", exchangeLabels),
