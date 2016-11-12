@@ -1,4 +1,4 @@
-go: 1.7.1
+go: 1.7.3
 verbose: true
 repository:
     path: github.com/kbudde/rabbitmq_exporter

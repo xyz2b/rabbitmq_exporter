@@ -21,7 +21,7 @@ DOCKER_IMAGE_NAME       ?= rabbitmq-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 
 
-all: format build test
+all: format test build
 
 style:
 	@echo ">> checking code style"
