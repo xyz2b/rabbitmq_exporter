@@ -129,6 +129,12 @@ func expectSubstring(t *testing.T, body string, substr string) {
 	}
 }
 
+func dontExpectSubstring(t *testing.T, body string, substr string) {
+	if strings.Contains(body, substr) {
+		t.Errorf("Substring not expected but found. Substr=%v", substr)
+	}
+}
+
 func TestWholeApp(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -147,6 +153,7 @@ func TestWholeApp(t *testing.T) {
 	}))
 	defer server.Close()
 	os.Setenv("RABBIT_URL", server.URL)
+	os.Setenv("SKIP_QUEUES", "^.*3$")
 	initConfig()
 
 	exporter := newExporter()
@@ -163,7 +170,7 @@ func TestWholeApp(t *testing.T) {
 	// fmt.Println(body)
 	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready{queue="myQueue2",vhost="/"} 25`)
-	expectSubstring(t, body, `rabbitmq_queue_message_bytes_persistent{queue="myQueue3",vhost="/"} 207`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_message_bytes_persistent{queue="myQueue3",vhost="/"} 207`)
 	expectSubstring(t, body, `rabbitmq_queue_memory{queue="myQueue4",vhost="vhost4"} 13912`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_published_total{queue="myQueue1",vhost="/"} 6`)
 	expectSubstring(t, body, `rabbitmq_queue_disk_writes{queue="myQueue1",vhost="/"} 6`)
