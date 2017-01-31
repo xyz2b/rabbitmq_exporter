@@ -78,6 +78,12 @@ func addFields(toMap *MetricMap, basename string, source map[string]interface{})
 			(*toMap)[prefix+k] = value
 		case map[string]interface{}:
 			addFields(toMap, prefix+k, value)
+        case bool:
+            if value {
+                (*toMap)[prefix+k] = 1
+            } else {
+                (*toMap)[prefix+k] = 0
+            }
 		}
 	}
 }

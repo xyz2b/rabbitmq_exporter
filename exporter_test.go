@@ -121,6 +121,45 @@ const (
     "internal": false,
     "arguments": {}
 }]`
+nodesAPIResponse = `[{
+    "mem_used": 150456032,
+    "mem_used_details": {
+      "rate": 25176
+    },
+    "fd_used": 55,
+    "fd_used_details": {
+      "rate": 0
+    },
+    "sockets_used": 0,
+    "sockets_used_details": {
+      "rate": 0
+    },
+    "proc_used": 226,
+    "proc_used_details": {
+      "rate": 0
+    },
+    "disk_free": 189045161984,
+    "disk_free_details": {
+      "rate": 0
+    },
+    "partitions": [],
+    "os_pid": "113",
+    "fd_total": 1048576,
+    "sockets_total": 943626,
+    "mem_limit": 838395494,
+    "mem_alarm": false,
+    "disk_free_limit": 50000000,
+    "disk_free_alarm": false,
+    "proc_total": 1048576,
+    "rates_mode": "basic",
+    "uptime": 3772165,
+    "run_queue": 0,
+    "processors": 4,
+    "name": "my-rabbit@5a00cd8fe2f4",
+    "type": "disc",
+    "running": true
+  }
+]`
 )
 
 func expectSubstring(t *testing.T, body string, substr string) {
@@ -145,6 +184,8 @@ func TestWholeApp(t *testing.T) {
 			fmt.Fprintln(w, queuesTestData)
 		} else if r.RequestURI == "/api/exchanges" {
 			fmt.Fprintln(w, exchangeAPIResponse)
+		} else if r.RequestURI == "/api/nodes" {
+			fmt.Fprintln(w, nodesAPIResponse)
 		} else {
 			t.Errorf("Invalid request. URI=%v", r.RequestURI)
 			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)

@@ -9,6 +9,7 @@ const (
 var (
 	queueLabels    = []string{"vhost", "queue"}
 	exchangeLabels = []string{"vhost", "exchange"}
+	nodeLabels = []string{"vhost", "node"}
 
 	upMetricDescription = newGauge("up", "Was the last scrape of rabbitmq successful.")
 
@@ -49,6 +50,20 @@ var (
 		"message_stats.get_noack":     newDesc("queue_messages_get_noack_total", "Count of messages delivered in no-acknowledgement mode in response to basic.get.", queueLabels),
 		"message_stats.redeliver":     newDesc("queue_messages_redelivered_total", "Count of subset of messages in deliver_get which had the redelivered flag set.", queueLabels),
 		"message_stats.return":        newDesc("queue_messages_returned_total", "Count of messages returned to publisher as unroutable.", queueLabels),
+	}
+
+	nodeCounterVec = map[string]*prometheus.Desc{
+        "running":                     newDesc("running", "test", nodeLabels),
+		"mem_used":                    newDesc("node_mem_used", "Memory used in bytes", nodeLabels),
+		"mem_limit":                   newDesc("node_mem_limit", "Point at which the memory alarm will go off", nodeLabels),
+		"mem_alarm":                   newDesc("node_mem_alarm", "Whether the memory alarm has gone off", nodeLabels),
+		"disk_free":                   newDesc("node_disk_free", "Disk free space in bytes.", nodeLabels),
+		"disk_free_alarm":             newDesc("node_disk_free_alarm", "Whether the disk alarm has gone off.", nodeLabels),
+		"disk_free_limit":             newDesc("node_disk_free_limit", "Point at which the disk alarm will go off.", nodeLabels),
+		"fd_used":                     newDesc("fd_used", "Used File descriptors", nodeLabels),
+		"fd_limit":                    newDesc("fd_limit", "File descriptors available", nodeLabels),
+		"socket_used":                 newDesc("socket_used", "File descriptors used as sockets.", nodeLabels),
+		"socket_limit":                newDesc("socket_limit", "File descriptors available for use as sockets", nodeLabels),
 	}
 
 	exchangeCounterVec = map[string]*prometheus.Desc{
