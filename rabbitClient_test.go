@@ -105,8 +105,8 @@ func TestExchanges(t *testing.T) {
 	expect(t, exchanges[0].vhost, "/")
 	expect(t, exchanges[1].name, "amq.direct")
 	expect(t, exchanges[1].vhost, "/")
-	expect(t, len(exchanges[0].metrics), 0)
-	expect(t, len(exchanges[1].metrics), 0)
+	expect(t, len(exchanges[0].metrics), 3)
+	expect(t, len(exchanges[1].metrics), 3)
 
 	expect(t, exchanges[8].name, "myExchange")
 	expect(t, exchanges[8].vhost, "/")
