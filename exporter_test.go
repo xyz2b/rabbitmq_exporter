@@ -121,7 +121,7 @@ const (
     "internal": false,
     "arguments": {}
 }]`
-nodesAPIResponse = `[{
+	nodesAPIResponse = `[{
     "mem_used": 150456032,
     "mem_used_details": {
       "rate": 25176
