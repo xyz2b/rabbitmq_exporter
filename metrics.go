@@ -37,6 +37,7 @@ var (
 		"consumers":                    newGaugeVec("queue_consumers", "Number of consumers.", queueLabels),
 		"consumer_utilisation":         newGaugeVec("queue_consumer_utilisation", "Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count.", queueLabels),
 		"memory":                       newGaugeVec("queue_memory", "Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures.", queueLabels),
+		"head_message_timestamp":       newGaugeVec("queue_head_message_timestamp", "The timestamp property of the first message in the queue, if present. Timestamps of messages only appear when they are in the paged-in state.", queueLabels), //https://github.com/rabbitmq/rabbitmq-server/pull/54
 	}
 
 	queueCounterVec = map[string]*prometheus.Desc{

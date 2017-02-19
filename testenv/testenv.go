@@ -87,7 +87,7 @@ func (tenv *TestEnvironment) AmqpURL(withCred bool) string {
 	return fmt.Sprintf("amqp://localhost:%s", tenv.resource.GetPort("5672/tcp"))
 }
 
-// GetURL fetches the url. Will fail after timeout.
+// GetURL fetches the url. Will return error.
 func GetURL(url string, timeout time.Duration) (string, error) {
 	maxTime := time.Duration(timeout)
 	client := http.Client{
@@ -104,6 +104,7 @@ func GetURL(url string, timeout time.Duration) (string, error) {
 	return string(body), err
 }
 
+// GetOrDie fetches the url. Will log.Fatal on error/timeout.
 func GetOrDie(url string, timeout time.Duration) string {
 	body, err := GetURL(url, timeout)
 	if err != nil {
