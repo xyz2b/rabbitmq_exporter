@@ -15,7 +15,7 @@ import (
 
 var client = &http.Client{Timeout: 10 * time.Second}
 
-func InitClient() {
+func initClient() {
 	roots := x509.NewCertPool()
 
 	if data, err := ioutil.ReadFile(config.CAFile); err == nil {

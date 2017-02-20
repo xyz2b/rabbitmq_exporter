@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"strconv"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -13,6 +14,8 @@ type MetricMap map[string]float64
 type StatsInfo struct {
 	name    string
 	vhost   string
+	policy  string
+	durable string
 	metrics MetricMap
 }
 
@@ -35,9 +38,18 @@ func MakeStatsInfo(d *json.Decoder) []StatsInfo {
 		if name, ok := el["name"]; ok {
 			statsinfo := StatsInfo{}
 			statsinfo.name = name.(string)
+
 			if vhost, ok := el["vhost"]; ok {
 				statsinfo.vhost = vhost.(string)
 			}
+
+			if value, ok := el["durable"]; ok && value != nil {
+				statsinfo.durable = strconv.FormatBool(value.(bool))
+			}
+			if value, ok := el["policy"]; ok && value != nil {
+				statsinfo.policy = value.(string)
+			}
+
 			statsinfo.metrics = make(MetricMap)
 			addFields(&statsinfo.metrics, "", el)
 			statistics = append(statistics, statsinfo)

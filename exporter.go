@@ -3,10 +3,11 @@ package main
 import (
 	"sync"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/prometheus/client_golang/prometheus"
 	"regexp"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type exporter struct {
@@ -65,11 +66,11 @@ func (e *exporter) fetchRabbit(ch chan<- prometheus.Metric) {
 	for key, gaugevec := range e.queueMetricsGauge {
 		for _, queue := range rabbitMqQueueData {
 			if value, ok := queue.metrics[key]; ok {
-				if match_include, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(queue.name)); match_include {
-					if match_skip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(queue.name)); !match_skip {
+				if matchInclude, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(queue.name)); matchInclude {
+					if matchSkip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(queue.name)); !matchSkip {
 
 						log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
-						gaugevec.WithLabelValues(queue.vhost, queue.name).Set(value)
+						gaugevec.WithLabelValues(queue.vhost, queue.name, queue.durable, queue.policy).Set(value)
 					}
 				}
 			}
@@ -78,14 +79,14 @@ func (e *exporter) fetchRabbit(ch chan<- prometheus.Metric) {
 
 	for key, countvec := range e.queueMetricsCounter {
 		for _, queue := range rabbitMqQueueData {
-			if match_include, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(queue.name)); match_include {
-				if match_skip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(queue.name)); !match_skip {
+			if matchInclude, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(queue.name)); matchInclude {
+				if matchSkip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(queue.name)); !matchSkip {
 
 					if value, ok := queue.metrics[key]; ok {
 						log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
-						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, queue.vhost, queue.name)
+						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, queue.vhost, queue.name, queue.durable, queue.policy)
 					} else {
-						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, queue.vhost, queue.name)
+						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, queue.vhost, queue.name, queue.durable, queue.policy)
 					}
 				}
 			}
