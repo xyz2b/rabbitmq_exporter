@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"net/http"
 	"os"
 	"strings"
@@ -40,14 +41,15 @@ func main() {
 	})
 
 	log.WithFields(log.Fields{
-		"PUBLISH_PORT":  config.PublishPort,
-		"RABBIT_URL":    config.RabbitURL,
-		"RABBIT_USER":   config.RabbitUsername,
-		"OUTPUT_FORMAT": config.OutputFormat,
-		"VERSION":       Version,
-		"REVISION":      Revision,
-		"BRANCH":        Branch,
-		"BUILD_DATE":    BuildDate,
+		"PUBLISH_PORT":        config.PublishPort,
+		"RABBIT_URL":          config.RabbitURL,
+		"RABBIT_USER":         config.RabbitUsername,
+		"OUTPUT_FORMAT":       config.OutputFormat,
+		"RABBIT_CAPABILITIES": formatCapabilities(config.RabbitCapabilities),
+		"VERSION":             Version,
+		"REVISION":            Revision,
+		"BRANCH":              Branch,
+		"BUILD_DATE":          BuildDate,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Starting RabbitMQ exporter")
 
@@ -61,4 +63,17 @@ func getLogLevel() log.Level {
 		level = defaultLogLevel
 	}
 	return level
+}
+
+func formatCapabilities(caps rabbitCapabilitySet) string {
+	var buffer bytes.Buffer
+	first := true
+	for k, _ := range caps {
+		if !first {
+			buffer.WriteString(",")
+		}
+		first = false
+		buffer.WriteString(string(k))
+	}
+	return buffer.String()
 }

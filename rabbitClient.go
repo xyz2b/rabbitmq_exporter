@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -40,7 +38,7 @@ func initClient() {
 
 }
 
-func loadMetrics(config rabbitExporterConfig, endpoint string) (*json.Decoder, error) {
+func loadMetrics(config rabbitExporterConfig, endpoint string) (RabbitReply, error) {
 	var args string
 	enabled, exists := config.RabbitCapabilities[rabbitCapNoSort]
 	if enabled && exists {
@@ -49,6 +47,7 @@ func loadMetrics(config rabbitExporterConfig, endpoint string) (*json.Decoder, e
 
 	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint+args, nil)
 	req.SetBasicAuth(config.RabbitUsername, config.RabbitPassword)
+	req.Header.Add("Accept", acceptContentType(config))
 
 	resp, err := client.Do(req)
 
@@ -68,18 +67,18 @@ func loadMetrics(config rabbitExporterConfig, endpoint string) (*json.Decoder, e
 	}
 	log.WithFields(log.Fields{"body": string(body), "endpoint": endpoint}).Debug("Metrics loaded")
 
-	return json.NewDecoder(bytes.NewBuffer(body)), nil
+	return MakeReply(config, body)
 }
 
 func getStatsInfo(config rabbitExporterConfig, apiEndpoint string) ([]StatsInfo, error) {
 	var q []StatsInfo
 
-	d, err := loadMetrics(config, apiEndpoint)
+	reply, err := loadMetrics(config, apiEndpoint)
 	if err != nil {
 		return q, err
 	}
 
-	q = MakeStatsInfo(d)
+	q = reply.MakeStatsInfo()
 
 	return q, nil
 }
@@ -87,10 +86,17 @@ func getStatsInfo(config rabbitExporterConfig, apiEndpoint string) ([]StatsInfo,
 func getMetricMap(config rabbitExporterConfig, apiEndpoint string) (MetricMap, error) {
 	var overview MetricMap
 
-	d, err := loadMetrics(config, apiEndpoint)
+	reply, err := loadMetrics(config, apiEndpoint)
 	if err != nil {
 		return overview, err
 	}
 
-	return MakeMap(d), nil
+	return reply.MakeMap(), nil
+}
+
+func acceptContentType(config rabbitExporterConfig) string {
+	if isCapEnabled(config, rabbitCapBert) {
+		return "application/bert"
+	}
+	return "application/json"
 }

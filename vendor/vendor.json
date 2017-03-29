@@ -27,6 +27,12 @@
 			"revisionTime": "2016-11-19T08:28:11Z"
 		},
 		{
+			"checksumSHA1": "aFRmOoohKqT5mpLuoh/0KkAky2Q=",
+			"path": "github.com/landonia/gobert",
+			"revision": "421b9bb95e9ed5876d367a4c3b5c790d2af3e7ca",
+			"revisionTime": "2017-04-11T12:47:30Z"
+		},
+		{
 			"checksumSHA1": "bKMZjd2wPw13VwoE7mBeSv5djFA=",
 			"path": "github.com/matttproud/golang_protobuf_extensions/pbutil",
 			"revision": "c12348ce28de40eed0136aa2b644d0ee0650e56c",

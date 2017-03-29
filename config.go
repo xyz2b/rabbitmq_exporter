@@ -41,10 +41,12 @@ type rabbitCapabilitySet map[rabbitCapability]bool
 
 const (
 	rabbitCapNoSort rabbitCapability = "no_sort"
+	rabbitCapBert   rabbitCapability = "bert"
 )
 
 var allRabbitCapabilities = rabbitCapabilitySet{
 	rabbitCapNoSort: true,
+	rabbitCapBert:   true,
 }
 
 func initConfig() {
@@ -53,7 +55,6 @@ func initConfig() {
 		if valid, _ := regexp.MatchString("https?://[a-zA-Z.0-9]+", strings.ToLower(url)); valid {
 			config.RabbitURL = url
 		}
-
 	}
 
 	if user := os.Getenv("RABBIT_USER"); user != "" {
@@ -105,4 +106,9 @@ func parseCapabilities(raw string) rabbitCapabilitySet {
 		}
 	}
 	return result
+}
+
+func isCapEnabled(config rabbitExporterConfig, cap rabbitCapability) bool {
+	exists, enabled := config.RabbitCapabilities[cap]
+	return exists && enabled
 }

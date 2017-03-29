@@ -1,35 +1,33 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
 )
 
-//MetricMap maps name to float64 metric
-type MetricMap map[string]float64
+type rabbitJSONReply struct {
+	decoder *json.Decoder
+}
 
-//StatsInfo describes  one statistic (queue or exchange): its name, vhost it belongs to, and all associated metrics.
-type StatsInfo struct {
-	name    string
-	vhost   string
-	policy  string
-	durable string
-	metrics MetricMap
+func MakeJSONReply(body []byte) RabbitReply {
+	decoder := json.NewDecoder(bytes.NewBuffer(body))
+	return &rabbitJSONReply{decoder}
 }
 
 //MakeStatsInfo creates a slice of StatsInfo from json input. Only keys with float values are mapped into `metrics`.
-func MakeStatsInfo(d *json.Decoder) []StatsInfo {
+func (rep *rabbitJSONReply) MakeStatsInfo() []StatsInfo {
 	var statistics []StatsInfo
 	var jsonArr []map[string]interface{}
 
-	if d == nil {
+	if rep.decoder == nil {
 		log.Error("JSON decoder not iniatilized")
 		return make([]StatsInfo, 0)
 	}
 
-	if err := d.Decode(&jsonArr); err != nil {
+	if err := rep.decoder.Decode(&jsonArr); err != nil {
 		log.WithField("error", err).Error("Error while decoding json")
 		return make([]StatsInfo, 0)
 	}
@@ -60,16 +58,16 @@ func MakeStatsInfo(d *json.Decoder) []StatsInfo {
 }
 
 //MakeMap creates a map from json input. Only keys with float values are mapped.
-func MakeMap(d *json.Decoder) MetricMap {
+func (rep *rabbitJSONReply) MakeMap() MetricMap {
 	flMap := make(MetricMap)
 	var output map[string]interface{}
 
-	if d == nil {
+	if rep.decoder == nil {
 		log.Error("JSON decoder not iniatilized")
 		return flMap
 	}
 
-	if err := d.Decode(&output); err != nil {
+	if err := rep.decoder.Decode(&output); err != nil {
 		log.WithField("error", err).Error("Error while decoding json")
 		return flMap
 	}

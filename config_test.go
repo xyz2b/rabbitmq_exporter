@@ -95,7 +95,7 @@ func TestConfig_Capabilities(t *testing.T) {
 		t.Error("Capability set should be empty by default")
 	}
 
-	var needToSupport = []rabbitCapability{"no_sort"}
+	var needToSupport = []rabbitCapability{"no_sort", "bert"}
 	for _, cap := range needToSupport {
 		os.Setenv("RABBIT_CAPABILITIES", "junk_cap, another_with_spaces_around ,  "+string(cap)+", done")
 		initConfig()

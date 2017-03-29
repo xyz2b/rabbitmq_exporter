@@ -1,26 +1,17 @@
 package main
 
 import (
-	"encoding/json"
-	"strings"
 	"testing"
 )
 
 func TestWithInvalidJSON(t *testing.T) {
-	invalidJSONDecoder := json.NewDecoder(strings.NewReader("I'm no json"))
+	invalidJSONReply := MakeJSONReply([]byte("I'm no json"))
 
-	if mm := MakeMap(invalidJSONDecoder); mm == nil {
+	if mm := invalidJSONReply.MakeMap(); mm == nil {
 		t.Errorf("Json is invalid. Empty map should be returned. Value: %v", mm)
 	}
-	if qi := MakeStatsInfo(invalidJSONDecoder); qi == nil {
+	if qi := invalidJSONReply.MakeStatsInfo(); qi == nil {
 		t.Errorf("Json is invalid. Empty map should be returned. Value: %v", qi)
-	}
-
-	if mm := MakeMap(nil); mm == nil {
-		t.Errorf("Empty map should be returned. Value: %v", mm)
-	}
-	if qi := MakeStatsInfo(nil); qi == nil {
-		t.Errorf("Empty map should be returned.. Value: %v", qi)
 	}
 }
 
@@ -43,18 +34,16 @@ func checkMap(flMap map[string]float64, t *testing.T, addValue float64) {
 }
 
 func TestMakeMap(t *testing.T) {
-	jsonObject := strings.NewReader(`{"FloatKey":4, "st":"string","nes":{"ted":5}}`)
-	decoder := json.NewDecoder(jsonObject)
+	reply := MakeJSONReply([]byte(`{"FloatKey":4, "st":"string","nes":{"ted":5}}`))
 
-	flMap := MakeMap(decoder)
+	flMap := reply.MakeMap()
 	checkMap(flMap, t, 0)
 }
 
 func TestMakeStatsInfo(t *testing.T) {
-	jsonArray := strings.NewReader(`[{"name":"q1", "FloatKey":14,"nes":{"ted":15}},{"name":"q2", "vhost":"foo", "FloatKey":24,"nes":{"ted":25}}]`)
-	decoder := json.NewDecoder(jsonArray)
+	reply := MakeJSONReply([]byte(`[{"name":"q1", "FloatKey":14,"nes":{"ted":15}},{"name":"q2", "vhost":"foo", "FloatKey":24,"nes":{"ted":25}}]`))
 
-	qinfo := MakeStatsInfo(decoder)
+	qinfo := reply.MakeStatsInfo()
 	if qinfo[0].name != "q1" {
 		t.Errorf("unexpected qinfo name: %v", qinfo[0].name)
 	}

@@ -55,6 +55,13 @@ following capabilities are currently supported in
   starting from version 3.6.8. This option can be safely enabled on
   earlier 3.6.X versions, but it'll not give any performance
   improvements. And it's incompatible with 3.4.X and 3.5.X.
+* `bert`: Since 3.6.9 (see
+   https://github.com/rabbitmq/rabbitmq-management/pull/367) RabbitMQ
+   supports BERT encoding as a JSON alternative. Given that BERT
+   encoding is implemented in C inside the Erlang VM, it's way more
+   effective than pure-Erlang JSON encoding. So this greatly reduces
+   monitoring overhead when we have a lot of objects in RabbitMQ.
+
 
 ### Metrics
 
