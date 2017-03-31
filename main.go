@@ -24,7 +24,7 @@ func initLogger() {
 func main() {
 	initConfig()
 	initLogger()
-	InitClient()
+	initClient()
 	exporter := newExporter()
 	prometheus.MustRegister(exporter)
 

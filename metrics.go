@@ -7,7 +7,7 @@ const (
 )
 
 var (
-	queueLabels    = []string{"vhost", "queue"}
+	queueLabels    = []string{"vhost", "queue", "durable", "policy"}
 	exchangeLabels = []string{"vhost", "exchange"}
 	nodeLabels     = []string{"vhost", "node"}
 

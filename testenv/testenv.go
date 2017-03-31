@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -111,4 +112,21 @@ func GetOrDie(url string, timeout time.Duration) string {
 		log.Fatalf("Failed to get url in time: %s", err)
 	}
 	return body
+}
+
+// MustSetPolicy adds a policy "name" to the default vhost. On error it will log.Fatal
+func (tenv *TestEnvironment) MustSetPolicy(name string, pattern string) {
+	policy := fmt.Sprintf(`{"pattern":"%s", "definition": {"ha-mode":"all"}, "priority":0, "apply-to": "all"}`, pattern)
+	url := fmt.Sprintf("%s/api/policies/%%2f/%s", tenv.ManagementURL(), name)
+
+	client := &http.Client{}
+	request, err := http.NewRequest("PUT", url, strings.NewReader(policy))
+	request.Header.Add("Content-Type", "application/json")
+	request.ContentLength = int64(len(policy))
+	response, err := client.Do(request)
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		response.Body.Close()
+	}
 }
