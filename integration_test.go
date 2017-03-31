@@ -12,8 +12,6 @@ import (
 
 	"strings"
 
-	"log"
-
 	"github.com/kbudde/rabbitmq_exporter/testenv"
 )
 
@@ -64,7 +62,7 @@ func TestQueueCount(t *testing.T) {
 		env.Rabbit.DeclareQueue(queue, true)
 		timestamp := time.Now()
 		env.Rabbit.SendMessageToQ("Test timestamp", queue, &timestamp)
-		time.Sleep(1 * time.Second) // give rabbitmq management plugin a bit of time
+		time.Sleep(5 * time.Second) // give rabbitmq management plugin a bit of time
 		// log.Println(testenv.GetOrDie(env.ManagementURL()+"/api/queues", 5*time.Second))
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
@@ -72,7 +70,7 @@ func TestQueueCount(t *testing.T) {
 		i := strings.Index(body, search)
 
 		if i == -1 {
-			t.Logf("body: %s,%s", body, search)
+			t.Log(body, search)
 			t.Fatalf("Timestamp not found")
 		}
 	})
@@ -81,14 +79,14 @@ func TestQueueCount(t *testing.T) {
 		queue := "dur-true"
 		env.Rabbit.DeclareQueue("dur-true", true)
 
-		time.Sleep(1 * time.Second) // give rabbitmq management plugin a bit of time
+		time.Sleep(5 * time.Second) // give rabbitmq management plugin a bit of time
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
 		search := fmt.Sprintf(`rabbitmq_queue_messages{durable="true",policy="",queue="%s",vhost="/"} 0`, queue)
 		i := strings.Index(body, search)
 
 		if i == -1 {
-			// t.Logf("body: %s", body, search)
+			t.Log(body, search)
 			t.Fatalf("Queue dur-true not found")
 		}
 	})
@@ -97,7 +95,7 @@ func TestQueueCount(t *testing.T) {
 		queue := "dur-false"
 		env.Rabbit.DeclareQueue("dur-false", false)
 
-		time.Sleep(1 * time.Second) // give rabbitmq management plugin a bit of time
+		time.Sleep(5 * time.Second) // give rabbitmq management plugin a bit of time
 
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
@@ -105,6 +103,7 @@ func TestQueueCount(t *testing.T) {
 		i := strings.Index(body, search)
 
 		if i == -1 {
+			t.Log(body, search)
 			t.Fatalf("Queue dur-false not found")
 		}
 	})
@@ -116,15 +115,15 @@ func TestQueueCount(t *testing.T) {
 		policy := "QueuePolicy"
 		env.MustSetPolicy(policy, "^.*$")
 
-		time.Sleep(1 * time.Second) // give rabbitmq management plugin a bit of time
+		time.Sleep(5 * time.Second) // give rabbitmq management plugin a bit of time
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
 		search := fmt.Sprintf(`rabbitmq_queue_messages{durable="false",policy="%s",queue="%s",vhost="/"} 0`, policy, queue)
 		i := strings.Index(body, search)
-		log.Printf("body: %s", body)
 		if i == -1 {
 			// t.Log(env.ManagementURL())
 			// t.Log(testenv.GetOrDie(env.ManagementURL()+"/api/queues", 5*time.Second))
+			t.Log(body, search)
 			t.Fatalf("Queue with policy not found")
 		}
 
