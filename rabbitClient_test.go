@@ -129,3 +129,35 @@ func TestExchanges(t *testing.T) {
 	}
 	expect(t, len(exchanges), 0)
 }
+
+func TestNoSort(t *testing.T) {
+	assertNoSortRespected(t, false)
+	assertNoSortRespected(t, true)
+}
+
+func assertNoSortRespected(t *testing.T, enabled bool) {
+	var args string
+	if enabled {
+		args = "?sort="
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		if r.RequestURI == "/api/overview"+args {
+			fmt.Fprintln(w, `{"nonFloat":"bob@example.com","float1":1.23456789101112,"number":2}`)
+		} else {
+			t.Errorf("Invalid request with enabled=%s. URI=%v", enabled, r.RequestURI)
+			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
+		}
+
+	}))
+	defer server.Close()
+
+	config := &rabbitExporterConfig{
+		RabbitURL:          server.URL,
+		RabbitCapabilities: rabbitCapabilitySet{rabbitCapNoSort: enabled},
+	}
+
+	getMetricMap(*config, "overview")
+}

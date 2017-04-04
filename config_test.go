@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -82,5 +83,25 @@ func TestConfig_Http_URL(t *testing.T) {
 	initConfig()
 	if config.RabbitURL != url {
 		t.Errorf("Invalid URL. It should start with http(s)://. expected=%v,got=%v", url, config.RabbitURL)
+	}
+}
+
+func TestConfig_Capabilities(t *testing.T) {
+	defer os.Unsetenv("RABBIT_CAPABILITIES")
+
+	os.Unsetenv("RABBIT_CAPABILITIES")
+	initConfig()
+	if !reflect.DeepEqual(config.RabbitCapabilities, make(rabbitCapabilitySet)) {
+		t.Error("Capability set should be empty by default")
+	}
+
+	var needToSupport = []rabbitCapability{"no_sort"}
+	for _, cap := range needToSupport {
+		os.Setenv("RABBIT_CAPABILITIES", "junk_cap, another_with_spaces_around ,  "+string(cap)+", done")
+		initConfig()
+		expected := rabbitCapabilitySet{cap: true}
+		if !reflect.DeepEqual(config.RabbitCapabilities, expected) {
+			t.Errorf("Capability '%s' wasn't properly detected from env", cap)
+		}
 	}
 }

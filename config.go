@@ -19,6 +19,7 @@ var (
 		InsecureSkipVerify: false,
 		SkipQueues:         "^$",
 		IncludeQueues:      ".*",
+		RabbitCapabilities: make(rabbitCapabilitySet),
 	}
 )
 
@@ -32,6 +33,18 @@ type rabbitExporterConfig struct {
 	InsecureSkipVerify bool
 	SkipQueues         string
 	IncludeQueues      string
+	RabbitCapabilities rabbitCapabilitySet
+}
+
+type rabbitCapability string
+type rabbitCapabilitySet map[rabbitCapability]bool
+
+const (
+	rabbitCapNoSort rabbitCapability = "no_sort"
+)
+
+var allRabbitCapabilities = rabbitCapabilitySet{
+	rabbitCapNoSort: true,
 }
 
 func initConfig() {
@@ -75,4 +88,21 @@ func initConfig() {
 	if IncludeQueues := os.Getenv("INCLUDE_QUEUES"); IncludeQueues != "" {
 		config.IncludeQueues = IncludeQueues
 	}
+
+	if rawCapabilities := os.Getenv("RABBIT_CAPABILITIES"); rawCapabilities != "" {
+		config.RabbitCapabilities = parseCapabilities(rawCapabilities)
+	}
+}
+
+func parseCapabilities(raw string) rabbitCapabilitySet {
+	result := make(rabbitCapabilitySet)
+	candidates := strings.Split(raw, ",")
+	for _, maybeCapStr := range candidates {
+		maybeCap := rabbitCapability(strings.TrimSpace(maybeCapStr))
+		enabled, present := allRabbitCapabilities[maybeCap]
+		if enabled && present {
+			result[maybeCap] = true
+		}
+	}
+	return result
 }

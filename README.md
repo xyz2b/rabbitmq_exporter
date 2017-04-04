@@ -36,10 +36,25 @@ Settings:
 * SKIPVERIFY:      false or 0, true or 1 // will skip hostname/certificate check at all
 * INCLUDE_QUEUES:  ".*", // regex, matching queue names are exported
 * SKIP_QUEUES:     "^$", // regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
+* RABBIT_CAPABILITIES: "", // comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
 
 Example
 
     OUTPUT_FORMAT=JSON PUBLISH_PORT=9099 ./rabbitmq_exporter
+
+#### Extended RabbitMQ capabilities
+
+Newer version of RabbitMQ can provide some features that reduce
+overhead imposed by scraping the data needed by this exporter. The
+following capabilities are currently supported in
+`RABBIT_CAPABILITIES` env var:
+
+* `no_sort`: By default RabbitMQ management plugin sorts results using
+  the default sort order of vhost/name. This sorting overhead can be
+  avoided by passing empty sort argument (`?sort=`) to RabbitMQ
+  starting from version 3.6.8. This option can be safely enabled on
+  earlier 3.6.X versions, but it'll not give any performance
+  improvements. And it's incompatible with 3.4.X and 3.5.X.
 
 ### Metrics
 

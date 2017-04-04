@@ -41,7 +41,13 @@ func initClient() {
 }
 
 func loadMetrics(config rabbitExporterConfig, endpoint string) (*json.Decoder, error) {
-	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint, nil)
+	var args string
+	enabled, exists := config.RabbitCapabilities[rabbitCapNoSort]
+	if enabled && exists {
+		args = "?sort="
+	}
+
+	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint+args, nil)
 	req.SetBasicAuth(config.RabbitUsername, config.RabbitPassword)
 
 	resp, err := client.Do(req)
