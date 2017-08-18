@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	bert "github.com/landonia/gobert"
 	"math/big"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/landonia/gobert"
 )
 
 // rabbitBERTReply (along with its RabbitReply interface
@@ -14,7 +15,7 @@ type rabbitBERTReply struct {
 	body []byte
 }
 
-func MakeBERTReply(body []byte) RabbitReply {
+func makeBERTReply(body []byte) RabbitReply {
 	return &rabbitBERTReply{body}
 }
 
@@ -74,7 +75,7 @@ func iterateBertKV(obj interface{}, elemFunc func(string, interface{}) bool) err
 	case []bert.Term:
 		pairs, ok := assertBertProplistPairs(obj)
 		if !ok {
-			return BertError("Doesn't look like a proplist", obj)
+			return bertError("Doesn't look like a proplist", obj)
 		}
 		for _, v := range pairs {
 			key, value, ok := assertBertKeyedTuple(v)
@@ -98,7 +99,7 @@ func iterateBertKV(obj interface{}, elemFunc func(string, interface{}) bool) err
 		}
 		return nil
 	default:
-		return BertError("Can't iterate over non-KV object", obj)
+		return bertError("Can't iterate over non-KV object", obj)
 	}
 }
 
@@ -156,9 +157,8 @@ func parseSingleStatsObject(obj interface{}) (*StatsInfo, bool) {
 	})
 	if err == nil && objectOk {
 		return &result, true
-	} else {
-		return nil, false
 	}
+	return nil, false
 }
 
 // parseProplist descends into an erlang data structure and stores
@@ -306,6 +306,6 @@ func (err *bertDecodeError) Error() string {
 	return fmt.Sprintf("%s while decoding: %s", err.message, err.object)
 }
 
-func BertError(message string, object interface{}) error {
+func bertError(message string, object interface{}) error {
 	return &bertDecodeError{message, object}
 }

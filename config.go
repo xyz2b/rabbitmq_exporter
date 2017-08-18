@@ -1,11 +1,11 @@
 package main
 
 import (
+	"io/ioutil"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
-	"io/ioutil"
 )
 
 var (
@@ -61,28 +61,28 @@ func initConfig() {
 	var user string
 	var pass string
 
-	if (len(os.Getenv("RABBIT_USER_FILE")) != 0) {
+	if len(os.Getenv("RABBIT_USER_FILE")) != 0 {
 		fileContents, err := ioutil.ReadFile(os.Getenv("RABBIT_USER_FILE"))
 		if err != nil {
 			panic(err)
 		}
 		user = strings.TrimSpace(string(fileContents))
 	} else {
-		user = os.Getenv("RABBIT_USER");
+		user = os.Getenv("RABBIT_USER")
 	}
 
 	if user != "" {
 		config.RabbitUsername = user
 	}
 
-	if (len(os.Getenv("RABBIT_PASSWORD_FILE")) != 0) {
+	if len(os.Getenv("RABBIT_PASSWORD_FILE")) != 0 {
 		fileContents, err := ioutil.ReadFile(os.Getenv("RABBIT_PASSWORD_FILE"))
 		if err != nil {
 			panic(err)
 		}
 		pass = strings.TrimSpace(string(fileContents))
 	} else {
-		pass = os.Getenv("RABBIT_PASSWORD");
+		pass = os.Getenv("RABBIT_PASSWORD")
 	}
 	if pass != "" {
 		config.RabbitPassword = pass

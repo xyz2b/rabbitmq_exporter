@@ -5,7 +5,7 @@ import (
 )
 
 func TestWithInvalidJSON(t *testing.T) {
-	invalidJSONReply := MakeJSONReply([]byte("I'm no json"))
+	invalidJSONReply := makeJSONReply([]byte("I'm no json"))
 
 	if mm := invalidJSONReply.MakeMap(); mm == nil {
 		t.Errorf("Json is invalid. Empty map should be returned. Value: %v", mm)
@@ -34,14 +34,14 @@ func checkMap(flMap map[string]float64, t *testing.T, addValue float64) {
 }
 
 func TestMakeMap(t *testing.T) {
-	reply := MakeJSONReply([]byte(`{"FloatKey":4, "st":"string","nes":{"ted":5}}`))
+	reply := makeJSONReply([]byte(`{"FloatKey":4, "st":"string","nes":{"ted":5}}`))
 
 	flMap := reply.MakeMap()
 	checkMap(flMap, t, 0)
 }
 
 func TestMakeStatsInfo(t *testing.T) {
-	reply := MakeJSONReply([]byte(`[{"name":"q1", "FloatKey":14,"nes":{"ted":15}},{"name":"q2", "vhost":"foo", "FloatKey":24,"nes":{"ted":25}}]`))
+	reply := makeJSONReply([]byte(`[{"name":"q1", "FloatKey":14,"nes":{"ted":15}},{"name":"q2", "vhost":"foo", "FloatKey":24,"nes":{"ted":25}}]`))
 
 	qinfo := reply.MakeStatsInfo()
 	if qinfo[0].name != "q1" {

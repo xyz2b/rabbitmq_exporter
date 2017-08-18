@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/kylelemons/godebug/pretty"
 	"io/ioutil"
 	"testing"
+
+	"github.com/kylelemons/godebug/pretty"
 )
 
 func TestStatsEquivalence(t *testing.T) {
@@ -46,8 +47,8 @@ func tryReadFiles(t *testing.T, base, firstExt, secondExt string) ([]byte, []byt
 func assertBertStatsEquivalence(t *testing.T, baseFileName string) {
 	json, bert := tryReadFiles(t, baseFileName, "json", "bert")
 
-	jsonReply := MakeJSONReply(json)
-	bertReply := MakeBERTReply(bert)
+	jsonReply := makeJSONReply(json)
+	bertReply := makeBERTReply(bert)
 
 	bertParsed := bertReply.MakeStatsInfo()
 	jsonParsed := jsonReply.MakeStatsInfo()
@@ -60,8 +61,8 @@ func assertBertStatsEquivalence(t *testing.T, baseFileName string) {
 func assertBertMetricMapEquivalence(t *testing.T, baseFileName string) {
 	json, bert := tryReadFiles(t, baseFileName, "json", "bert")
 
-	jsonReply := MakeJSONReply(json)
-	bertReply := MakeBERTReply(bert)
+	jsonReply := makeJSONReply(json)
+	bertReply := makeBERTReply(bert)
 
 	bertParsed := bertReply.MakeMap()
 	jsonParsed := jsonReply.MakeMap()

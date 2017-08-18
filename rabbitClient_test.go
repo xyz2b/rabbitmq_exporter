@@ -147,7 +147,7 @@ func assertNoSortRespected(t *testing.T, enabled bool) {
 		if r.RequestURI == "/api/overview"+args {
 			fmt.Fprintln(w, `{"nonFloat":"bob@example.com","float1":1.23456789101112,"number":2}`)
 		} else {
-			t.Errorf("Invalid request with enabled=%s. URI=%v", enabled, r.RequestURI)
+			t.Errorf("Invalid request with enabled=%t. URI=%v", enabled, r.RequestURI)
 			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
 		}
 

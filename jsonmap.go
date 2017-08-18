@@ -12,7 +12,7 @@ type rabbitJSONReply struct {
 	decoder *json.Decoder
 }
 
-func MakeJSONReply(body []byte) RabbitReply {
+func makeJSONReply(body []byte) RabbitReply {
 	decoder := json.NewDecoder(bytes.NewBuffer(body))
 	return &rabbitJSONReply{decoder}
 }

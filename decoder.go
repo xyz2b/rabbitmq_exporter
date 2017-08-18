@@ -34,7 +34,7 @@ type RabbitReply interface {
 // reply and the current configuration.
 func MakeReply(config rabbitExporterConfig, body []byte) (RabbitReply, error) {
 	if isCapEnabled(config, rabbitCapBert) {
-		return MakeBERTReply(body), nil
+		return makeBERTReply(body), nil
 	}
-	return MakeJSONReply(body), nil
+	return makeJSONReply(body), nil
 }

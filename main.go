@@ -68,7 +68,7 @@ func getLogLevel() log.Level {
 func formatCapabilities(caps rabbitCapabilitySet) string {
 	var buffer bytes.Buffer
 	first := true
-	for k, _ := range caps {
+	for k := range caps {
 		if !first {
 			buffer.WriteString(",")
 		}
