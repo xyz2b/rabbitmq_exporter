@@ -2,6 +2,7 @@ package main
 
 import (
 	"sync"
+	"time"
 
 	"regexp"
 	"strings"
@@ -18,10 +19,6 @@ type exporter struct {
 	upMetric            prometheus.Gauge
 	exchangeMetrics     map[string]*prometheus.Desc
 	nodeMetricsCounter  map[string]*prometheus.Desc
-	overviewFetched     bool
-	queuesFetched       bool
-	exchangesFetched    bool
-	nodesFetched        bool
 }
 
 func newExporter() *exporter {
@@ -35,21 +32,11 @@ func newExporter() *exporter {
 	}
 }
 
-func (e *exporter) fetchRabbit(ch chan<- prometheus.Metric) {
-	rabbitMqOverviewData, overviewError := getMetricMap(config, "overview")
-	rabbitMqQueueData, queueError := getStatsInfo(config, "queues")
-	exchangeData, exchangeError := getStatsInfo(config, "exchanges")
-	nodeData, nodeError := getStatsInfo(config, "nodes")
+func (e *exporter) fetchOverview(ch chan<- prometheus.Metric) error {
+	rabbitMqOverviewData, err := getMetricMap(config, "overview")
 
-	e.overviewFetched = overviewError == nil
-	e.queuesFetched = queueError == nil
-	e.exchangesFetched = exchangeError == nil
-	e.nodesFetched = nodeError == nil
-
-	if overviewError != nil || queueError != nil || exchangeError != nil || nodeError != nil {
-		e.upMetric.Set(0)
-	} else {
-		e.upMetric.Set(1)
+	if err != nil {
+		return err
 	}
 
 	log.WithField("overviewData", rabbitMqOverviewData).Debug("Overview data")
@@ -60,6 +47,15 @@ func (e *exporter) fetchRabbit(ch chan<- prometheus.Metric) {
 		} else {
 			log.WithFields(log.Fields{"key": key}).Warn("Overview data not found")
 		}
+	}
+	return nil
+}
+
+func (e *exporter) fetchQueue(ch chan<- prometheus.Metric) error {
+	rabbitMqQueueData, err := getStatsInfo(config, "queues")
+
+	if err != nil {
+		return err
 	}
 
 	log.WithField("queueData", rabbitMqQueueData).Debug("Queue data")
@@ -92,6 +88,15 @@ func (e *exporter) fetchRabbit(ch chan<- prometheus.Metric) {
 			}
 		}
 	}
+	return nil
+}
+
+func (e *exporter) fetchExchanges(ch chan<- prometheus.Metric) error {
+	exchangeData, err := getStatsInfo(config, "exchanges")
+
+	if err != nil {
+		return err
+	}
 
 	for key, countvec := range e.exchangeMetrics {
 		for _, exchange := range exchangeData {
@@ -102,6 +107,16 @@ func (e *exporter) fetchRabbit(ch chan<- prometheus.Metric) {
 		}
 	}
 
+	return nil
+}
+
+func (e *exporter) fetchNodes(ch chan<- prometheus.Metric) error {
+	nodeData, err := getStatsInfo(config, "nodes")
+
+	if err != nil {
+		return err
+	}
+
 	for key, countvec := range e.nodeMetricsCounter {
 		for _, node := range nodeData {
 			if value, ok := node.metrics[key]; ok {
@@ -110,8 +125,48 @@ func (e *exporter) fetchRabbit(ch chan<- prometheus.Metric) {
 			}
 		}
 	}
+	return nil
 
-	log.Info("Metrics updated successfully.")
+}
+
+func (e *exporter) FetchRabbit(ch chan<- prometheus.Metric) (overviewFetched, queuesFetched bool) {
+	start := time.Now()
+	allUp := true
+
+	err := e.fetchOverview(ch)
+	overviewFetched = err == nil
+	if err != nil {
+		log.WithError(err).Warn("Overview data was not fetched.")
+		allUp = false
+	}
+
+	err = e.fetchQueue(ch)
+	queuesFetched = err == nil
+	if err != nil {
+		log.WithError(err).Warn("Queue data was not fetched.")
+		allUp = false
+	}
+
+	err = e.fetchExchanges(ch)
+	if err != nil {
+		log.WithError(err).Warn("Exchange data was not fetched.")
+		allUp = false
+	}
+
+	err = e.fetchNodes(ch)
+	if err != nil {
+		log.WithError(err).Warn("Node data was not fetched.")
+		allUp = false
+	}
+
+	if allUp {
+		e.upMetric.Set(1)
+	} else {
+		e.upMetric.Set(0)
+	}
+
+	log.WithField("duration", time.Since(start)).Info("Metrics updated")
+	return
 }
 
 func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
@@ -141,17 +196,16 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 		gaugevec.Reset()
 	}
 
-	e.fetchRabbit(ch)
+	overviewFetched, queuesFetched := e.FetchRabbit(ch)
 
 	e.upMetric.Collect(ch)
-
-	if e.overviewFetched {
+	if overviewFetched {
 		for _, gauge := range e.overviewMetrics {
 			gauge.Collect(ch)
 		}
 	}
 
-	if e.queuesFetched {
+	if queuesFetched {
 		for _, gaugevec := range e.queueMetricsGauge {
 			gaugevec.Collect(ch)
 		}

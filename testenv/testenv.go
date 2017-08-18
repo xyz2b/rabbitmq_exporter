@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -42,6 +43,7 @@ func NewEnvironment(t *testing.T, dockerTag string) TestEnvironment {
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
+
 	tenv.docker = pool
 	tenv.docker.MaxWait = MaxWait
 
@@ -69,6 +71,15 @@ func NewEnvironment(t *testing.T, dockerTag string) TestEnvironment {
 	return tenv
 }
 
+func (tenv *TestEnvironment) getHost() string {
+	url, err := url.Parse(tenv.docker.Client.Endpoint())
+	if err != nil {
+		tenv.t.Fatal("url to docker host could was not parsed:", err)
+		return ""
+	}
+	return url.Hostname()
+}
+
 // CleanUp removes the container. If not called the container will run forever
 func (tenv *TestEnvironment) CleanUp() {
 	if err := tenv.docker.Purge(tenv.resource); err != nil {
@@ -79,13 +90,13 @@ func (tenv *TestEnvironment) CleanUp() {
 //ManagementURL returns the full http url including username/password to the management api in the docker environment.
 // e.g. http://guest:guest@localhost:15672
 func (tenv *TestEnvironment) ManagementURL() string {
-	return fmt.Sprintf("http://guest:guest@localhost:%s", tenv.resource.GetPort("15672/tcp"))
+	return fmt.Sprintf("http://guest:guest@%s:%s", tenv.getHost(), tenv.resource.GetPort("15672/tcp"))
 }
 
 //AmqpURL returns the url to the rabbitmq server
 // e.g. amqp://localhost:5672
 func (tenv *TestEnvironment) AmqpURL(withCred bool) string {
-	return fmt.Sprintf("amqp://localhost:%s", tenv.resource.GetPort("5672/tcp"))
+	return fmt.Sprintf("amqp://%s:%s", tenv.getHost(), tenv.resource.GetPort("5672/tcp"))
 }
 
 // GetURL fetches the url. Will return error.
