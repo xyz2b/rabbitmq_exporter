@@ -17,7 +17,7 @@ type exporterOverview struct {
 	overviewMetrics map[string]prometheus.Gauge
 }
 
-func NewExporterOverview() exporterOverview {
+func newExporterOverview() exporterOverview {
 	return exporterOverview{
 		overviewMetrics: overviewMetricDescription,
 	}

@@ -1,12 +1,12 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
-	exchangeLabels = []string{"vhost", "exchange"}
+	exchangeLabels    = []string{"vhost", "exchange"}
+	exchangeLabelKeys = []string{"vhost", "name"}
 
 	exchangeCounterVec = map[string]*prometheus.Desc{
 		"message_stats.publish":           newDesc("exchange_messages_published_total", "Count of messages published.", exchangeLabels),
@@ -27,7 +27,7 @@ type exporterExchange struct {
 	exchangeMetrics map[string]*prometheus.Desc
 }
 
-func NewExporterExchange() exporterExchange {
+func newExporterExchange() exporterExchange {
 	return exporterExchange{
 		exchangeMetrics: exchangeCounterVec,
 	}
@@ -38,7 +38,7 @@ func (e exporterExchange) String() string {
 }
 
 func (e exporterExchange) Collect(ch chan<- prometheus.Metric) error {
-	exchangeData, err := getStatsInfo(config, "exchanges")
+	exchangeData, err := getStatsInfo(config, "exchanges", exchangeLabelKeys)
 
 	if err != nil {
 		return err
@@ -47,8 +47,8 @@ func (e exporterExchange) Collect(ch chan<- prometheus.Metric) error {
 	for key, countvec := range e.exchangeMetrics {
 		for _, exchange := range exchangeData {
 			if value, ok := exchange.metrics[key]; ok {
-				log.WithFields(log.Fields{"vhost": exchange.vhost, "exchange": exchange.name, "key": key, "value": value}).Debug("Set exchange metric for key")
-				ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, exchange.vhost, exchange.name)
+				// log.WithFields(log.Fields{"vhost": exchange.vhost, "exchange": exchange.name, "key": key, "value": value}).Debug("Set exchange metric for key")
+				ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, exchange.labels["vhost"], exchange.labels["name"])
 			}
 		}
 	}

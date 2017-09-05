@@ -14,6 +14,7 @@ type exporter struct {
 	exporter []Exporter
 }
 
+//Exporter interface for prometheus metrics. Collect is fetching the data and therefore can return an error
 type Exporter interface {
 	Collect(ch chan<- prometheus.Metric) error
 	Describe(ch chan<- *prometheus.Desc)
@@ -25,10 +26,10 @@ func newExporter() *exporter {
 		upMetric: newGauge("up", "Was the last scrape of rabbitmq successful."),
 
 		exporter: []Exporter{
-			NewExporterNode(),
-			NewExporterQueue(),
-			NewExporterOverview(),
-			NewExporterExchange(),
+			newExporterNode(),
+			newExporterQueue(),
+			newExporterOverview(),
+			newExporterExchange(),
 			// NewExporterConnections(),
 		},
 	}

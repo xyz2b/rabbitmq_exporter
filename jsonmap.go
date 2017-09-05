@@ -18,7 +18,7 @@ func makeJSONReply(body []byte) RabbitReply {
 }
 
 //MakeStatsInfo creates a slice of StatsInfo from json input. Only keys with float values are mapped into `metrics`.
-func (rep *rabbitJSONReply) MakeStatsInfo() []StatsInfo {
+func (rep *rabbitJSONReply) MakeStatsInfo(labels []string) []StatsInfo {
 	var statistics []StatsInfo
 	var jsonArr []map[string]interface{}
 
@@ -33,19 +33,19 @@ func (rep *rabbitJSONReply) MakeStatsInfo() []StatsInfo {
 	}
 	for _, el := range jsonArr {
 		log.WithFields(log.Fields{"element": el, "vhost": el["vhost"], "name": el["name"]}).Debug("Iterate over array")
-		if name, ok := el["name"]; ok {
+		if _, ok := el["name"]; ok {
 			statsinfo := StatsInfo{}
-			statsinfo.name = name.(string)
+			statsinfo.labels = make(map[string]string)
 
-			if vhost, ok := el["vhost"]; ok {
-				statsinfo.vhost = vhost.(string)
-			}
-
-			if value, ok := el["durable"]; ok && value != nil {
-				statsinfo.durable = strconv.FormatBool(value.(bool))
-			}
-			if value, ok := el["policy"]; ok && value != nil {
-				statsinfo.policy = value.(string)
+			for _, label := range labels {
+				statsinfo.labels[label] = ""
+				if tmp, ok := el[label]; ok {
+					if v, ok := tmp.(string); ok {
+						statsinfo.labels[label] = v
+					} else if v, ok := tmp.(bool); ok {
+						statsinfo.labels[label] = strconv.FormatBool(v)
+					}
+				}
 			}
 
 			statsinfo.metrics = make(MetricMap)

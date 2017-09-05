@@ -1,12 +1,13 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
-	nodeLabels     = []string{"vhost", "node"}
+	nodeLabels    = []string{"vhost", "node"}
+	nodeLabelKeys = []string{"vhost", "name"}
+
 	nodeCounterVec = map[string]*prometheus.Desc{
 		"running":         newDesc("running", "test", nodeLabels),
 		"mem_used":        newDesc("node_mem_used", "Memory used in bytes", nodeLabels),
@@ -26,7 +27,7 @@ type exporterNode struct {
 	nodeMetricsCounter map[string]*prometheus.Desc
 }
 
-func NewExporterNode() exporterNode {
+func newExporterNode() exporterNode {
 	return exporterNode{
 		nodeMetricsCounter: nodeCounterVec,
 	}
@@ -37,7 +38,7 @@ func (e exporterNode) String() string {
 }
 
 func (e exporterNode) Collect(ch chan<- prometheus.Metric) error {
-	nodeData, err := getStatsInfo(config, "nodes")
+	nodeData, err := getStatsInfo(config, "nodes", nodeLabelKeys)
 
 	if err != nil {
 		return err
@@ -46,8 +47,8 @@ func (e exporterNode) Collect(ch chan<- prometheus.Metric) error {
 	for key, countvec := range e.nodeMetricsCounter {
 		for _, node := range nodeData {
 			if value, ok := node.metrics[key]; ok {
-				log.WithFields(log.Fields{"type": node.vhost, "node": node.name, "key": key, "value": value}).Debug("Set node metric for key")
-				ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, node.vhost, node.name)
+				// log.WithFields(log.Fields{"type": node.vhost, "node": node.name, "key": key, "value": value}).Debug("Set node metric for key")
+				ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, node.labels["vhost"], node.labels["name"])
 			}
 		}
 	}

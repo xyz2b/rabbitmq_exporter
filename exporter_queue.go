@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	queueLabels = []string{"vhost", "queue", "durable", "policy"}
+	queueLabels    = []string{"vhost", "queue", "durable", "policy"}
+	queueLabelKeys = []string{"vhost", "name", "durable", "policy"}
 
 	queueGaugeVec = map[string]*prometheus.GaugeVec{
 		"messages_ready":               newGaugeVec("queue_messages_ready", "Number of messages ready to be delivered to clients.", queueLabels),
@@ -50,7 +51,7 @@ type exporterQueue struct {
 	queueMetricsCounter map[string]*prometheus.Desc
 }
 
-func NewExporterQueue() exporterQueue {
+func newExporterQueue() exporterQueue {
 	return exporterQueue{
 		queueMetricsGauge:   queueGaugeVec,
 		queueMetricsCounter: queueCounterVec,
@@ -66,7 +67,7 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 		gaugevec.Reset()
 	}
 
-	rabbitMqQueueData, err := getStatsInfo(config, "queues")
+	rabbitMqQueueData, err := getStatsInfo(config, "queues", queueLabelKeys)
 
 	if err != nil {
 		return err
@@ -75,12 +76,13 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 	log.WithField("queueData", rabbitMqQueueData).Debug("Queue data")
 	for key, gaugevec := range e.queueMetricsGauge {
 		for _, queue := range rabbitMqQueueData {
+			qname := queue.labels["name"]
 			if value, ok := queue.metrics[key]; ok {
-				if matchInclude, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(queue.name)); matchInclude {
-					if matchSkip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(queue.name)); !matchSkip {
+				if matchInclude, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(qname)); matchInclude {
+					if matchSkip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(qname)); !matchSkip {
 
-						log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
-						gaugevec.WithLabelValues(queue.vhost, queue.name, queue.durable, queue.policy).Set(value)
+						// log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
+						gaugevec.WithLabelValues(queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"]).Set(value)
 					}
 				}
 			}
@@ -89,14 +91,14 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 
 	for key, countvec := range e.queueMetricsCounter {
 		for _, queue := range rabbitMqQueueData {
-			if matchInclude, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(queue.name)); matchInclude {
-				if matchSkip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(queue.name)); !matchSkip {
+			qname := queue.labels["name"]
+			if matchInclude, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(qname)); matchInclude {
+				if matchSkip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(qname)); !matchSkip {
 
 					if value, ok := queue.metrics[key]; ok {
-						log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
-						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, queue.vhost, queue.name, queue.durable, queue.policy)
+						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"])
 					} else {
-						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, queue.vhost, queue.name, queue.durable, queue.policy)
+						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"])
 					}
 				}
 			}

@@ -10,7 +10,7 @@ func TestWithInvalidJSON(t *testing.T) {
 	if mm := invalidJSONReply.MakeMap(); mm == nil {
 		t.Errorf("Json is invalid. Empty map should be returned. Value: %v", mm)
 	}
-	if qi := invalidJSONReply.MakeStatsInfo(); qi == nil {
+	if qi := invalidJSONReply.MakeStatsInfo(queueLabelKeys); qi == nil {
 		t.Errorf("Json is invalid. Empty map should be returned. Value: %v", qi)
 	}
 }
@@ -43,15 +43,16 @@ func TestMakeMap(t *testing.T) {
 func TestMakeStatsInfo(t *testing.T) {
 	reply := makeJSONReply([]byte(`[{"name":"q1", "FloatKey":14,"nes":{"ted":15}},{"name":"q2", "vhost":"foo", "FloatKey":24,"nes":{"ted":25}}]`))
 
-	qinfo := reply.MakeStatsInfo()
-	if qinfo[0].name != "q1" {
-		t.Errorf("unexpected qinfo name: %v", qinfo[0].name)
+	qinfo := reply.MakeStatsInfo(queueLabelKeys)
+	t.Log(qinfo)
+	if qinfo[0].labels["name"] != "q1" {
+		t.Errorf("unexpected qinfo name: %v", qinfo[0].labels["name"])
 	}
-	if qinfo[1].name != "q2" {
-		t.Errorf("unexpected qinfo name: %v", qinfo[0].name)
+	if qinfo[1].labels["name"] != "q2" {
+		t.Errorf("unexpected qinfo name: %v", qinfo[0].labels["name"])
 	}
-	if qinfo[1].vhost != "foo" {
-		t.Errorf("unexpected qinfo name: %v", qinfo[0].name)
+	if qinfo[1].labels["vhost"] != "foo" {
+		t.Errorf("unexpected qinfo name: %v", qinfo[0].labels["name"])
 	}
 	checkMap(qinfo[0].metrics, t, 10)
 	checkMap(qinfo[1].metrics, t, 20)
