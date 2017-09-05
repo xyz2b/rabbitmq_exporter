@@ -9,7 +9,7 @@ var (
 	nodeLabelKeys = []string{"vhost", "name"}
 
 	nodeCounterVec = map[string]*prometheus.Desc{
-		"running":         newDesc("running", "test", nodeLabels),
+		"running":         newDesc("running", "number of running nodes", nodeLabels),
 		"mem_used":        newDesc("node_mem_used", "Memory used in bytes", nodeLabels),
 		"mem_limit":       newDesc("node_mem_limit", "Point at which the memory alarm will go off", nodeLabels),
 		"mem_alarm":       newDesc("node_mem_alarm", "Whether the memory alarm has gone off", nodeLabels),

@@ -30,7 +30,7 @@ func newExporter() *exporter {
 			newExporterQueue(),
 			newExporterOverview(),
 			newExporterExchange(),
-			// NewExporterConnections(),
+			newExporterConnections(),
 		},
 	}
 }

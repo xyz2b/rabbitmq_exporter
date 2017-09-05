@@ -83,9 +83,9 @@ metric | description
 
 #### Queues
 
-Labels: vhost, queue
+Labels: vhost, queue, durable, policy
 
-##### Gauge
+##### Queues - Gauge
 
 metric | description
 -------| ------------
@@ -106,7 +106,7 @@ metric | description
 |queue_memory|Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures.|
 |queue_head_message_timestamp|The timestamp property of the first message in the queue, if present. Timestamps of messages only appear when they are in the paged-in state.|
 
-##### Counter
+##### Queues - Counter
 
 metric | description
 -------| ------------
@@ -139,6 +139,39 @@ metric | description
 |exchange_messages_redelivered_total|Count of subset of messages in deliver_get which had the redelivered flag set.|
 |exchange_messages_returned_total|Count of messages returned to publisher as unroutable.|
 	
+#### Node - Counter
+
+Labels: vhost, node
+
+metric | description
+-------| ------------
+|running|number of running nodes|
+|node_mem_used|Memory used in bytes|
+|node_mem_limit|Point at which the memory alarm will go off|
+|node_mem_alarm|Whether the memory alarm has gone off|
+|node_disk_free|Disk free space in bytes.|
+|node_disk_free_alarm|Whether the disk alarm has gone off.|
+|node_disk_free_limit|Point at which the disk alarm will go off.|
+|fd_used|Used File descriptors|
+|fd_total|File descriptors available|
+|sockets_used|File descriptors used as sockets.|
+|sockets_total|File descriptors available for use as sockets|
+
+
+#### Connections - Gauge
+
+Labels: vhost, node, peer_host, user
+
+metric | description
+-------| ------------
+|connection_channels|number of channels in use|
+|connection_received_bytes|received bytes|
+|connection_received_packets|received packets|
+|connection_send_bytes|send bytes|
+|connection_send_packets|send packets|
+|connection_send_pending|Send queue size|
+
+
 ## Docker
 
 To create a docker image locally it is recommened to use the Makefile.
