@@ -163,6 +163,7 @@ const (
 )
 
 func expectSubstring(t *testing.T, body string, substr string) {
+	t.Helper()
 	if !strings.Contains(body, substr) {
 		t.Errorf("Substring expected but not found. Substr=%v", substr)
 	}
