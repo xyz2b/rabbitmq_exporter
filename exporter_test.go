@@ -81,6 +81,7 @@ func TestWholeApp(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"} 0`)
 	expectSubstring(t, body, `rabbitmq_connection_channels{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 2`)
 	expectSubstring(t, body, `rabbitmq_connection_received_packets{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 45416`)
+	expectSubstring(t, body, `rabbitmq_partitions 0`)
 }
 
 func TestRabbitError(t *testing.T) {

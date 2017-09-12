@@ -79,6 +79,7 @@ metric | description
 |consumersTotal | Total number of message consumers|
 |queuesTotal | Total number of queues in use|
 |exchangesTotal | Total number of exchanges in use|
+|partitions | Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2|
 
 
 #### Queues

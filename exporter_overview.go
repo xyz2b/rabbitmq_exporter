@@ -11,6 +11,7 @@ var overviewMetricDescription = map[string]prometheus.Gauge{
 	"object_totals.consumers":   newGauge("consumersTotal", "Total number of message consumers."),
 	"object_totals.queues":      newGauge("queuesTotal", "Total number of queues in use."),
 	"object_totals.exchanges":   newGauge("exchangesTotal", "Total number of exchanges in use."),
+	"partitions_len":            newGauge("partitions", "Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2"),
 }
 
 type exporterOverview struct {
@@ -39,8 +40,6 @@ func (e exporterOverview) Collect(ch chan<- prometheus.Metric) error {
 		if value, ok := rabbitMqOverviewData[key]; ok {
 			log.WithFields(log.Fields{"key": key, "value": value}).Debug("Set overview metric for key")
 			gauge.Set(value)
-		} else {
-			log.WithFields(log.Fields{"key": key}).Warn("Overview data not found")
 		}
 	}
 
