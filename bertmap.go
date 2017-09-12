@@ -128,6 +128,16 @@ func parseSingleStatsObject(obj interface{}, labels []string) (*StatsInfo, bool)
 			}
 		}
 
+		arr, isSlice := assertBertSlice(value)
+		_, iSPropList := assertBertProplistPairs(value)
+
+		//save metrics for array length.
+		// An array is a slice which is not a proplist.
+		// Arrays with len()==0 are special. IsProplist is true
+		if isSlice && (!iSPropList || len(arr) == 0) {
+			result.metrics[key+"_len"] = float64(len(arr))
+		}
+
 		if floatValue, ok := parseFloaty(value); ok {
 			result.metrics[key] = floatValue
 			return true
@@ -158,6 +168,9 @@ func parseProplist(toMap *MetricMap, basename string, maybeProplist interface{})
 		if floatValue, ok := parseFloaty(value); ok {
 			(*toMap)[prefix+key] = floatValue
 			return true
+		}
+		if arraySize, ok := parseArray(value); ok {
+			(*toMap)[prefix+key+"_len"] = arraySize
 		}
 
 		parseProplist(toMap, prefix+key, value) // This can fail, but we don't care
@@ -228,6 +241,19 @@ func assertBertProplistPairs(maybeTaggedProplist interface{}) ([]bert.Term, bool
 		return terms, true
 	}
 	return nil, false
+}
+
+// parseArray tries to interpret the provided BERT value as an array.
+// It returns the size of the array
+func parseArray(arr interface{}) (float64, bool) {
+	switch t := arr.(type) {
+	case []bert.Term:
+		_, isPropList := assertBertProplistPairs(t)
+		if !isPropList || len(t) == 0 {
+			return float64(len(t)), true
+		}
+	}
+	return 0, false
 }
 
 // parseFloaty tries to interpret the provided BERT value as a

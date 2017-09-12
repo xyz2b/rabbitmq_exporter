@@ -86,6 +86,8 @@ func addFields(toMap *MetricMap, basename string, source map[string]interface{})
 		switch value := v.(type) {
 		case float64:
 			(*toMap)[prefix+k] = value
+		case []interface{}:
+			(*toMap)[prefix+k+"_len"] = float64(len(value))
 		case map[string]interface{}:
 			addFields(toMap, prefix+k, value)
 		case bool:

@@ -57,3 +57,16 @@ func TestMakeStatsInfo(t *testing.T) {
 	checkMap(qinfo[0].metrics, t, 10)
 	checkMap(qinfo[1].metrics, t, 20)
 }
+
+func TestArraySize(t *testing.T) {
+	reply := makeJSONReply([]byte(`{"node":"node1","empty_partitions": [],"partitions": [{"name":"node1"},{"name":"node2"}]}`))
+
+	node := reply.MakeMap()
+	t.Log(node)
+	if v, ok := node["empty_partitions_len"]; !ok || v != 0 {
+		t.Error("Unexpected (empty) partitions size", v)
+	}
+	if v, ok := node["partitions_len"]; !ok || v != 2 {
+		t.Error("Unexpected partitions size", v)
+	}
+}
