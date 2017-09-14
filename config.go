@@ -21,6 +21,7 @@ var (
 		SkipQueues:         "^$",
 		IncludeQueues:      ".*",
 		RabbitCapabilities: make(rabbitCapabilitySet),
+		EnabledExporters:   []string{"exchange", "node", "overview", "queue"},
 	}
 )
 
@@ -35,6 +36,7 @@ type rabbitExporterConfig struct {
 	SkipQueues         string
 	IncludeQueues      string
 	RabbitCapabilities rabbitCapabilitySet
+	EnabledExporters   []string
 }
 
 type rabbitCapability string
@@ -115,6 +117,10 @@ func initConfig() {
 
 	if rawCapabilities := os.Getenv("RABBIT_CAPABILITIES"); rawCapabilities != "" {
 		config.RabbitCapabilities = parseCapabilities(rawCapabilities)
+	}
+
+	if enabledExporters := os.Getenv("RABBIT_EXPORTERS"); enabledExporters != "" {
+		config.EnabledExporters = strings.Split(enabledExporters, ",")
 	}
 }
 

@@ -1,50 +1,57 @@
 # RabbitMQ Exporter [![Build Status](https://travis-ci.org/kbudde/rabbitmq_exporter.svg?branch=master)](https://travis-ci.org/kbudde/rabbitmq_exporter) [![Coverage Status](https://coveralls.io/repos/kbudde/rabbitmq_exporter/badge.svg?branch=master)](https://coveralls.io/r/kbudde/rabbitmq_exporter?branch=master) [![](https://images.microbadger.com/badges/image/kbudde/rabbitmq-exporter.svg)](http://microbadger.com/images/kbudde/rabbitmq-exporter "Get your own image badge on microbadger.com")
-Prometheus exporter for RabbitMQ metrics, based on RabbitMQ HTTP API.
 
-### Dependencies
+Prometheus exporter for RabbitMQ metrics.
+Data is scraped by [prometheus](https://prometheus.io).
 
-* Prometheus [client](https://github.com/prometheus/client_golang) for Golang
-* [Logging](https://github.com/Sirupsen/logrus)
+## Installation
 
-### Setting up locally rabbitMQ and exporter with docker
+### Binary release
+
+You can download the latest binaries from the [https://github.com/kbudde/rabbitmq_exporter/releases](release) page.
+Configuration is done with environment variables. See below.
+
+
+### docker: rabbitmq container with network sharing 
+
+The rabbitmq_exporter is sharing the network interface with the rabbitmq container -> it is possible to use localhost and default user/password (guest).
 
 1. Start rabbitMQ
 
-        $ docker run -d -e RABBITMQ_NODENAME=my-rabbit --name my-rabbit -p 15672:15672 -p 9090:9090 rabbitmq:3-management
+        $ docker run -d -e RABBITMQ_NODENAME=my-rabbit --name my-rabbit -p 9090:9090 rabbitmq:3-management
 
 2. Start rabbitmq_exporter in container.
 
         $ docker run -d --net=container:my-rabbit kbudde/rabbitmq-exporter
 
-Now your metrics are available through [http://localhost:9090/metrics](http://localhost:9090/metrics).
+Now your metrics are exposed through [http://host:9090/metrics](http://host:9090/metrics). The management plugin does not need to be exposed.
 
-The rabbitmq_exporter is sharing the network interface with the rabbitmq container -> it is possible to use localhost and default user/password.
-Disadvantage: you have to publish the port (9090) in the rabbitmq container.
-
-### Configuration
+## Configuration
 
 Rabbitmq_exporter uses environment variables for configuration.
 Settings:
 
-* RABBIT_URL:           "http://localhost:15672",
-* RABBIT_USER:          "guest",
-* RABBIT_USER_FILE:     "", // location of file with username 
-* RABBIT_PASSWORD:      "guest",
-* RABBIT_PASSWORD_FILE: "", // location of file with password
-* PUBLISH_PORT:         "9090",
-* OUTPUT_FORMAT:        "TTY", //change to JSON if needed
-* LOG_LEVEL:            "info", // can be "debug", "info", "warning", "error", "fatal", or "panic"
-* CAFILE:               "ca.pem", // default is ca.pem. If file does not exist it will be ignored.
-* SKIPVERIFY:           false or 0, true or 1 // will skip hostname/certificate check at all
-* INCLUDE_QUEUES:       ".*", // regex, matching queue names are exported
-* SKIP_QUEUES:          "^$", // regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
-* RABBIT_CAPABILITIES:  "", // comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
+Environment variable|default|description
+--------------------|-------|------------
+RABBIT_URL | http://localhost:15672| url to rabbitMQ management plugin
+RABBIT_USER | guest | username for rabbitMQ management plugin
+RABBIT_PASSWORD | guest | password for rabbitMQ management plugin
+RABBIT_USER_FILE| | location of file with username (useful for docker secrets)
+RABBIT_PASSWORD_FILE | | location of file with password (useful for docker secrets)
+PUBLISH_PORT | 9090 | Listening port for the exporter
+OUTPUT_FORMAT | TTY | Log ouput format. TTY and JSON are suported
+LOG_LEVEL | info | log level. possible values: "debug", "info", "warning", "error", "fatal", or "panic"
+CAFILE | ca.pem | path to root certificate for access management plugin. Just needed if self signed certificate is used. Will be ignored if the file does not exist
+SKIPVERIFY | false | true/0 will ignore certificate errors of the management plugin
+INCLUDE_QUEUES | .* | reqgex queue filter. just matching names are exported
+SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
+RABBIT_CAPABILITIES | | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
+RABBIT_EXPORTER | exchange,node,overview,queue | List of enabled modules. Just "connections" is not enabled by default
 
 Example
 
     OUTPUT_FORMAT=JSON PUBLISH_PORT=9099 ./rabbitmq_exporter
 
-#### Extended RabbitMQ capabilities
+### Extended RabbitMQ capabilities
 
 Newer version of RabbitMQ can provide some features that reduce
 overhead imposed by scraping the data needed by this exporter. The
@@ -65,15 +72,23 @@ following capabilities are currently supported in
    monitoring overhead when we have a lot of objects in RabbitMQ.
 
 
-### Metrics
+## Metrics
 
 All metrics (except golang/prometheus metrics) are prefixed with "rabbitmq_".
 
-#### Global 
+
+### Global 
 
 metric | description
 -------| ------------
-|up | Was the last scrape of rabbitmq successful.|
+up | Was the last scrape of rabbitmq successful.
+rabbitmq_exporter_build_info | A metric with a constant '1' value labeled by version, revision, branch and build date on which the rabbitmq_exporter was built.
+
+
+### Overview
+
+metric | description
+-------| ------------
 |channelsTotal | Total number of open channels|
 |connectionsTotal | Total number of open connections|
 |consumersTotal | Total number of message consumers|
@@ -82,11 +97,11 @@ metric | description
 |partitions | Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2|
 
 
-#### Queues
+### Queues
 
 Labels: vhost, queue, durable, policy
 
-##### Queues - Gauge
+#### Queues - Gauge
 
 metric | description
 -------| ------------
@@ -107,7 +122,7 @@ metric | description
 |queue_memory|Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures.|
 |queue_head_message_timestamp|The timestamp property of the first message in the queue, if present. Timestamps of messages only appear when they are in the paged-in state.|
 
-##### Queues - Counter
+#### Queues - Counter
 
 metric | description
 -------| ------------
@@ -122,7 +137,8 @@ metric | description
 |queue_messages_redelivered_total|Count of subset of messages in deliver_get which had the redelivered flag set.|
 |queue_messages_returned_total|Count of messages returned to publisher as unroutable.|
 
-#### Exchanges - Counter
+
+### Exchanges - Counter
 
 Labels: vhost, exchange
 
@@ -139,8 +155,9 @@ metric | description
 |exchange_messages_ack_total|Count of messages delivered in acknowledgement mode in response to basic.get.|
 |exchange_messages_redelivered_total|Count of subset of messages in deliver_get which had the redelivered flag set.|
 |exchange_messages_returned_total|Count of messages returned to publisher as unroutable.|
+
 	
-#### Node - Counter
+### Node - Counter
 
 Labels: vhost, node
 
@@ -159,7 +176,9 @@ metric | description
 |sockets_total|File descriptors available for use as sockets|
 
 
-#### Connections - Gauge
+### Connections - Gauge
+
+_disabled by default_. Depending on the environment and change rate it can create a high number of dead metrics. Otherwise its usefull and can be enabled. 
 
 Labels: vhost, node, peer_host, user
 

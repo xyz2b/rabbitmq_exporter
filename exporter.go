@@ -8,6 +8,21 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+var (
+	exportersMu       sync.RWMutex
+	exporterFactories = make(map[string]func() Exporter)
+)
+
+//RegisterExporter makes an exporter available by the provided name.
+func RegisterExporter(name string, f func() Exporter) {
+	exportersMu.Lock()
+	defer exportersMu.Unlock()
+	if f == nil {
+		panic("exporterFactory is nil")
+	}
+	exporterFactories[name] = f
+}
+
 type exporter struct {
 	mutex    sync.RWMutex
 	upMetric prometheus.Gauge
@@ -21,17 +36,14 @@ type Exporter interface {
 }
 
 func newExporter() *exporter {
+	enabledExporter := []Exporter{}
+	for _, e := range config.EnabledExporters {
+		enabledExporter = append(enabledExporter, exporterFactories[e]())
+	}
+
 	return &exporter{
-
 		upMetric: newGauge("up", "Was the last scrape of rabbitmq successful."),
-
-		exporter: []Exporter{
-			newExporterNode(),
-			newExporterQueue(),
-			newExporterOverview(),
-			newExporterExchange(),
-			newExporterConnections(),
-		},
+		exporter: enabledExporter,
 	}
 }
 

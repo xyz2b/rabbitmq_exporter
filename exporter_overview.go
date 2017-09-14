@@ -5,6 +5,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+func init() {
+	RegisterExporter("overview", newExporterOverview)
+}
+
 var overviewMetricDescription = map[string]prometheus.Gauge{
 	"object_totals.channels":    newGauge("channelsTotal", "Total number of open channels."),
 	"object_totals.connections": newGauge("connectionsTotal", "Total number of open connections."),
@@ -18,7 +22,7 @@ type exporterOverview struct {
 	overviewMetrics map[string]prometheus.Gauge
 }
 
-func newExporterOverview() exporterOverview {
+func newExporterOverview() Exporter {
 	return exporterOverview{
 		overviewMetrics: overviewMetricDescription,
 	}

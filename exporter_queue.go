@@ -8,6 +8,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+func init() {
+	RegisterExporter("queue", newExporterQueue)
+}
+
 var (
 	queueLabels    = []string{"vhost", "queue", "durable", "policy"}
 	queueLabelKeys = []string{"vhost", "name", "durable", "policy"}
@@ -51,7 +55,7 @@ type exporterQueue struct {
 	queueMetricsCounter map[string]*prometheus.Desc
 }
 
-func newExporterQueue() exporterQueue {
+func newExporterQueue() Exporter {
 	return exporterQueue{
 		queueMetricsGauge:   queueGaugeVec,
 		queueMetricsCounter: queueCounterVec,

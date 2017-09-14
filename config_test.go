@@ -4,6 +4,8 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/kylelemons/godebug/pretty"
 )
 
 func TestEnvironmentSettingURL_HTTPS(t *testing.T) {
@@ -125,5 +127,15 @@ func TestConfig_Capabilities(t *testing.T) {
 		if !reflect.DeepEqual(config.RabbitCapabilities, expected) {
 			t.Errorf("Capability '%s' wasn't properly detected from env", cap)
 		}
+	}
+}
+
+func TestConfig_EnabledExporters(t *testing.T) {
+	enabledExporters := []string{"overview", "connections"}
+	os.Setenv("RABBIT_EXPORTERS", "overview,connections")
+	defer os.Unsetenv("RABBIT_EXPORTERS")
+	initConfig()
+	if diff := pretty.Compare(config.EnabledExporters, enabledExporters); diff != "" {
+		t.Errorf("Invalid Exporters list. diff\n%v", diff)
 	}
 }

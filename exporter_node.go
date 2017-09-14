@@ -4,6 +4,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+func init() {
+	RegisterExporter("node", newExporterNode)
+}
+
 var (
 	nodeLabels    = []string{"vhost", "node"}
 	nodeLabelKeys = []string{"vhost", "name"}
@@ -27,7 +31,7 @@ type exporterNode struct {
 	nodeMetricsCounter map[string]*prometheus.Desc
 }
 
-func newExporterNode() exporterNode {
+func newExporterNode() Exporter {
 	return exporterNode{
 		nodeMetricsCounter: nodeCounterVec,
 	}

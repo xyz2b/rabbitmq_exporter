@@ -4,3 +4,4 @@ rabbitmq_exporter
 rabbitmq_exporter.exe
 .tarballs/
 coverage.out
+debug.test

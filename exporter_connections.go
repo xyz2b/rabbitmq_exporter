@@ -4,6 +4,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+func init() {
+	RegisterExporter("connections", newExporterConnections)
+}
+
 var (
 	connectionLabels = []string{"vhost", "node", "peer_host", "user"}
 
@@ -21,7 +25,7 @@ type exporterConnections struct {
 	metricsGV map[string]*prometheus.GaugeVec
 }
 
-func newExporterConnections() exporterConnections {
+func newExporterConnections() Exporter {
 	return exporterConnections{
 		metricsGV: connectionGaugeVec,
 	}

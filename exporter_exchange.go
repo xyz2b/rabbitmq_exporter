@@ -4,6 +4,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+func init() {
+	RegisterExporter("exchange", newExporterExchange)
+}
+
 var (
 	exchangeLabels    = []string{"vhost", "exchange"}
 	exchangeLabelKeys = []string{"vhost", "name"}
@@ -27,7 +31,7 @@ type exporterExchange struct {
 	exchangeMetrics map[string]*prometheus.Desc
 }
 
-func newExporterExchange() exporterExchange {
+func newExporterExchange() Exporter {
 	return exporterExchange{
 		exchangeMetrics: exchangeCounterVec,
 	}
