@@ -9,11 +9,16 @@ import (
 
 func TestStatsEquivalence(t *testing.T) {
 	endpoints := []string{"queues", "exchanges", "nodes"}
+	labels := map[string][]string{
+		"queues":    queueLabelKeys,
+		"exchanges": exchangeLabelKeys,
+		"nodes":     nodeLabelKeys,
+	}
 	versions := []string{"3.6.8", "3.7.0"}
 	for _, version := range versions {
 		for _, endpoint := range endpoints {
 			base := endpoint + "-" + version
-			assertBertStatsEquivalence(t, base)
+			assertBertStatsEquivalence(t, base, labels[endpoint])
 		}
 	}
 }
@@ -44,14 +49,15 @@ func tryReadFiles(t *testing.T, base, firstExt, secondExt string) ([]byte, []byt
 	return first, second
 }
 
-func assertBertStatsEquivalence(t *testing.T, baseFileName string) {
+func assertBertStatsEquivalence(t *testing.T, baseFileName string, labels []string) {
+	t.Helper()
 	json, bert := tryReadFiles(t, baseFileName, "json", "bert")
 
 	jsonReply := makeJSONReply(json)
 	bertReply := makeBERTReply(bert)
 
-	bertParsed := bertReply.MakeStatsInfo()
-	jsonParsed := jsonReply.MakeStatsInfo()
+	bertParsed := bertReply.MakeStatsInfo(labels)
+	jsonParsed := jsonReply.MakeStatsInfo(labels)
 
 	if diff := pretty.Compare(jsonParsed, bertParsed); diff != "" {
 		t.Errorf("JSON/BERT mismatch for %s:\n%s", baseFileName, diff)

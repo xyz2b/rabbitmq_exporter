@@ -59,13 +59,13 @@ func TestQueues(t *testing.T) {
 		RabbitURL: server.URL,
 	}
 
-	queues, err := getStatsInfo(*config, "queues")
+	queues, err := getStatsInfo(*config, "queues", queueLabelKeys)
 	expect(t, err, nil)
 	expect(t, len(queues), 2)
-	expect(t, queues[0].name, "Queue1")
-	expect(t, queues[0].vhost, "")
-	expect(t, queues[1].name, "Queue2")
-	expect(t, queues[1].vhost, "Vhost2")
+	expect(t, queues[0].labels["name"], "Queue1")
+	expect(t, queues[0].labels["vhost"], "")
+	expect(t, queues[1].labels["name"], "Queue2")
+	expect(t, queues[1].labels["vhost"], "Vhost2")
 	expect(t, len(queues[0].metrics), 2)
 	expect(t, len(queues[1].metrics), 2)
 	expect(t, queues[0].metrics["float1"], 1.23456789101112)
@@ -81,7 +81,7 @@ func TestQueues(t *testing.T) {
 		RabbitURL: errorServer.URL,
 	}
 
-	queues, err = getStatsInfo(*config, "queues")
+	queues, err = getStatsInfo(*config, "queues", queueLabelKeys)
 	if err == nil {
 		t.Errorf("Request failed. An error was expected but not found")
 	}
@@ -98,18 +98,18 @@ func TestExchanges(t *testing.T) {
 		RabbitURL: server.URL,
 	}
 
-	exchanges, err := getStatsInfo(*config, "exchanges")
+	exchanges, err := getStatsInfo(*config, "exchanges", exchangeLabelKeys)
 	expect(t, err, nil)
 	expect(t, len(exchanges), 9)
-	expect(t, exchanges[0].name, "")
-	expect(t, exchanges[0].vhost, "/")
-	expect(t, exchanges[1].name, "amq.direct")
-	expect(t, exchanges[1].vhost, "/")
+	expect(t, exchanges[0].labels["name"], "")
+	expect(t, exchanges[0].labels["vhost"], "/")
+	expect(t, exchanges[1].labels["name"], "amq.direct")
+	expect(t, exchanges[1].labels["vhost"], "/")
 	expect(t, len(exchanges[0].metrics), 3)
 	expect(t, len(exchanges[1].metrics), 3)
 
-	expect(t, exchanges[8].name, "myExchange")
-	expect(t, exchanges[8].vhost, "/")
+	expect(t, exchanges[8].labels["name"], "myExchange")
+	expect(t, exchanges[8].labels["vhost"], "/")
 	expect(t, exchanges[8].metrics["message_stats.confirm"], 5.0)
 	expect(t, exchanges[8].metrics["message_stats.publish_in"], 5.0)
 	expect(t, exchanges[8].metrics["message_stats.ack"], 0.0)
@@ -123,7 +123,7 @@ func TestExchanges(t *testing.T) {
 		RabbitURL: errorServer.URL,
 	}
 
-	exchanges, err = getStatsInfo(*config, "exchanges")
+	exchanges, err = getStatsInfo(*config, "exchanges", exchangeLabels)
 	if err == nil {
 		t.Errorf("Request failed. An error was expected but not found")
 	}

@@ -19,7 +19,7 @@ func makeBERTReply(body []byte) RabbitReply {
 	return &rabbitBERTReply{body}
 }
 
-func (rep *rabbitBERTReply) MakeStatsInfo() []StatsInfo {
+func (rep *rabbitBERTReply) MakeStatsInfo(labels []string) []StatsInfo {
 	rawObjects, err := bert.Decode(rep.body)
 	if err != nil {
 		log.WithField("error", err).Error("Error while decoding bert")
@@ -35,7 +35,7 @@ func (rep *rabbitBERTReply) MakeStatsInfo() []StatsInfo {
 	statistics := make([]StatsInfo, 0, len(objects))
 
 	for _, v := range objects {
-		obj, ok := parseSingleStatsObject(v)
+		obj, ok := parseSingleStatsObject(v, labels)
 		if !ok {
 			log.WithField("got", v).Error("Ignoring unparseable stats object")
 			continue
@@ -106,52 +106,48 @@ func iterateBertKV(obj interface{}, elemFunc func(string, interface{}) bool) err
 // parseSingleStatsObject extracts information about a named RabbitMQ
 // object: both its vhost/name information and then the usual
 // MetricMap.
-func parseSingleStatsObject(obj interface{}) (*StatsInfo, bool) {
-	var ok bool
+func parseSingleStatsObject(obj interface{}, labels []string) (*StatsInfo, bool) {
 	var result StatsInfo
 	var objectOk = true
 	result.metrics = make(MetricMap)
-
+	result.labels = make(map[string]string)
+	for _, label := range labels {
+		result.labels[label] = ""
+	}
 	err := iterateBertKV(obj, func(key string, value interface{}) bool {
-		switch {
-		case key == "name":
-			result.name, ok = parseBertStringy(value)
-			if !ok {
-				log.WithField("got", value).Error("Non-string 'name' field")
-				objectOk = false
-				return false
-			}
-		case key == "vhost":
-			result.vhost, ok = parseBertStringy(value)
-			if !ok {
-				log.WithField("got", value).Error("Non-string 'vhost' field")
-				objectOk = false
-				return false
-			}
-		case key == "policy":
-			result.policy, _ = parseBertStringy(value)
-		default:
-			if key == "durable" {
-				// We want to have 'durable' in 2
-				// places: inside MetricMap (and
-				// converted to float) and as a string
-				// field in StatsInfo
+		//Check if current key should be saved as label
+		for _, label := range labels {
+			if key == label {
 				tmp, ok := parseBertStringy(value)
-				if ok {
-					result.durable = tmp
+				if !ok {
+					log.WithField("got", value).WithField("label", label).Error("Non-string field")
+					objectOk = false
+					return false
 				}
+				result.labels[label] = tmp
 			}
-			if floatValue, ok := parseFloaty(value); ok {
-				result.metrics[key] = floatValue
-				return true
-			}
+		}
 
-			// Nested structures don't need special
-			// processing, so we fallback to generic
-			// parser.
-			if err := parseProplist(&result.metrics, key, value); err == nil {
-				return true
-			}
+		arr, isSlice := assertBertSlice(value)
+		_, iSPropList := assertBertProplistPairs(value)
+
+		//save metrics for array length.
+		// An array is a slice which is not a proplist.
+		// Arrays with len()==0 are special. IsProplist is true
+		if isSlice && (!iSPropList || len(arr) == 0) {
+			result.metrics[key+"_len"] = float64(len(arr))
+		}
+
+		if floatValue, ok := parseFloaty(value); ok {
+			result.metrics[key] = floatValue
+			return true
+		}
+
+		// Nested structures don't need special
+		// processing, so we fallback to generic
+		// parser.
+		if err := parseProplist(&result.metrics, key, value); err == nil {
+			return true
 		}
 		return true
 	})
@@ -172,6 +168,9 @@ func parseProplist(toMap *MetricMap, basename string, maybeProplist interface{})
 		if floatValue, ok := parseFloaty(value); ok {
 			(*toMap)[prefix+key] = floatValue
 			return true
+		}
+		if arraySize, ok := parseArray(value); ok {
+			(*toMap)[prefix+key+"_len"] = arraySize
 		}
 
 		parseProplist(toMap, prefix+key, value) // This can fail, but we don't care
@@ -242,6 +241,19 @@ func assertBertProplistPairs(maybeTaggedProplist interface{}) ([]bert.Term, bool
 		return terms, true
 	}
 	return nil, false
+}
+
+// parseArray tries to interpret the provided BERT value as an array.
+// It returns the size of the array
+func parseArray(arr interface{}) (float64, bool) {
+	switch t := arr.(type) {
+	case []bert.Term:
+		_, isPropList := assertBertProplistPairs(t)
+		if !isPropList || len(t) == 0 {
+			return float64(len(t)), true
+		}
+	}
+	return 0, false
 }
 
 // parseFloaty tries to interpret the provided BERT value as a

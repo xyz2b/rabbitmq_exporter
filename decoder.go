@@ -5,10 +5,7 @@ type MetricMap map[string]float64
 
 //StatsInfo describes  one statistic (queue or exchange): its name, vhost it belongs to, and all associated metrics.
 type StatsInfo struct {
-	name    string
-	vhost   string
-	policy  string
-	durable string
+	labels  map[string]string
 	metrics MetricMap
 }
 
@@ -27,7 +24,7 @@ type RabbitReply interface {
 	// MakeStatsInfo parses a list of details about some named
 	// RabbitMQ objects (i.e. list of queues, exchanges, etc.).
 	// Failure to parse should result in an empty result list.
-	MakeStatsInfo() []StatsInfo
+	MakeStatsInfo([]string) []StatsInfo
 }
 
 // MakeReply instantiates the apropriate reply parser for a given

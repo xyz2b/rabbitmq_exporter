@@ -41,17 +41,22 @@ func main() {
 	})
 
 	log.WithFields(log.Fields{
+		"VERSION":    Version,
+		"REVISION":   Revision,
+		"BRANCH":     Branch,
+		"BUILD_DATE": BuildDate,
+		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
+	}).Info("Starting RabbitMQ exporter")
+
+	log.WithFields(log.Fields{
 		"PUBLISH_PORT":        config.PublishPort,
 		"RABBIT_URL":          config.RabbitURL,
 		"RABBIT_USER":         config.RabbitUsername,
 		"OUTPUT_FORMAT":       config.OutputFormat,
 		"RABBIT_CAPABILITIES": formatCapabilities(config.RabbitCapabilities),
-		"VERSION":             Version,
-		"REVISION":            Revision,
-		"BRANCH":              Branch,
-		"BUILD_DATE":          BuildDate,
+		"RABBIT_EXPORTERS":    config.EnabledExporters,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
-	}).Info("Starting RabbitMQ exporter")
+	}).Info("Active Configuration")
 
 	log.Fatal(http.ListenAndServe(":"+config.PublishPort, nil))
 }

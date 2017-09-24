@@ -75,7 +75,7 @@ func loadMetrics(config rabbitExporterConfig, endpoint string) (RabbitReply, err
 	return MakeReply(config, body)
 }
 
-func getStatsInfo(config rabbitExporterConfig, apiEndpoint string) ([]StatsInfo, error) {
+func getStatsInfo(config rabbitExporterConfig, apiEndpoint string, labels []string) ([]StatsInfo, error) {
 	var q []StatsInfo
 
 	reply, err := loadMetrics(config, apiEndpoint)
@@ -83,7 +83,7 @@ func getStatsInfo(config rabbitExporterConfig, apiEndpoint string) ([]StatsInfo,
 		return q, err
 	}
 
-	q = reply.MakeStatsInfo()
+	q = reply.MakeStatsInfo(labels)
 
 	return q, nil
 }
