@@ -138,7 +138,7 @@ metric | description
 |queue_messages_returned_total|Count of messages returned to publisher as unroutable.|
 
 
-### Exchanges - Counter
+### Exchanges - Gauge
 
 Labels: vhost, exchange
 
