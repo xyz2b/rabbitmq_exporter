@@ -45,7 +45,7 @@ SKIPVERIFY | false | true/0 will ignore certificate errors of the management plu
 INCLUDE_QUEUES | .* | reqgex queue filter. just matching names are exported
 SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
 RABBIT_CAPABILITIES | | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
-RABBIT_EXPORTER | exchange,node,overview,queue | List of enabled modules. Just "connections" is not enabled by default
+RABBIT_EXPORTERS | exchange,node,overview,queue | List of enabled modules. Just "connections" is not enabled by default
 
 Example
 
