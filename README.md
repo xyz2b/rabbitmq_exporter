@@ -10,18 +10,17 @@ Data is scraped by [prometheus](https://prometheus.io).
 You can download the latest binaries from the [https://github.com/kbudde/rabbitmq_exporter/releases](release) page.
 Configuration is done with environment variables. See below.
 
-
-### docker: rabbitmq container with network sharing 
+### docker: rabbitmq container with network sharing
 
 The rabbitmq_exporter is sharing the network interface with the rabbitmq container -> it is possible to use localhost and default user/password (guest).
 
 1. Start rabbitMQ
 
-        $ docker run -d -e RABBITMQ_NODENAME=my-rabbit --name my-rabbit -p 9090:9090 rabbitmq:3-management
+        docker run -d -e RABBITMQ_NODENAME=my-rabbit --name my-rabbit -p 9090:9090 rabbitmq:3-management
 
-2. Start rabbitmq_exporter in container.
+1. Start rabbitmq_exporter in container.
 
-        $ docker run -d --net=container:my-rabbit kbudde/rabbitmq-exporter
+        docker run -d --net=container:my-rabbit kbudde/rabbitmq-exporter
 
 Now your metrics are exposed through [http://host:9090/metrics](http://host:9090/metrics). The management plugin does not need to be exposed.
 
@@ -32,7 +31,7 @@ Settings:
 
 Environment variable|default|description
 --------------------|-------|------------
-RABBIT_URL | http://localhost:15672| url to rabbitMQ management plugin
+RABBIT_URL | <http://localhost:15672>| url to rabbitMQ management plugin
 RABBIT_USER | guest | username for rabbitMQ management plugin
 RABBIT_PASSWORD | guest | password for rabbitMQ management plugin
 RABBIT_USER_FILE| | location of file with username (useful for docker secrets)
@@ -65,25 +64,22 @@ following capabilities are currently supported in
   earlier 3.6.X versions, but it'll not give any performance
   improvements. And it's incompatible with 3.4.X and 3.5.X.
 * `bert`: Since 3.6.9 (see
-   https://github.com/rabbitmq/rabbitmq-management/pull/367) RabbitMQ
+   <https://github.com/rabbitmq/rabbitmq-management/pull/367>) RabbitMQ
    supports BERT encoding as a JSON alternative. Given that BERT
    encoding is implemented in C inside the Erlang VM, it's way more
    effective than pure-Erlang JSON encoding. So this greatly reduces
    monitoring overhead when we have a lot of objects in RabbitMQ.
 
-
 ## Metrics
 
 All metrics (except golang/prometheus metrics) are prefixed with "rabbitmq_".
 
-
-### Global 
+### Global
 
 metric | description
 -------| ------------
 up | Was the last scrape of rabbitmq successful.
 rabbitmq_exporter_build_info | A metric with a constant '1' value labeled by version, revision, branch and build date on which the rabbitmq_exporter was built.
-
 
 ### Overview
 
@@ -98,7 +94,6 @@ metric | description
 |queue_messages_ready_total | Total number of messages ready to be delivered to clients.|
 |queue_messages_unacknowledged_total | Total number of messages delivered to clients but not yet acknowledged.|
 |partitions | Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2|
-
 
 ### Queues
 
@@ -140,7 +135,6 @@ metric | description
 |queue_messages_redelivered_total|Count of subset of messages in deliver_get which had the redelivered flag set.|
 |queue_messages_returned_total|Count of messages returned to publisher as unroutable.|
 
-
 ### Exchanges - Gauge
 
 Labels: vhost, exchange
@@ -159,7 +153,6 @@ metric | description
 |exchange_messages_redelivered_total|Count of subset of messages in deliver_get which had the redelivered flag set.|
 |exchange_messages_returned_total|Count of messages returned to publisher as unroutable.|
 
-	
 ### Node - Counter
 
 Labels: vhost, node
@@ -178,10 +171,9 @@ metric | description
 |sockets_used|File descriptors used as sockets.|
 |sockets_total|File descriptors available for use as sockets|
 
-
 ### Connections - Gauge
 
-_disabled by default_. Depending on the environment and change rate it can create a high number of dead metrics. Otherwise its usefull and can be enabled. 
+_disabled by default_. Depending on the environment and change rate it can create a high number of dead metrics. Otherwise its usefull and can be enabled.
 
 Labels: vhost, node, peer_host, user
 
@@ -193,7 +185,6 @@ metric | description
 |connection_send_bytes|send bytes|
 |connection_send_packets|send packets|
 |connection_send_pending|Send queue size|
-
 
 ## Docker
 
