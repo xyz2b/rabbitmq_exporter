@@ -94,6 +94,9 @@ metric | description
 |consumersTotal | Total number of message consumers|
 |queuesTotal | Total number of queues in use|
 |exchangesTotal | Total number of exchanges in use|
+|queue_messages_total | Total number ready and unacknowledged messages in cluster.|
+|queue_messages_ready_total | Total number of messages ready to be delivered to clients.|
+|queue_messages_unacknowledged_total | Total number of messages delivered to clients but not yet acknowledged.|
 |partitions | Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2|
 
 

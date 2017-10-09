@@ -10,12 +10,15 @@ func init() {
 }
 
 var overviewMetricDescription = map[string]prometheus.Gauge{
-	"object_totals.channels":    newGauge("channelsTotal", "Total number of open channels."),
-	"object_totals.connections": newGauge("connectionsTotal", "Total number of open connections."),
-	"object_totals.consumers":   newGauge("consumersTotal", "Total number of message consumers."),
-	"object_totals.queues":      newGauge("queuesTotal", "Total number of queues in use."),
-	"object_totals.exchanges":   newGauge("exchangesTotal", "Total number of exchanges in use."),
-	"partitions_len":            newGauge("partitions", "Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2"),
+	"object_totals.channels":               newGauge("channelsTotal", "Total number of open channels."),
+	"object_totals.connections":            newGauge("connectionsTotal", "Total number of open connections."),
+	"object_totals.consumers":              newGauge("consumersTotal", "Total number of message consumers."),
+	"object_totals.queues":                 newGauge("queuesTotal", "Total number of queues in use."),
+	"object_totals.exchanges":              newGauge("exchangesTotal", "Total number of exchanges in use."),
+	"queue_totals.messages":                newGauge("queue_messages_total", "Total number ready and unacknowledged messages in cluster."),
+	"queue_totals.messages_ready":          newGauge("queue_messages_ready_total", "Total number of messages ready to be delivered to clients."),
+	"queue_totals.messages_unacknowledged": newGauge("queue_messages_unacknowledged_total", "Total number of messages delivered to clients but not yet acknowledged."),
+	"partitions_len":                       newGauge("partitions", "Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2"),
 }
 
 type exporterOverview struct {

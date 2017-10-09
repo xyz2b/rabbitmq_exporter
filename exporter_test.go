@@ -74,6 +74,10 @@ func TestWholeApp(t *testing.T) {
 	// overview
 	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
 	expectSubstring(t, body, `rabbitmq_partitions 0`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_total 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_ready_total 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_total 0`)
+
 	// queue
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"} 25`)
 	expectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"} 13912`)
