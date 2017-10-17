@@ -18,8 +18,8 @@ var (
 		OutputFormat:       "TTY", //JSON
 		CAFile:             "ca.pem",
 		InsecureSkipVerify: false,
-		SkipQueues:         "^$",
-		IncludeQueues:      ".*",
+		SkipQueues:         regexp.MustCompile("^$"),
+		IncludeQueues:      regexp.MustCompile(".*"),
 		RabbitCapabilities: make(rabbitCapabilitySet),
 		EnabledExporters:   []string{"exchange", "node", "overview", "queue"},
 	}
@@ -33,8 +33,8 @@ type rabbitExporterConfig struct {
 	OutputFormat       string
 	CAFile             string
 	InsecureSkipVerify bool
-	SkipQueues         string
-	IncludeQueues      string
+	SkipQueues         *regexp.Regexp
+	IncludeQueues      *regexp.Regexp
 	RabbitCapabilities rabbitCapabilitySet
 	EnabledExporters   []string
 }
@@ -108,11 +108,11 @@ func initConfig() {
 	}
 
 	if SkipQueues := os.Getenv("SKIP_QUEUES"); SkipQueues != "" {
-		config.SkipQueues = SkipQueues
+		config.SkipQueues = regexp.MustCompile(SkipQueues)
 	}
 
 	if IncludeQueues := os.Getenv("INCLUDE_QUEUES"); IncludeQueues != "" {
-		config.IncludeQueues = IncludeQueues
+		config.IncludeQueues = regexp.MustCompile(IncludeQueues)
 	}
 
 	if rawCapabilities := os.Getenv("RABBIT_CAPABILITIES"); rawCapabilities != "" {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"regexp"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -82,8 +81,9 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 		for _, queue := range rabbitMqQueueData {
 			qname := queue.labels["name"]
 			if value, ok := queue.metrics[key]; ok {
-				if matchInclude, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(qname)); matchInclude {
-					if matchSkip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(qname)); !matchSkip {
+
+				if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
+					if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
 
 						// log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
 						gaugevec.WithLabelValues(queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"]).Set(value)
@@ -96,8 +96,8 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 	for key, countvec := range e.queueMetricsCounter {
 		for _, queue := range rabbitMqQueueData {
 			qname := queue.labels["name"]
-			if matchInclude, _ := regexp.MatchString(config.IncludeQueues, strings.ToLower(qname)); matchInclude {
-				if matchSkip, _ := regexp.MatchString(config.SkipQueues, strings.ToLower(qname)); !matchSkip {
+			if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
+				if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
 
 					if value, ok := queue.metrics[key]; ok {
 						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"])
