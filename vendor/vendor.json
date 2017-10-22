@@ -225,6 +225,12 @@
 			"revisionTime": "2017-02-11T01:34:15Z"
 		},
 		{
+			"checksumSHA1": "oaP8PM0nhRnvLxVLf/UQKZXeVG0=",
+			"path": "github.com/kbudde/gobert",
+			"revision": "a6daecb9ddeb548b7cfb3f5ac9deef9ded522730",
+			"revisionTime": "2017-10-22T20:40:42Z"
+		},
+		{
 			"checksumSHA1": "54p3FMgQbHR524kVjZ6kDAGN2Pk=",
 			"path": "github.com/kbudde/rabbitmq_exporter",
 			"revision": "cfe83fdee93950807ff3d6bb5620cf9b407558f7",
@@ -241,12 +247,6 @@
 			"path": "github.com/kylelemons/godebug/pretty",
 			"revision": "a616ab194758ae0a11290d87ca46ee8c440117b0",
 			"revisionTime": "2017-02-24T01:00:52Z"
-		},
-		{
-			"checksumSHA1": "aFRmOoohKqT5mpLuoh/0KkAky2Q=",
-			"path": "github.com/landonia/gobert",
-			"revision": "421b9bb95e9ed5876d367a4c3b5c790d2af3e7ca",
-			"revisionTime": "2017-04-11T12:47:30Z"
 		},
 		{
 			"checksumSHA1": "bKMZjd2wPw13VwoE7mBeSv5djFA=",
