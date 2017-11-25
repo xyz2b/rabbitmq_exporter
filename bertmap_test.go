@@ -12,7 +12,6 @@ func TestStatsEquivalence(t *testing.T) {
 	labels := map[string][]string{
 		"queues":    queueLabelKeys,
 		"exchanges": exchangeLabelKeys,
-		"nodes":     nodeLabelKeys,
 	}
 	versions := []string{"3.6.8", "3.7.0"}
 	for _, version := range versions {
@@ -24,7 +23,7 @@ func TestStatsEquivalence(t *testing.T) {
 }
 
 func TestMetricMapEquivalence(t *testing.T) {
-	endpoints := []string{"overview"}
+	endpoints := []string{"overview", "nodes"}
 	versions := []string{"3.6.8", "3.7.0"}
 	for _, version := range versions {
 		for _, endpoint := range endpoints {
