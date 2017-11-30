@@ -7,7 +7,7 @@ Data is scraped by [prometheus](https://prometheus.io).
 
 ### Binary release
 
-You can download the latest release [latest release](here) or go to the
+You can download the [latest release](https://github.com/kbudde/rabbitmq_exporter/releases/latest) or go to the
 [release pages](https://github.com/kbudde/rabbitmq_exporter/releases).
 Configuration is done with environment variables. See below.
 
