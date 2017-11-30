@@ -40,15 +40,17 @@ func (e exporterNode) String() string {
 }
 
 func (e exporterNode) Collect(ch chan<- prometheus.Metric) error {
-	nodeData, err := getMetricMap(config, "nodes")
+	nodeData, err := getStatsInfo(config, "nodes", []string{})
 
 	if err != nil {
 		return err
 	}
 
 	for key, gauge := range e.nodeMetricsGauge {
-		if value, ok := nodeData[key]; ok {
-			gauge.Set(value)
+		for _, node := range nodeData {
+			if value, ok := node.metrics[key]; ok {
+				gauge.Set(value)
+			}
 		}
 	}
 

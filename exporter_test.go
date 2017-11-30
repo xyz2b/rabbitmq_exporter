@@ -73,10 +73,12 @@ func TestWholeApp(t *testing.T) {
 	body := w.Body.String()
 
 	expectSubstring(t, body, `rabbitmq_up 1`)
+	expectSubstring(t, body, `rabbitmq_running 1`)
+
 	// overview
 	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
 	expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
-	expectSubstring(t, body, `rabbitmq_partitions 0`)
+	expectSubstring(t, body, `rabbitmq_partitions 4`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_total 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready_total 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_total 0`)
