@@ -60,7 +60,7 @@ func TestQueueCount(t *testing.T) {
 	t.Run("Add message with timestamp", func(t *testing.T) {
 		queue := "timestamp"
 		env.Rabbit.DeclareQueue(queue, true)
-		timestamp := time.Now()
+		timestamp := time.Date(2017, 11, 27, 8, 25, 23, 0, time.UTC)
 		env.Rabbit.SendMessageToQ("Test timestamp", queue, &timestamp)
 		time.Sleep(5 * time.Second) // give rabbitmq management plugin a bit of time
 		// log.Println(testenv.GetOrDie(env.ManagementURL()+"/api/queues", 5*time.Second))
