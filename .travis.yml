@@ -12,6 +12,7 @@ env:
     - PATH=/home/travis/gopath/bin:$PATH
     - COMMIT=${TRAVIS_COMMIT::8}
     - REPO=kbudde/rabbitmq-exporter
+    - DEP_VERSION="0.3.2"
 before_install:
   - go get github.com/mitchellh/gox
 
@@ -21,11 +22,16 @@ before_install:
   - go get github.com/aktau/github-release
   - git checkout -B ${TRAVIS_BRANCH}
 
+  # Download the binary to bin folder in $GOPATH
+  - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64 -o $GOPATH/bin/dep
+  # Make the binary executable
+  - chmod +x $GOPATH/bin/dep
+
 install:
-  - go get -t ./...
+  - dep ensure
 
 script:
-  - go test -tags integration -v -covermode=count -coverprofile=coverage.out ./
+  - go test -tags integration -covermode=count -coverprofile=coverage.out ./
 
 after_success:
 #Build Docker image
