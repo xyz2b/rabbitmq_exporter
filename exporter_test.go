@@ -71,17 +71,19 @@ func TestWholeApp(t *testing.T) {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
 	body := w.Body.String()
-
+	t.Log(body)
 	expectSubstring(t, body, `rabbitmq_up 1`)
-	expectSubstring(t, body, `rabbitmq_running 1`)
 
 	// overview
 	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
 	expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
-	expectSubstring(t, body, `rabbitmq_partitions 4`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_total 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready_total 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_total 0`)
+
+	// node
+	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
+	expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
 
 	// queue
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"} 25`)
@@ -135,9 +137,18 @@ func TestWholeAppInverted(t *testing.T) {
 	body := w.Body.String()
 
 	expectSubstring(t, body, `rabbitmq_up 1`)
+
 	// overview
 	dontExpectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
-	dontExpectSubstring(t, body, `rabbitmq_partitions 0`)
+	dontExpectSubstring(t, body, `rabbitmq_queuesTotal 4`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_total 48`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready_total 48`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_total 0`)
+
+	// node
+	dontExpectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
+	dontExpectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
+
 	// queue
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"} 25`)
 	dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"} 13912`)
@@ -146,7 +157,6 @@ func TestWholeAppInverted(t *testing.T) {
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"} 0`)
 	// exchange
 	dontExpectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
-	// overview
 	// connection
 	expectSubstring(t, body, `rabbitmq_connection_channels{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 2`)
 	expectSubstring(t, body, `rabbitmq_connection_received_packets{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 45416`)
