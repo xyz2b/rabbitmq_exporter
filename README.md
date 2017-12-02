@@ -7,8 +7,7 @@ Data is scraped by [prometheus](https://prometheus.io).
 
 ### Binary release
 
-You can download the [latest release](https://github.com/kbudde/rabbitmq_exporter/releases/latest) or go to the
-[release pages](https://github.com/kbudde/rabbitmq_exporter/releases).
+You can download the latest release on the [release page](https://github.com/kbudde/rabbitmq_exporter/releases).
 Configuration is done with environment variables. See below.
 
 ### docker: rabbitmq container with network sharing
@@ -155,6 +154,8 @@ metric | description
 
 ### Node - Counter
 
+Labels: node
+
 metric | description
 -------| ------------
 |running|number of running nodes|
@@ -172,7 +173,7 @@ metric | description
 
 ### Connections - Gauge
 
-_disabled by default_. Depending on the environment and change rate it can create a high number of dead metrics. Otherwise its usefull and can be enabled.
+_disabled by default_. Depending on the environment and change rate it can create a high number of dead metrics. Otherwise it could be usefull and can be enabled.
 
 Labels: vhost, node, peer_host, user
 
