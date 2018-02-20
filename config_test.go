@@ -80,6 +80,16 @@ func TestEnvironmentSettingPort(t *testing.T) {
 	}
 }
 
+func TestEnvironmentSettingAddr(t *testing.T) {
+	newValue := "localhost"
+	os.Setenv("PUBLISH_ADDR", newValue)
+	defer os.Unsetenv("PUBLISH_ADDR")
+	initConfig()
+	if config.PublishAddr != newValue {
+		t.Errorf("Expected config.PUBLISH_ADDR to be modified. Found=%v, expected=%v", config.PublishAddr, newValue)
+	}
+}
+
 func TestEnvironmentSettingFormat(t *testing.T) {
 	newValue := "json"
 	os.Setenv("OUTPUT_FORMAT", newValue)
@@ -97,6 +107,16 @@ func TestConfig_Port(t *testing.T) {
 	initConfig()
 	if config.PublishPort != port {
 		t.Errorf("Invalid Portnumber. It should not be set. expected=%v,got=%v", port, config.PublishPort)
+	}
+}
+
+func TestConfig_Addr(t *testing.T) {
+	addr := config.PublishAddr
+	os.Setenv("PUBLISH_ADDR", "")
+	defer os.Unsetenv("PUBLISH_ADDR")
+	initConfig()
+	if config.PublishAddr != addr {
+		t.Errorf("Invalid Addrress. It should not be set. expected=%v,got=%v", addr, config.PublishAddr)
 	}
 }
 

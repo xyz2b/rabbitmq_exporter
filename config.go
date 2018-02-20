@@ -15,6 +15,7 @@ var (
 		RabbitUsername:     "guest",
 		RabbitPassword:     "guest",
 		PublishPort:        "9090",
+		PublishAddr:        "",
 		OutputFormat:       "TTY", //JSON
 		CAFile:             "ca.pem",
 		InsecureSkipVerify: false,
@@ -30,6 +31,7 @@ type rabbitExporterConfig struct {
 	RabbitUsername     string
 	RabbitPassword     string
 	PublishPort        string
+	PublishAddr        string
 	OutputFormat       string
 	CAFile             string
 	InsecureSkipVerify bool
@@ -96,6 +98,11 @@ func initConfig() {
 		}
 
 	}
+
+	if addr := os.Getenv("PUBLISH_ADDR"); addr != "" {
+		config.PublishAddr = addr
+	}
+
 	if output := os.Getenv("OUTPUT_FORMAT"); output != "" {
 		config.OutputFormat = output
 	}

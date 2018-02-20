@@ -37,6 +37,7 @@ RABBIT_PASSWORD | guest | password for rabbitMQ management plugin
 RABBIT_USER_FILE| | location of file with username (useful for docker secrets)
 RABBIT_PASSWORD_FILE | | location of file with password (useful for docker secrets)
 PUBLISH_PORT | 9090 | Listening port for the exporter
+PUBLISH_ADDR | "" | Listening host/IP for the exporter
 OUTPUT_FORMAT | TTY | Log ouput format. TTY and JSON are suported
 LOG_LEVEL | info | log level. possible values: "debug", "info", "warning", "error", "fatal", or "panic"
 CAFILE | ca.pem | path to root certificate for access management plugin. Just needed if self signed certificate is used. Will be ignored if the file does not exist
