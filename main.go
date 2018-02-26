@@ -49,6 +49,7 @@ func main() {
 	}).Info("Starting RabbitMQ exporter")
 
 	log.WithFields(log.Fields{
+		"PUBLISH_ADDR":        config.PublishAddr,
 		"PUBLISH_PORT":        config.PublishPort,
 		"RABBIT_URL":          config.RabbitURL,
 		"RABBIT_USER":         config.RabbitUsername,
@@ -58,7 +59,7 @@ func main() {
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Active Configuration")
 
-	log.Fatal(http.ListenAndServe(":"+config.PublishPort, nil))
+	log.Fatal(http.ListenAndServe(config.PublishAddr+":"+config.PublishPort, nil))
 }
 
 func getLogLevel() log.Level {
