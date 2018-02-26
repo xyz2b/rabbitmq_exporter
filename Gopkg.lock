@@ -5,7 +5,7 @@
   branch = "master"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  revision = "95cd2b9c79aa5e72ab0bc69b7ccc2be15bf850f6"
+  revision = "8c0189d9f6bbf301e5d055d34268156b317016af"
 
 [[projects]]
   branch = "master"
@@ -21,15 +21,34 @@
 
 [[projects]]
   name = "github.com/fsouza/go-dockerclient"
-  packages = [".","external/github.com/Sirupsen/logrus","external/github.com/docker/docker/opts","external/github.com/docker/docker/pkg/archive","external/github.com/docker/docker/pkg/fileutils","external/github.com/docker/docker/pkg/homedir","external/github.com/docker/docker/pkg/idtools","external/github.com/docker/docker/pkg/ioutils","external/github.com/docker/docker/pkg/longpath","external/github.com/docker/docker/pkg/pools","external/github.com/docker/docker/pkg/promise","external/github.com/docker/docker/pkg/stdcopy","external/github.com/docker/docker/pkg/system","external/github.com/docker/go-units","external/github.com/hashicorp/go-cleanhttp","external/github.com/opencontainers/runc/libcontainer/user","external/golang.org/x/net/context","external/golang.org/x/sys/unix"]
+  packages = [
+    ".",
+    "external/github.com/Sirupsen/logrus",
+    "external/github.com/docker/docker/opts",
+    "external/github.com/docker/docker/pkg/archive",
+    "external/github.com/docker/docker/pkg/fileutils",
+    "external/github.com/docker/docker/pkg/homedir",
+    "external/github.com/docker/docker/pkg/idtools",
+    "external/github.com/docker/docker/pkg/ioutils",
+    "external/github.com/docker/docker/pkg/longpath",
+    "external/github.com/docker/docker/pkg/pools",
+    "external/github.com/docker/docker/pkg/promise",
+    "external/github.com/docker/docker/pkg/stdcopy",
+    "external/github.com/docker/docker/pkg/system",
+    "external/github.com/docker/go-units",
+    "external/github.com/hashicorp/go-cleanhttp",
+    "external/github.com/opencontainers/runc/libcontainer/user",
+    "external/golang.org/x/net/context",
+    "external/golang.org/x/sys/unix"
+  ]
   revision = "1d4f4ae73768d3ca16a6fb964694f58dc5eba601"
   version = "docker-1.9/go-1.4"
 
 [[projects]]
-  branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
+  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -40,7 +59,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/kylelemons/godebug"
-  packages = ["diff","pretty"]
+  packages = [
+    "diff",
+    "pretty"
+  ]
   revision = "d65d576e9348f5982d7f6d83682b694e731a45c6"
 
 [[projects]]
@@ -70,44 +92,59 @@
 [[projects]]
   branch = "master"
   name = "github.com/prometheus/common"
-  packages = ["expfmt","internal/bitbucket.org/ww/goautoneg","model"]
-  revision = "2e54d0b93cba2fd133edc32211dcc32c06ef72ca"
+  packages = [
+    "expfmt",
+    "internal/bitbucket.org/ww/goautoneg",
+    "model"
+  ]
+  revision = "89604d197083d4781071d3c65855d24ecfb0a563"
 
 [[projects]]
   branch = "master"
   name = "github.com/prometheus/procfs"
-  packages = [".","xfs"]
-  revision = "a6e9df898b1336106c743392c48ee0b71f5c4efa"
+  packages = [
+    ".",
+    "internal/util",
+    "nfs",
+    "xfs"
+  ]
+  revision = "282c8707aa210456a825798969cc27edda34992a"
 
 [[projects]]
   branch = "master"
   name = "github.com/streadway/amqp"
   packages = ["."]
-  revision = "ff791c2d22d3f1588b4e2cc71a9fba5e1da90654"
+  revision = "fc7fda2371f5327ad39211e09482845b8734cc72"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "94eea52f7b742c7cbe0b03b22f0c4c8631ece122"
+  revision = "beaf6a35706e5032ae4c3fcf342c663c069f44d2"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context"]
-  revision = "a8b9294777976932365dabb6640cf1468d95c70f"
+  packages = [
+    "context",
+    "context/ctxhttp"
+  ]
+  revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
-  revision = "8b4580aae2a0dd0c231a45d3ccb8434ff533b840"
+  packages = [
+    "unix",
+    "windows"
+  ]
+  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
 
 [[projects]]
   name = "gopkg.in/ory-am/dockertest.v3"
   packages = ["."]
-  revision = "a7951f7a8442f0e70d36e499ed4d744f00af2963"
-  version = "v3.0.9"
+  revision = "6d57cd43b964e928111542771659af6a3a58521f"
+  version = "3.0.9"
 
 [solve-meta]
   analyzer-name = "dep"
