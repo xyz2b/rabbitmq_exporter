@@ -3,6 +3,14 @@
 Prometheus exporter for RabbitMQ metrics.
 Data is scraped by [prometheus](https://prometheus.io).
 
+# Breaking change -> 1.0.0
+
+Default Port is going to change in the future. New Port is 9419.
+Configuration below is using the recommended configuration with the new port. 
+
+If you are still using the old default port 9090 consider overriding it with the new default.
+https://github.com/kbudde/rabbitmq_exporter/issues/53
+
 ## Installation
 
 ### Binary release
@@ -16,13 +24,13 @@ The rabbitmq_exporter is sharing the network interface with the rabbitmq contain
 
 1. Start rabbitMQ
 
-        docker run -d -e RABBITMQ_NODENAME=my-rabbit --name my-rabbit -p 9090:9090 rabbitmq:3-management
+        docker run -d -e RABBITMQ_NODENAME=my-rabbit --name my-rabbit -p 9419:9419 rabbitmq:3-management
 
 1. Start rabbitmq_exporter in container.
 
-        docker run -d --net=container:my-rabbit kbudde/rabbitmq-exporter
+        docker run -d --net=container:my-rabbit -e RABBIT_CAPABILITIES=bert,no_sort -e PUBLISH_PORT=9419 kbudde/rabbitmq-exporter
 
-Now your metrics are exposed through [http://host:9090/metrics](http://host:9090/metrics). The management plugin does not need to be exposed.
+Now your metrics are exposed through [http://host:9419/metrics](http://host:9419/metrics). The management plugin does not need to be exposed.
 
 ## Configuration
 
@@ -36,7 +44,7 @@ RABBIT_USER | guest | username for rabbitMQ management plugin
 RABBIT_PASSWORD | guest | password for rabbitMQ management plugin
 RABBIT_USER_FILE| | location of file with username (useful for docker secrets)
 RABBIT_PASSWORD_FILE | | location of file with password (useful for docker secrets)
-PUBLISH_PORT | 9090 | Listening port for the exporter
+PUBLISH_PORT | 9090 | Listening port for the exporter 
 PUBLISH_ADDR | "" | Listening host/IP for the exporter
 OUTPUT_FORMAT | TTY | Log ouput format. TTY and JSON are suported
 LOG_LEVEL | info | log level. possible values: "debug", "info", "warning", "error", "fatal", or "panic"
@@ -47,9 +55,9 @@ SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short
 RABBIT_CAPABILITIES | | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
 RABBIT_EXPORTERS | exchange,node,overview,queue | List of enabled modules. Just "connections" is not enabled by default
 
-Example
+Example and recommended settings:
 
-    OUTPUT_FORMAT=JSON PUBLISH_PORT=9099 ./rabbitmq_exporter
+    PUBLISH_PORT=9419 RABBIT_CAPABILITIES=bert,no_sort ./rabbitmq_exporter
 
 ### Extended RabbitMQ capabilities
 
