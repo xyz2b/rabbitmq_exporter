@@ -51,10 +51,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
+  branch = "unhashable_type"
   name = "github.com/kbudde/gobert"
   packages = ["."]
-  revision = "a6daecb9ddeb548b7cfb3f5ac9deef9ded522730"
+  revision = "8467f0df1cd601bcb1966c8414193d51a46fb9a6"
 
 [[projects]]
   branch = "master"
@@ -125,10 +125,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = [
-    "context",
-    "context/ctxhttp"
-  ]
+  packages = ["context"]
   revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
 
 [[projects]]
@@ -149,6 +146,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e57bdaa38a541993d580795cd03c7a00d0ff0ee173b09e652690114f7ea59071"
+  inputs-digest = "b3840dc13c5145ac5abf643a89b72043b49a999a8a1e9c8cd43bd8933a8412ca"
   solver-name = "gps-cdcl"
   solver-version = 1

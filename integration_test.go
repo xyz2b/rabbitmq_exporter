@@ -30,6 +30,7 @@ func TestQueueCount(t *testing.T) {
 		exporterURL = fmt.Sprintf("http://localhost:%s/metrics", defaultConfig.PublishPort)
 		rabbitManagementURL = env.ManagementURL()
 		os.Setenv("RABBIT_URL", rabbitManagementURL)
+		os.Setenv("RABBIT_CAPABILITIES", "bert,no_sort")
 		defer os.Unsetenv("RABBIT_URL")
 
 		go main()
