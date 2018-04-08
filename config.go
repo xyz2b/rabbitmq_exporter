@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -59,6 +60,8 @@ func initConfig() {
 	if url := os.Getenv("RABBIT_URL"); url != "" {
 		if valid, _ := regexp.MatchString("https?://[a-zA-Z.0-9]+", strings.ToLower(url)); valid {
 			config.RabbitURL = url
+		} else {
+			panic(fmt.Errorf("Rabbit URL must start with http:// or https://"))
 		}
 	}
 
@@ -95,6 +98,8 @@ func initConfig() {
 	if port := os.Getenv("PUBLISH_PORT"); port != "" {
 		if _, err := strconv.Atoi(port); err == nil {
 			config.PublishPort = port
+		} else {
+			panic(fmt.Errorf("The configured port is not a valid number: %v", port))
 		}
 
 	}

@@ -39,7 +39,7 @@ Settings:
 
 Environment variable|default|description
 --------------------|-------|------------
-RABBIT_URL | <http://localhost:15672>| url to rabbitMQ management plugin
+RABBIT_URL | <http://localhost:15672>| url to rabbitMQ management plugin (must start with http(s)://)
 RABBIT_USER | guest | username for rabbitMQ management plugin
 RABBIT_PASSWORD | guest | password for rabbitMQ management plugin
 RABBIT_USER_FILE| | location of file with username (useful for docker secrets)
