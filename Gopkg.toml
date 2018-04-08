@@ -25,7 +25,7 @@
   name = "github.com/Sirupsen/logrus"
 
 [[constraint]]
-  branch = "master"
+  branch = "unhashable_type"
   name = "github.com/kbudde/gobert"
 
 [[constraint]]
