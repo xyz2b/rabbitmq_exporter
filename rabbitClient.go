@@ -11,7 +11,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-var client = &http.Client{Timeout: 10 * time.Second}
+var client = &http.Client{Timeout: 15 * time.Second}
 
 func initClient() {
 	roots := x509.NewCertPool()
