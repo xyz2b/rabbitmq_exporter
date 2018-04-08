@@ -101,6 +101,11 @@ func TestEnvironmentSettingFormat(t *testing.T) {
 }
 
 func TestConfig_Port(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("initConfig should panic on invalid port config")
+		}
+	}()
 	port := config.PublishPort
 	os.Setenv("PUBLISH_PORT", "noNumber")
 	defer os.Unsetenv("PUBLISH_PORT")
@@ -121,6 +126,11 @@ func TestConfig_Addr(t *testing.T) {
 }
 
 func TestConfig_Http_URL(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("initConfig should panic on invalid url config")
+		}
+	}()
 	url := config.RabbitURL
 	os.Setenv("RABBIT_URL", "ftp://test")
 	defer os.Unsetenv("RABBIT_URL")
