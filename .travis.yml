@@ -35,7 +35,7 @@ script:
 
 after_success:
 #Build Docker image
-  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASSWORD
+  - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - make docker DOCKER_IMAGE_NAME=$REPO DOCKER_IMAGE_TAG=$TAG
   - docker push $REPO
