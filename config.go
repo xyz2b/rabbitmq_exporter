@@ -115,7 +115,7 @@ func initConfig() {
 	if cafile := os.Getenv("CAFILE"); cafile != "" {
 		config.CAFile = cafile
 	}
-	if insecureSkipVerify := os.Getenv("SKIPVERIFY"); insecureSkipVerify == "true" || insecureSkipVerify == "1" {
+	if insecureSkipVerify := os.Getenv("SKIPVERIFY"); insecureSkipVerify == "true" || insecureSkipVerify == "1" || insecureSkipVerify == "TRUE" {
 		config.InsecureSkipVerify = true
 	}
 
