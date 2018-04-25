@@ -11,7 +11,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-var client = &http.Client{Timeout: 15 * time.Second}
+var client = &http.Client{Timeout: 15 * time.Second} //default client for test. Client is initialized in initClient()
 
 func initClient() {
 	roots := x509.NewCertPool()
@@ -33,7 +33,7 @@ func initClient() {
 
 	client = &http.Client{
 		Transport: tr,
-		Timeout:   10 * time.Second,
+		Timeout:   time.Duration(config.Timeout) * time.Second,
 	}
 
 }

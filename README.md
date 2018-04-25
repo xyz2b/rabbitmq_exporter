@@ -54,6 +54,7 @@ INCLUDE_QUEUES | .* | reqgex queue filter. just matching names are exported
 SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
 RABBIT_CAPABILITIES | | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
 RABBIT_EXPORTERS | exchange,node,overview,queue | List of enabled modules. Just "connections" is not enabled by default
+RABBIT_TIMEOUT | 30 | timeout in seconds for retrieving data from management plugin.
 
 Example and recommended settings:
 

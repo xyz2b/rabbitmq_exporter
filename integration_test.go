@@ -63,7 +63,7 @@ func TestQueueCount(t *testing.T) {
 		env.Rabbit.DeclareQueue(queue, true)
 		timestamp := time.Date(2017, 11, 27, 8, 25, 23, 0, time.UTC)
 		env.Rabbit.SendMessageToQ("Test timestamp", queue, &timestamp)
-		time.Sleep(5 * time.Second) // give rabbitmq management plugin a bit of time
+		time.Sleep(10 * time.Second) // give rabbitmq management plugin a bit of time
 		// log.Println(testenv.GetOrDie(env.ManagementURL()+"/api/queues", 5*time.Second))
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
@@ -116,7 +116,7 @@ func TestQueueCount(t *testing.T) {
 		policy := "QueuePolicy"
 		env.MustSetPolicy(policy, "^.*$")
 
-		time.Sleep(5 * time.Second) // give rabbitmq management plugin a bit of time
+		time.Sleep(10 * time.Second) // give rabbitmq management plugin a bit of time
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
 		search := fmt.Sprintf(`rabbitmq_queue_messages{durable="false",policy="%s",queue="%s",vhost="/"} 0`, policy, queue)

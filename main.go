@@ -56,6 +56,11 @@ func main() {
 		"OUTPUT_FORMAT":       config.OutputFormat,
 		"RABBIT_CAPABILITIES": formatCapabilities(config.RabbitCapabilities),
 		"RABBIT_EXPORTERS":    config.EnabledExporters,
+		"CAFILE":              config.CAFile,
+		"SKIPVERIFY":          config.InsecureSkipVerify,
+		"SKIP_QUEUES":         config.SkipQueues.String(),
+		"INCLUDE_QUEUES":      config.IncludeQueues,
+		"RABBIT_TIMEOUT":      config.Timeout,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Active Configuration")
 

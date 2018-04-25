@@ -24,6 +24,7 @@ var (
 		IncludeQueues:      regexp.MustCompile(".*"),
 		RabbitCapabilities: make(rabbitCapabilitySet),
 		EnabledExporters:   []string{"exchange", "node", "overview", "queue"},
+		Timeout:            30,
 	}
 )
 
@@ -40,6 +41,7 @@ type rabbitExporterConfig struct {
 	IncludeQueues      *regexp.Regexp
 	RabbitCapabilities rabbitCapabilitySet
 	EnabledExporters   []string
+	Timeout            int
 }
 
 type rabbitCapability string
@@ -133,6 +135,14 @@ func initConfig() {
 
 	if enabledExporters := os.Getenv("RABBIT_EXPORTERS"); enabledExporters != "" {
 		config.EnabledExporters = strings.Split(enabledExporters, ",")
+	}
+
+	if timeout := os.Getenv("RABBIT_TIMEOUT"); timeout != "" {
+		t, err := strconv.Atoi(timeout)
+		if err != nil {
+			panic(fmt.Errorf("timeout is not a number: %v", err))
+		}
+		config.Timeout = t
 	}
 }
 
