@@ -60,6 +60,7 @@ func main() {
 		"SKIPVERIFY":          config.InsecureSkipVerify,
 		"SKIP_QUEUES":         config.SkipQueues.String(),
 		"INCLUDE_QUEUES":      config.IncludeQueues,
+		"INCLUDE_VHOST":       config.IncludeVHost,
 		"RABBIT_TIMEOUT":      config.Timeout,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Active Configuration")
