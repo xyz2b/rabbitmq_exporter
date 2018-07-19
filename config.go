@@ -25,6 +25,7 @@ var (
 		RabbitCapabilities: make(rabbitCapabilitySet),
 		EnabledExporters:   []string{"exchange", "node", "overview", "queue"},
 		Timeout:            30,
+		MaxQueues:          5000,
 	}
 )
 
@@ -42,6 +43,7 @@ type rabbitExporterConfig struct {
 	RabbitCapabilities rabbitCapabilitySet
 	EnabledExporters   []string
 	Timeout            int
+	MaxQueues          int
 }
 
 type rabbitCapability string
@@ -143,6 +145,14 @@ func initConfig() {
 			panic(fmt.Errorf("timeout is not a number: %v", err))
 		}
 		config.Timeout = t
+	}
+
+	if maxQueues := os.Getenv("MAX_QUEUES"); maxQueues != "" {
+		m, err := strconv.Atoi(maxQueues)
+		if err != nil {
+			panic(fmt.Errorf("maxQueues is not a number: %v", err))
+		}
+		config.MaxQueues = m
 	}
 }
 
