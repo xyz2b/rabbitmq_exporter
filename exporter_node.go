@@ -49,6 +49,10 @@ func (e exporterNode) Collect(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	for _, gauge := range e.nodeMetricsGauge {
+		gauge.Reset()
+	}
+
 	for key, gauge := range e.nodeMetricsGauge {
 		for _, node := range nodeData {
 			if value, ok := node.metrics[key]; ok {
