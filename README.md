@@ -144,7 +144,7 @@ metric | description
 |queue_messages_redelivered_total|Count of subset of messages in deliver_get which had the redelivered flag set.|
 |queue_messages_returned_total|Count of messages returned to publisher as unroutable.|
 
-### Exchanges - Gauge
+### Exchanges - Counter
 
 Labels: vhost, exchange
 
