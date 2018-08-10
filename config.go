@@ -25,7 +25,7 @@ var (
 		RabbitCapabilities: make(rabbitCapabilitySet),
 		EnabledExporters:   []string{"exchange", "node", "overview", "queue"},
 		Timeout:            30,
-		MaxQueues:          5000,
+		MaxQueues:          0,
 	}
 )
 

@@ -61,6 +61,7 @@ func main() {
 		"SKIP_QUEUES":         config.SkipQueues.String(),
 		"INCLUDE_QUEUES":      config.IncludeQueues,
 		"RABBIT_TIMEOUT":      config.Timeout,
+		"MAX_QUEUES":          config.MaxQueues,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Active Configuration")
 

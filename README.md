@@ -55,7 +55,7 @@ SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short
 RABBIT_CAPABILITIES | | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
 RABBIT_EXPORTERS | exchange,node,overview,queue | List of enabled modules. Just "connections" is not enabled by default
 RABBIT_TIMEOUT | 30 | timeout in seconds for retrieving data from management plugin.
-MAX_QUEUES | 5000 | max number of queues before we drop metrics
+MAX_QUEUES | 0 | max number of queues before we drop metrics (disabled if set to 0)
 
 Example and recommended settings:
 

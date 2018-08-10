@@ -70,16 +70,23 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 		gaugevec.Reset()
 	}
 
-	rabbitMqOverviewData, err := getMetricMap(config, "overview")
+	if config.MaxQueues > 0 {
+		// Get overview info to check total queues
+		rabbitMqOverviewData, err := getMetricMap(config, "overview")
 
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 
-	totalQueues := rabbitMqOverviewData["object_totals.queues"]
+		totalQueues := rabbitMqOverviewData["object_totals.queues"]
 
-	if int(totalQueues) > config.MaxQueues {
-		return nil
+		if int(totalQueues) > config.MaxQueues {
+			log.WithFields(log.Fields{
+				"MaxQueues":   config.MaxQueues,
+				"TotalQueues": totalQueues,
+			}).Debug("MaxQueues exceeded.")
+			return nil
+		}
 	}
 
 	rabbitMqQueueData, err := getStatsInfo(config, "queues", queueLabelKeys)
