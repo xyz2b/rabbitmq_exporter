@@ -162,6 +162,72 @@ func TestWholeAppInverted(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_connection_received_packets{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 45416`)
 }
 
+func TestAppMaxQueues(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		if r.RequestURI == "/api/overview" {
+			fmt.Fprintln(w, overviewTestData)
+		} else if r.RequestURI == "/api/queues" {
+			fmt.Fprintln(w, queuesTestData)
+		} else if r.RequestURI == "/api/exchanges" {
+			fmt.Fprintln(w, exchangeAPIResponse)
+		} else if r.RequestURI == "/api/nodes" {
+			fmt.Fprintln(w, nodesAPIResponse)
+		} else if r.RequestURI == "/api/connections" {
+			fmt.Fprintln(w, connectionAPIResponse)
+		} else {
+			t.Errorf("Invalid request. URI=%v", r.RequestURI)
+			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
+		}
+
+	}))
+	defer server.Close()
+	os.Setenv("RABBIT_URL", server.URL)
+	os.Setenv("SKIP_QUEUES", "^.*3$")
+	os.Setenv("MAX_QUEUES", "3")
+	initConfig()
+
+	exporter := newExporter()
+	prometheus.MustRegister(exporter)
+	defer prometheus.Unregister(exporter)
+
+	req, _ := http.NewRequest("GET", "", nil)
+	w := httptest.NewRecorder()
+	prometheus.Handler().ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("Home page didn't return %v", http.StatusOK)
+	}
+	body := w.Body.String()
+
+	expectSubstring(t, body, `rabbitmq_up 1`)
+
+	// overview
+	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
+	expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_total 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_ready_total 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_total 0`)
+
+	// node
+	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
+	expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
+
+	// queue
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"} 25`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"} 13912`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"} 0`)
+
+	// exchange
+	expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
+
+	// connection
+	dontExpectSubstring(t, body, `rabbitmq_connection_channels{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 2`)
+	dontExpectSubstring(t, body, `rabbitmq_connection_received_packets{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 45416`)
+}
+
 func TestRabbitError(t *testing.T) {
 	server := createTestserver(500, http.StatusText(500))
 	defer server.Close()

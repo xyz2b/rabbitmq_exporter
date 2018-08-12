@@ -63,6 +63,7 @@ func main() {
 		"SKIP_VHOST":          config.SkipVHost.String(),
 		"INCLUDE_VHOST":       config.IncludeVHost,
 		"RABBIT_TIMEOUT":      config.Timeout,
+		"MAX_QUEUES":          config.MaxQueues,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Active Configuration")
 
