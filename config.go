@@ -22,6 +22,8 @@ var (
 		InsecureSkipVerify: false,
 		SkipQueues:         regexp.MustCompile("^$"),
 		IncludeQueues:      regexp.MustCompile(".*"),
+		SkipVHost:          regexp.MustCompile("^$"),
+		IncludeVHost:       regexp.MustCompile(".*"),
 		RabbitCapabilities: make(rabbitCapabilitySet),
 		EnabledExporters:   []string{"exchange", "node", "overview", "queue"},
 		Timeout:            30,
@@ -39,6 +41,8 @@ type rabbitExporterConfig struct {
 	InsecureSkipVerify bool
 	SkipQueues         *regexp.Regexp
 	IncludeQueues      *regexp.Regexp
+	SkipVHost          *regexp.Regexp
+	IncludeVHost       *regexp.Regexp
 	RabbitCapabilities rabbitCapabilitySet
 	EnabledExporters   []string
 	Timeout            int
@@ -127,6 +131,14 @@ func initConfig() {
 
 	if IncludeQueues := os.Getenv("INCLUDE_QUEUES"); IncludeQueues != "" {
 		config.IncludeQueues = regexp.MustCompile(IncludeQueues)
+	}
+
+	if SkipVHost := os.Getenv("SKIP_VHOST"); SkipVHost != "" {
+		config.SkipVHost = regexp.MustCompile(SkipVHost)
+	}
+
+	if IncludeVHost := os.Getenv("INCLUDE_VHOST"); IncludeVHost != "" {
+		config.IncludeVHost = regexp.MustCompile(IncludeVHost)
 	}
 
 	if rawCapabilities := os.Getenv("RABBIT_CAPABILITIES"); rawCapabilities != "" {

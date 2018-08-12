@@ -6,7 +6,7 @@ Data is scraped by [prometheus](https://prometheus.io).
 # Breaking change -> 1.0.0
 
 Default Port is going to change in the future. New Port is 9419.
-Configuration below is using the recommended configuration with the new port. 
+Configuration below is using the recommended configuration with the new port.
 
 If you are still using the old default port 9090 consider overriding it with the new default.
 https://github.com/kbudde/rabbitmq_exporter/issues/53
@@ -44,12 +44,14 @@ RABBIT_USER | guest | username for rabbitMQ management plugin
 RABBIT_PASSWORD | guest | password for rabbitMQ management plugin
 RABBIT_USER_FILE| | location of file with username (useful for docker secrets)
 RABBIT_PASSWORD_FILE | | location of file with password (useful for docker secrets)
-PUBLISH_PORT | 9090 | Listening port for the exporter 
+PUBLISH_PORT | 9090 | Listening port for the exporter
 PUBLISH_ADDR | "" | Listening host/IP for the exporter
 OUTPUT_FORMAT | TTY | Log ouput format. TTY and JSON are suported
 LOG_LEVEL | info | log level. possible values: "debug", "info", "warning", "error", "fatal", or "panic"
 CAFILE | ca.pem | path to root certificate for access management plugin. Just needed if self signed certificate is used. Will be ignored if the file does not exist
 SKIPVERIFY | false | true/0 will ignore certificate errors of the management plugin
+SKIP_VHOST | ^$ |regex, matching vhost names are not exported. First performs INCLUDE_VHOST, then SKIP_VHOST
+INCLUDE_VHOST | .* | reqgex vhost filter. Only queues in matching vhosts are exported
 INCLUDE_QUEUES | .* | reqgex queue filter. just matching names are exported
 SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
 RABBIT_CAPABILITIES | | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server

@@ -80,13 +80,17 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 	for key, gaugevec := range e.queueMetricsGauge {
 		for _, queue := range rabbitMqQueueData {
 			qname := queue.labels["name"]
+			vname := queue.labels["vhost"]
 			if value, ok := queue.metrics[key]; ok {
 
-				if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
-					if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
-
-						// log.WithFields(log.Fields{"vhost": queue.vhost, "queue": queue.name, "key": key, "value": value}).Debug("Set queue metric for key")
-						gaugevec.WithLabelValues(queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"]).Set(value)
+				if matchVhost := config.IncludeVHost.MatchString(strings.ToLower(vname)); matchVhost {
+					if skipVhost := config.SkipVHost.MatchString(strings.ToLower(vname)); !skipVhost {
+						if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
+							if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
+								// log.WithFields(log.Fields{"vhost": queue.labels["vhost"], "queue": queue.labels["name"], "key": key, "value": value}).Info("Set queue metric for key")
+								gaugevec.WithLabelValues(queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"]).Set(value)
+							}
+						}
 					}
 				}
 			}
@@ -96,13 +100,18 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 	for key, countvec := range e.queueMetricsCounter {
 		for _, queue := range rabbitMqQueueData {
 			qname := queue.labels["name"]
-			if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
-				if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
+			vname := queue.labels["vhost"]
 
-					if value, ok := queue.metrics[key]; ok {
-						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"])
-					} else {
-						ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"])
+			if matchVhost := config.IncludeVHost.MatchString(strings.ToLower(vname)); matchVhost {
+				if skipVhost := config.SkipVHost.MatchString(strings.ToLower(vname)); !skipVhost {
+					if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
+						if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
+							if value, ok := queue.metrics[key]; ok {
+								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"])
+							} else {
+								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"])
+							}
+						}
 					}
 				}
 			}
