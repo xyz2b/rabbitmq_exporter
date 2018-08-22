@@ -5,14 +5,14 @@ services:
 
 language: go
 go:
-  - 1.9
+  - "1.10"
 
 env:
   global:
     - PATH=/home/travis/gopath/bin:$PATH
     - COMMIT=${TRAVIS_COMMIT::8}
     - REPO=kbudde/rabbitmq-exporter
-    - DEP_VERSION="0.3.2"
+    - DEP_VERSION="0.5.0"
 before_install:
   - go get github.com/mitchellh/gox
 
