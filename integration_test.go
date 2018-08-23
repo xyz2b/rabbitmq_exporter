@@ -32,6 +32,7 @@ func TestQueueCount(t *testing.T) {
 		os.Setenv("RABBIT_URL", rabbitManagementURL)
 		os.Setenv("RABBIT_CAPABILITIES", "bert,no_sort")
 		defer os.Unsetenv("RABBIT_URL")
+		defer os.Unsetenv("RABBIT_CAPABILITIES")
 
 		go main()
 		time.Sleep(2 * time.Second)

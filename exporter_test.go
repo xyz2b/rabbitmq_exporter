@@ -121,6 +121,7 @@ func TestWholeAppInverted(t *testing.T) {
 	defer server.Close()
 	os.Setenv("RABBIT_URL", server.URL)
 	os.Setenv("SKIP_QUEUES", "^.*3$")
+	defer os.Unsetenv("SKIP_QUEUES")
 	initConfig()
 	config.EnabledExporters = []string{"connections"}
 
@@ -185,7 +186,9 @@ func TestAppMaxQueues(t *testing.T) {
 	defer server.Close()
 	os.Setenv("RABBIT_URL", server.URL)
 	os.Setenv("SKIP_QUEUES", "^.*3$")
+	defer os.Unsetenv("SKIP_QUEUES")
 	os.Setenv("MAX_QUEUES", "3")
+	defer os.Unsetenv("MAX_QUEUES")
 	initConfig()
 
 	exporter := newExporter()
