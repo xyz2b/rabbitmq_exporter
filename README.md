@@ -153,17 +153,8 @@ Labels: vhost, exchange
 
 metric | description
 -------| ------------
-|exchange_messages_published_total|Count of messages published.|
 |exchange_messages_published_in_total|Count of messages published in to an exchange, i.e. not taking account of routing.|
 |exchange_messages_published_out_total|Count of messages published out of an exchange, i.e. taking account of routing.|
-|exchange_messages_confirmed_total|Count of messages confirmed. |
-|exchange_messages_delivered_total|Count of messages delivered in acknowledgement mode to consumers.|
-|exchange_messages_delivered_noack_total|Count of messages delivered in no-acknowledgement mode to consumers. |
-|exchange_messages_get_total|Count of messages delivered in acknowledgement mode in response to basic.get.|
-|exchange_messages_get_noack_total|Count of messages delivered in no-acknowledgement mode in response to basic.get.|
-|exchange_messages_ack_total|Count of messages delivered in acknowledgement mode in response to basic.get.|
-|exchange_messages_redelivered_total|Count of subset of messages in deliver_get which had the redelivered flag set.|
-|exchange_messages_returned_total|Count of messages returned to publisher as unroutable.|
 
 ### Node - Counter
 
