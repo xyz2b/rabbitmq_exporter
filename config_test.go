@@ -145,8 +145,11 @@ func TestConfig_Capabilities(t *testing.T) {
 
 	os.Unsetenv("RABBIT_CAPABILITIES")
 	initConfig()
-	if !reflect.DeepEqual(config.RabbitCapabilities, make(rabbitCapabilitySet)) {
-		t.Error("Capability set should be empty by default")
+	if !config.RabbitCapabilities[rabbitCapBert] {
+		t.Error("Bert support should be enabled by default")
+	}
+	if !config.RabbitCapabilities[rabbitCapNoSort] {
+		t.Error("No_sort support should be enabled by default")
 	}
 
 	var needToSupport = []rabbitCapability{"no_sort", "bert"}
@@ -157,6 +160,13 @@ func TestConfig_Capabilities(t *testing.T) {
 		if !reflect.DeepEqual(config.RabbitCapabilities, expected) {
 			t.Errorf("Capability '%s' wasn't properly detected from env", cap)
 		}
+	}
+	//disable all capabilities
+	os.Setenv("RABBIT_CAPABILITIES", " ")
+	initConfig()
+	expected := rabbitCapabilitySet{}
+	if !reflect.DeepEqual(config.RabbitCapabilities, expected) {
+		t.Errorf("Capabilities '%v' should be empty", config.RabbitCapabilities)
 	}
 }
 

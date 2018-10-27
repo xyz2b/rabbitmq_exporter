@@ -24,7 +24,7 @@ var (
 		IncludeQueues:      regexp.MustCompile(".*"),
 		SkipVHost:          regexp.MustCompile("^$"),
 		IncludeVHost:       regexp.MustCompile(".*"),
-		RabbitCapabilities: make(rabbitCapabilitySet),
+		RabbitCapabilities: parseCapabilities("no_sort,bert"),
 		EnabledExporters:   []string{"exchange", "node", "overview", "queue"},
 		Timeout:            30,
 		MaxQueues:          0,

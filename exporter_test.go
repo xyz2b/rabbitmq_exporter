@@ -58,6 +58,10 @@ func TestWholeApp(t *testing.T) {
 	defer os.Unsetenv("RABBIT_URL")
 	os.Setenv("SKIP_QUEUES", "^.*3$")
 	defer os.Unsetenv("SKIP_QUEUES")
+	os.Setenv("SKIP_QUEUES", "^.*3$")
+	defer os.Unsetenv("SKIP_QUEUES")
+	os.Setenv("RABBIT_CAPABILITIES", " ")
+	defer os.Unsetenv("RABBIT_CAPABILITIES")
 	initConfig()
 
 	exporter := newExporter()
@@ -122,6 +126,8 @@ func TestWholeAppInverted(t *testing.T) {
 	os.Setenv("RABBIT_URL", server.URL)
 	os.Setenv("SKIP_QUEUES", "^.*3$")
 	defer os.Unsetenv("SKIP_QUEUES")
+	os.Setenv("RABBIT_CAPABILITIES", " ")
+	defer os.Unsetenv("RABBIT_CAPABILITIES")
 	initConfig()
 	config.EnabledExporters = []string{"connections"}
 
@@ -189,6 +195,8 @@ func TestAppMaxQueues(t *testing.T) {
 	defer os.Unsetenv("SKIP_QUEUES")
 	os.Setenv("MAX_QUEUES", "3")
 	defer os.Unsetenv("MAX_QUEUES")
+	os.Setenv("RABBIT_CAPABILITIES", " ")
+	defer os.Unsetenv("RABBIT_CAPABILITIES")
 	initConfig()
 
 	exporter := newExporter()
