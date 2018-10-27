@@ -103,9 +103,12 @@ metric | description
 |consumersTotal | Total number of message consumers|
 |queuesTotal | Total number of queues in use|
 |exchangesTotal | Total number of exchanges in use|
-|queue_messages_total | Total number ready and unacknowledged messages in cluster.|
-|queue_messages_ready_total | Total number of messages ready to be delivered to clients.|
-|queue_messages_unacknowledged_total | Total number of messages delivered to clients but not yet acknowledged.|
+|~~queue_messages_total~~ | Total number ready and unacknowledged messages in cluster.|
+|queue_messages_global | Total number ready and unacknowledged messages in cluster.|
+|~~queue_messages_ready_total~~ | Total number of messages ready to be delivered to clients.|
+|queue_messages_ready_global | Total number of messages ready to be delivered to clients.|
+|~~queue_messages_unacknowledged_total~~ | Total number of messages delivered to clients but not yet acknowledged.|
+|queue_messages_unacknowledged_global | Total number of messages delivered to clients but not yet acknowledged.|
 
 ### Queues
 
@@ -136,8 +139,10 @@ metric | description
 
 metric | description
 -------| ------------
-|queue_disk_reads|Total number of times messages have been read from disk by this queue since it started.|
-|queue_disk_writes|Total number of times messages have been written to disk by this queue since it started.|
+|~~queue_disk_reads~~|Total number of times messages have been read from disk by this queue since it started.|
+|queue_disk_reads_total|Total number of times messages have been read from disk by this queue since it started.|
+|~~queue_disk_writes~~|Total number of times messages have been written to disk by this queue since it started.|
+|queue_disk_writes_total|Total number of times messages have been written to disk by this queue since it started.|
 |queue_messages_published_total|Count of messages published.|
 |queue_messages_confirmed_total|Count of messages confirmed. |
 |queue_messages_delivered_total|Count of messages delivered in acknowledgement mode to consumers.|
@@ -170,9 +175,11 @@ metric | description
 |node_disk_free_alarm|Whether the disk alarm has gone off.|
 |node_disk_free_limit|Point at which the disk alarm will go off.|
 |fd_used|Used File descriptors|
-|fd_total|File descriptors available|
+|~~fd_total~~|File descriptors available|
+|fd_available|File descriptors available|
 |sockets_used|File descriptors used as sockets.|
-|sockets_total|File descriptors available for use as sockets|
+|~~sockets_total~~|File descriptors available for use as sockets|
+|sockets_available|File descriptors available for use as sockets|
 |partitions | Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2|
 
 ### Connections - Gauge

@@ -71,15 +71,15 @@ func TestWholeApp(t *testing.T) {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
 	body := w.Body.String()
-	t.Log(body)
+	// t.Log(body)
 	expectSubstring(t, body, `rabbitmq_up 1`)
 
 	// overview
 	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
 	expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
-	expectSubstring(t, body, `rabbitmq_queue_messages_total 48`)
-	expectSubstring(t, body, `rabbitmq_queue_messages_ready_total 48`)
-	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_total 0`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
 
 	// node
 	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
@@ -89,7 +89,7 @@ func TestWholeApp(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"} 25`)
 	expectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"} 13912`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
-	expectSubstring(t, body, `rabbitmq_queue_disk_writes{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
+	expectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"} 0`)
 	// exchange
 	expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
@@ -208,9 +208,9 @@ func TestAppMaxQueues(t *testing.T) {
 	// overview
 	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
 	expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
-	expectSubstring(t, body, `rabbitmq_queue_messages_total 48`)
-	expectSubstring(t, body, `rabbitmq_queue_messages_ready_total 48`)
-	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_total 0`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
 
 	// node
 	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)

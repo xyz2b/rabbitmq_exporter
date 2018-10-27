@@ -15,9 +15,9 @@ var overviewMetricDescription = map[string]prometheus.Gauge{
 	"object_totals.consumers":              newGauge("consumersTotal", "Total number of message consumers."),
 	"object_totals.queues":                 newGauge("queuesTotal", "Total number of queues in use."),
 	"object_totals.exchanges":              newGauge("exchangesTotal", "Total number of exchanges in use."),
-	"queue_totals.messages":                newGauge("queue_messages_total", "Total number ready and unacknowledged messages in cluster."),
-	"queue_totals.messages_ready":          newGauge("queue_messages_ready_total", "Total number of messages ready to be delivered to clients."),
-	"queue_totals.messages_unacknowledged": newGauge("queue_messages_unacknowledged_total", "Total number of messages delivered to clients but not yet acknowledged."),
+	"queue_totals.messages":                newGauge("queue_messages_global", "Total number ready and unacknowledged messages in cluster."),
+	"queue_totals.messages_ready":          newGauge("queue_messages_ready_global", "Total number of messages ready to be delivered to clients."),
+	"queue_totals.messages_unacknowledged": newGauge("queue_messages_unacknowledged_global", "Total number of messages delivered to clients but not yet acknowledged."),
 }
 
 type exporterOverview struct {

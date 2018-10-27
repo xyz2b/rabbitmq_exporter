@@ -21,9 +21,9 @@ var (
 		"disk_free_alarm": newGaugeVec("node_disk_free_alarm", "Whether the disk alarm has gone off.", nodeLabels),
 		"disk_free_limit": newGaugeVec("node_disk_free_limit", "Point at which the disk alarm will go off.", nodeLabels),
 		"fd_used":         newGaugeVec("fd_used", "Used File descriptors", nodeLabels),
-		"fd_total":        newGaugeVec("fd_total", "File descriptors available", nodeLabels),
+		"fd_total":        newGaugeVec("fd_available", "File descriptors available", nodeLabels),
 		"sockets_used":    newGaugeVec("sockets_used", "File descriptors used as sockets.", nodeLabels),
-		"sockets_total":   newGaugeVec("sockets_total", "File descriptors available for use as sockets", nodeLabels),
+		"sockets_total":   newGaugeVec("sockets_available", "File descriptors available for use as sockets", nodeLabels),
 		"partitions_len":  newGaugeVec("partitions", "Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2", nodeLabels),
 	}
 )

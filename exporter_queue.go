@@ -35,8 +35,8 @@ var (
 	}
 
 	queueCounterVec = map[string]*prometheus.Desc{
-		"disk_reads":                   newDesc("queue_disk_reads", "Total number of times messages have been read from disk by this queue since it started.", queueLabels),
-		"disk_writes":                  newDesc("queue_disk_writes", "Total number of times messages have been written to disk by this queue since it started.", queueLabels),
+		"disk_reads":                   newDesc("queue_disk_reads_total", "Total number of times messages have been read from disk by this queue since it started.", queueLabels),
+		"disk_writes":                  newDesc("queue_disk_writes_total", "Total number of times messages have been written to disk by this queue since it started.", queueLabels),
 		"message_stats.publish":        newDesc("queue_messages_published_total", "Count of messages published.", queueLabels),
 		"message_stats.confirm":        newDesc("queue_messages_confirmed_total", "Count of messages confirmed. ", queueLabels),
 		"message_stats.deliver":        newDesc("queue_messages_delivered_total", "Count of messages delivered in acknowledgement mode to consumers.", queueLabels),
