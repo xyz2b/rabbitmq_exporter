@@ -160,7 +160,7 @@ func TestWholeAppInverted(t *testing.T) {
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"} 25`)
 	dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"} 13912`)
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"} 0`)
 	// exchange
 	dontExpectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
@@ -228,7 +228,7 @@ func TestAppMaxQueues(t *testing.T) {
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"} 25`)
 	dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"} 13912`)
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"} 0`)
 
 	// exchange
@@ -261,4 +261,183 @@ func TestRabbitError(t *testing.T) {
 	if strings.Contains(body, "rabbitmq_channelsTotal") {
 		t.Errorf("Metric 'rabbitmq_channelsTotal' unexpected as the server  did not respond")
 	}
+}
+
+//TestResetMetricsOnRabbitFailure verifies the behaviour of the exporter if the rabbitmq fails after one successfull retrieval of the data
+// List of metrics should be empty except rabbitmq_up should be 0
+func TestResetMetricsOnRabbitFailure(t *testing.T) {
+	rabbitUP := true
+	rabbitQueuesUp := true
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !rabbitUP {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintln(w, http.StatusText(http.StatusInternalServerError))
+			return
+		}
+		if !rabbitQueuesUp && r.RequestURI == "/api/queues" {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintln(w, http.StatusText(http.StatusInternalServerError))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		if r.RequestURI == "/api/overview" {
+			fmt.Fprintln(w, overviewTestData)
+		} else if r.RequestURI == "/api/queues" {
+			fmt.Fprintln(w, queuesTestData)
+		} else if r.RequestURI == "/api/exchanges" {
+			fmt.Fprintln(w, exchangeAPIResponse)
+		} else if r.RequestURI == "/api/nodes" {
+			fmt.Fprintln(w, nodesAPIResponse)
+		} else if r.RequestURI == "/api/connections" {
+			fmt.Fprintln(w, connectionAPIResponse)
+		} else {
+			t.Errorf("Invalid request. URI=%v", r.RequestURI)
+			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
+		}
+
+	}))
+	defer server.Close()
+	os.Setenv("RABBIT_URL", server.URL)
+	os.Setenv("RABBIT_CAPABILITIES", " ")
+	defer os.Unsetenv("RABBIT_CAPABILITIES")
+	os.Setenv("RABBIT_EXPORTERS", "exchange,node,overview,queue,connections")
+	defer os.Unsetenv("RABBIT_EXPORTERS")
+
+	initConfig()
+
+	exporter := newExporter()
+	prometheus.MustRegister(exporter)
+	defer prometheus.Unregister(exporter)
+
+	t.Run("RabbitMQ is up -> all metrics are ok", func(t *testing.T) {
+		rabbitUP = true
+		rabbitQueuesUp = true
+		req, _ := http.NewRequest("GET", "", nil)
+		w := httptest.NewRecorder()
+		prometheus.Handler().ServeHTTP(w, req)
+		if w.Code != http.StatusOK {
+			t.Errorf("Home page didn't return %v", http.StatusOK)
+		}
+		body := w.Body.String()
+
+		expectSubstring(t, body, `rabbitmq_up 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="exchange"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="node"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="overview"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="queue"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="connections"} 1`)
+
+		// overview
+		expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
+		expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
+
+		// node
+		expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
+		expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
+
+		// queue
+		expectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"} 25`)
+		expectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"} 13912`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
+		expectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",vhost="/"} 6`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"} 0`)
+
+		// exchange
+		expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
+
+		// connection
+		expectSubstring(t, body, `rabbitmq_connection_channels{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 2`)
+		expectSubstring(t, body, `rabbitmq_connection_received_packets{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 45416`)
+	})
+
+	t.Run("Rabbit Queue Endpoint down -> 'rabbitmq_up 0' and queue metrics are missing", func(t *testing.T) {
+		rabbitQueuesUp = false
+		req, _ := http.NewRequest("GET", "", nil)
+		w := httptest.NewRecorder()
+		prometheus.Handler().ServeHTTP(w, req)
+		if w.Code != http.StatusOK {
+			t.Errorf("Home page didn't return %v", http.StatusOK)
+		}
+		body := w.Body.String()
+
+		expectSubstring(t, body, `rabbitmq_up 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="exchange"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="node"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="overview"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="queue"} 0`) //down
+		expectSubstring(t, body, `rabbitmq_module_up{module="connections"} 1`)
+
+		// overview
+		expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
+		expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
+
+		// node
+		expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
+		expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
+
+		// queue
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"}`)
+
+		// exchange
+		expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
+
+		// connection
+		expectSubstring(t, body, `rabbitmq_connection_channels{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 2`)
+		expectSubstring(t, body, `rabbitmq_connection_received_packets{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"} 45416`)
+	})
+
+	t.Run("RabbitMQ is down -> all metrics are missing except 'rabbitmq_up 0'", func(t *testing.T) {
+		rabbitUP = false
+		req, _ := http.NewRequest("GET", "", nil)
+		w := httptest.NewRecorder()
+		prometheus.Handler().ServeHTTP(w, req)
+		if w.Code != http.StatusOK {
+			t.Errorf("Home page didn't return %v", http.StatusOK)
+		}
+		body := w.Body.String()
+
+		expectSubstring(t, body, `rabbitmq_up 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="exchange"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="node"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="overview"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="queue"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{module="connections"} 0`)
+
+		// overview
+		dontExpectSubstring(t, body, `rabbitmq_exchangesTotal`)
+		dontExpectSubstring(t, body, `rabbitmq_queuesTotal`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_global`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready_global`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global`)
+
+		// node
+		dontExpectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"}`)
+		dontExpectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"}`)
+
+		// queue
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",vhost="vhost4"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",vhost="/"}`)
+
+		// exchange
+		dontExpectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"}`)
+
+		// connection
+		dontExpectSubstring(t, body, `rabbitmq_connection_channels{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_connection_received_packets{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",user="rmq_oms",vhost="/"}`)
+	})
+
 }

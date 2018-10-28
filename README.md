@@ -92,6 +92,7 @@ All metrics (except golang/prometheus metrics) are prefixed with "rabbitmq_".
 metric | description
 -------| ------------
 up | Was the last scrape of rabbitmq successful.
+module_up | Was the last scrape of rabbitmq module successful. labels: module
 rabbitmq_exporter_build_info | A metric with a constant '1' value labeled by version, revision, branch and build date on which the rabbitmq_exporter was built.
 
 ### Overview

@@ -24,9 +24,10 @@ func RegisterExporter(name string, f func() Exporter) {
 }
 
 type exporter struct {
-	mutex    sync.RWMutex
-	upMetric prometheus.Gauge
-	exporter []Exporter
+	mutex                        sync.RWMutex
+	upMetric                     prometheus.Gauge
+	endpointUpMetric             *prometheus.GaugeVec
+	exporter                     map[string]Exporter
 }
 
 //Exporter interface for prometheus metrics. Collect is fetching the data and therefore can return an error
@@ -36,14 +37,15 @@ type Exporter interface {
 }
 
 func newExporter() *exporter {
-	enabledExporter := []Exporter{}
+	enabledExporter := make(map[string]Exporter)
 	for _, e := range config.EnabledExporters {
-		enabledExporter = append(enabledExporter, exporterFactories[e]())
+		enabledExporter[e] = exporterFactories[e]()
 	}
 
 	return &exporter{
-		upMetric: newGauge("up", "Was the last scrape of rabbitmq successful."),
-		exporter: enabledExporter,
+		upMetric:                     newGauge("up", "Was the last scrape of rabbitmq successful."),
+		endpointUpMetric:             newGaugeVec("module_up", "Was the last scrape of rabbitmq successful per module.", []string{"module"}),
+		exporter:                     enabledExporter,
 	}
 }
 
@@ -54,6 +56,7 @@ func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 	}
 
 	e.upMetric.Describe(ch)
+	e.endpointUpMetric.Describe(ch)
 	BuildInfo.Describe(ch)
 }
 
@@ -64,10 +67,13 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	allUp := true
 
-	for _, ex := range e.exporter {
+	for name, ex := range e.exporter {
 		err := ex.Collect(ch)
 		if err != nil {
 			allUp = false
+			e.endpointUpMetric.WithLabelValues(name).Set(0)
+		} else {
+			e.endpointUpMetric.WithLabelValues(name).Set(1)
 		}
 	}
 
@@ -79,6 +85,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 		e.upMetric.Set(0)
 	}
 	e.upMetric.Collect(ch)
+	e.endpointUpMetric.Collect(ch)
 	log.WithField("duration", time.Since(start)).Info("Metrics updated")
 
 }
