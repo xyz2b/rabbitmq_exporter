@@ -136,6 +136,7 @@ metric | description
 |queue_consumer_utilisation|Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count.|
 |queue_memory|Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures.|
 |queue_head_message_timestamp|The timestamp property of the first message in the queue, if present. Timestamps of messages only appear when they are in the paged-in state.|
+|queue_status|A metric with a value of constant '1' if the queue is in a certain state. Labels: vhost, queue, *state* (running, flow,..)|
 
 #### Queues - Counter
 
@@ -190,6 +191,8 @@ _disabled by default_. Depending on the environment and change rate it can creat
 
 Labels: vhost, node, peer_host, user
 
+Please note: The data is aggregated by label values as it is possible that there are multiple connections for a certain combination of labels. 
+
 metric | description
 -------| ------------
 |connection_channels|number of channels in use|
@@ -198,6 +201,7 @@ metric | description
 |connection_send_bytes|send bytes|
 |connection_send_packets|send packets|
 |connection_send_pending|Send queue size|
+|connection_status|Number of connections in a certain state aggregated per label combination. Metric will disappear if there are no connections in a state. Labels: vhost, node, peer_host, user, *state* (running, flow,..)|
 
 ## Docker
 

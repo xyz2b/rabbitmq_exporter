@@ -13,7 +13,7 @@ func init() {
 
 var (
 	queueLabels    = []string{"vhost", "queue", "durable", "policy"}
-	queueLabelKeys = []string{"vhost", "name", "durable", "policy"}
+	queueLabelKeys = []string{"vhost", "name", "durable", "policy", "state"}
 
 	queueGaugeVec = map[string]*prometheus.GaugeVec{
 		"messages_ready":               newGaugeVec("queue_messages_ready", "Number of messages ready to be delivered to clients.", queueLabels),
@@ -52,12 +52,14 @@ var (
 type exporterQueue struct {
 	queueMetricsGauge   map[string]*prometheus.GaugeVec
 	queueMetricsCounter map[string]*prometheus.Desc
+	stateMetric         *prometheus.GaugeVec
 }
 
 func newExporterQueue() Exporter {
 	return exporterQueue{
 		queueMetricsGauge:   queueGaugeVec,
 		queueMetricsCounter: queueCounterVec,
+		stateMetric:         newGaugeVec("queue_state", "A metric with a value of constant '1' if the queue is in a certain state", append(queueLabels, "state")),
 	}
 }
 
@@ -69,6 +71,7 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 	for _, gaugevec := range e.queueMetricsGauge {
 		gaugevec.Reset()
 	}
+	e.stateMetric.Reset()
 
 	if config.MaxQueues > 0 {
 		// Get overview info to check total queues
@@ -116,6 +119,23 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 		}
 	}
 
+	for _, queue := range rabbitMqQueueData {
+		qname := queue.labels["name"]
+		vname := queue.labels["vhost"]
+		if _, ok := queue.metrics["messages"]; ok { // "messages" is used to retrieve one record per queue for setting the queue state
+
+			if matchVhost := config.IncludeVHost.MatchString(strings.ToLower(vname)); matchVhost {
+				if skipVhost := config.SkipVHost.MatchString(strings.ToLower(vname)); !skipVhost {
+					if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
+						if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
+							e.stateMetric.WithLabelValues(queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], queue.labels["state"]).Set(1)
+						}
+					}
+				}
+			}
+		}
+	}
+
 	for key, countvec := range e.queueMetricsCounter {
 		for _, queue := range rabbitMqQueueData {
 			qname := queue.labels["name"]
@@ -140,6 +160,7 @@ func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
 	for _, gaugevec := range e.queueMetricsGauge {
 		gaugevec.Collect(ch)
 	}
+	e.stateMetric.Collect(ch)
 
 	return nil
 }
@@ -148,6 +169,7 @@ func (e exporterQueue) Describe(ch chan<- *prometheus.Desc) {
 	for _, gaugevec := range e.queueMetricsGauge {
 		gaugevec.Describe(ch)
 	}
+	e.stateMetric.Describe(ch)
 	for _, countervec := range e.queueMetricsCounter {
 		ch <- countervec
 	}
