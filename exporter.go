@@ -27,6 +27,7 @@ type exporter struct {
 	mutex                        sync.RWMutex
 	upMetric                     prometheus.Gauge
 	endpointUpMetric             *prometheus.GaugeVec
+	endpointScrapeDurationMetric *prometheus.GaugeVec
 	exporter                     map[string]Exporter
 }
 
@@ -45,6 +46,7 @@ func newExporter() *exporter {
 	return &exporter{
 		upMetric:                     newGauge("up", "Was the last scrape of rabbitmq successful."),
 		endpointUpMetric:             newGaugeVec("module_up", "Was the last scrape of rabbitmq successful per module.", []string{"module"}),
+		endpointScrapeDurationMetric: newGaugeVec("module_scrape_duration_seconds", "Duration of the last scrape in seconds", []string{"module"}),
 		exporter:                     enabledExporter,
 	}
 }
@@ -57,6 +59,7 @@ func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 
 	e.upMetric.Describe(ch)
 	e.endpointUpMetric.Describe(ch)
+	e.endpointScrapeDurationMetric.Describe(ch)
 	BuildInfo.Describe(ch)
 }
 
@@ -68,7 +71,9 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	allUp := true
 
 	for name, ex := range e.exporter {
+		startModule := time.Now()
 		err := ex.Collect(ch)
+		e.endpointScrapeDurationMetric.WithLabelValues(name).Set(time.Since(startModule).Seconds())
 		if err != nil {
 			allUp = false
 			e.endpointUpMetric.WithLabelValues(name).Set(0)
@@ -86,6 +91,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 	e.upMetric.Collect(ch)
 	e.endpointUpMetric.Collect(ch)
+	e.endpointScrapeDurationMetric.Collect(ch)
 	log.WithField("duration", time.Since(start)).Info("Metrics updated")
 
 }

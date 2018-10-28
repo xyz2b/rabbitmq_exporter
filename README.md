@@ -93,6 +93,7 @@ metric | description
 -------| ------------
 up | Was the last scrape of rabbitmq successful.
 module_up | Was the last scrape of rabbitmq module successful. labels: module
+module_scrape_duration_seconds | Duration of the last scrape of rabbitmq module. labels: module
 rabbitmq_exporter_build_info | A metric with a constant '1' value labeled by version, revision, branch and build date on which the rabbitmq_exporter was built.
 
 ### Overview
