@@ -5,11 +5,8 @@ Data is scraped by [prometheus](https://prometheus.io).
 
 # Breaking change -> 1.0.0
 
-Default Port is going to change in the future. New Port is 9419.
-Configuration below is using the recommended configuration with the new port.
-
-If you are still using the old default port 9090 consider overriding it with the new default.
-https://github.com/kbudde/rabbitmq_exporter/issues/53
+- RABBIT_CAPABILITIES are set to bert,no_sort
+- new default port 9419
 
 ## Installation
 
@@ -28,7 +25,7 @@ The rabbitmq_exporter is sharing the network interface with the rabbitmq contain
 
 1. Start rabbitmq_exporter in container.
 
-        docker run -d --net=container:my-rabbit -e RABBIT_CAPABILITIES=bert,no_sort -e PUBLISH_PORT=9419 kbudde/rabbitmq-exporter
+        docker run -d --net=container:my-rabbit kbudde/rabbitmq-exporter
 
 Now your metrics are exposed through [http://host:9419/metrics](http://host:9419/metrics). The management plugin does not need to be exposed.
 
@@ -44,7 +41,7 @@ RABBIT_USER | guest | username for rabbitMQ management plugin
 RABBIT_PASSWORD | guest | password for rabbitMQ management plugin
 RABBIT_USER_FILE| | location of file with username (useful for docker secrets)
 RABBIT_PASSWORD_FILE | | location of file with password (useful for docker secrets)
-PUBLISH_PORT | 9090 | Listening port for the exporter
+PUBLISH_PORT | 9419 | Listening port for the exporter
 PUBLISH_ADDR | "" | Listening host/IP for the exporter
 OUTPUT_FORMAT | TTY | Log ouput format. TTY and JSON are suported
 LOG_LEVEL | info | log level. possible values: "debug", "info", "warning", "error", "fatal", or "panic"
@@ -54,7 +51,7 @@ SKIP_VHOST | ^$ |regex, matching vhost names are not exported. First performs IN
 INCLUDE_VHOST | .* | reqgex vhost filter. Only queues in matching vhosts are exported
 INCLUDE_QUEUES | .* | reqgex queue filter. just matching names are exported
 SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
-RABBIT_CAPABILITIES | | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
+RABBIT_CAPABILITIES | bert,no_sort | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
 RABBIT_EXPORTERS | exchange,node,overview,queue | List of enabled modules. Just "connections" is not enabled by default
 RABBIT_TIMEOUT | 30 | timeout in seconds for retrieving data from management plugin.
 MAX_QUEUES | 0 | max number of queues before we drop metrics (disabled if set to 0)
