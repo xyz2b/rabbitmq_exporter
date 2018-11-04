@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 func init() {
-	RegisterExporter("overview", newExporterOverview)
+	//RegisterExporter("overview", newExporterOverview)
 }
 
 var overviewMetricDescription = map[string]prometheus.Gauge{
@@ -22,24 +26,49 @@ var overviewMetricDescription = map[string]prometheus.Gauge{
 
 type exporterOverview struct {
 	overviewMetrics map[string]prometheus.Gauge
+	nodeInfo        NodeInfo
 }
 
-func newExporterOverview() Exporter {
-	return exporterOverview{
+//NodeInfo presents the name and version of fetched rabbitmq
+type NodeInfo struct {
+	Node            string `json:"node"`
+	RabbitmqVersion string `json:"rabbitmq_version"`
+	ErlangVersion   string `json:"erlang_version"`
+}
+
+func newExporterOverview() *exporterOverview {
+	return &exporterOverview{
 		overviewMetrics: overviewMetricDescription,
+		nodeInfo:        NodeInfo{},
 	}
 }
 
 func (e exporterOverview) String() string {
-	return "Exporter overview"
+	return "overview"
 }
 
-func (e exporterOverview) Collect(ch chan<- prometheus.Metric) error {
-	rabbitMqOverviewData, err := getMetricMap(config, "overview")
+func (e exporterOverview) NodeInfo() NodeInfo {
+	return e.nodeInfo
+}
 
+func (e *exporterOverview) Collect(ch chan<- prometheus.Metric) error {
+	body, err := apiRequest(config, "overview")
 	if err != nil {
 		return err
 	}
+
+	dec := json.NewDecoder(bytes.NewReader(body))
+	var nodeInfo NodeInfo
+	if err := dec.Decode(&nodeInfo); err == io.EOF {
+		return err
+	}
+	e.nodeInfo = nodeInfo
+
+	reply, err := MakeReply(config, body)
+	if err != nil {
+		return err
+	}
+	rabbitMqOverviewData := reply.MakeMap()
 
 	log.WithField("overviewData", rabbitMqOverviewData).Debug("Overview data")
 	for key, gauge := range e.overviewMetrics {

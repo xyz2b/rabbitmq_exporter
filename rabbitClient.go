@@ -38,7 +38,7 @@ func initClient() {
 
 }
 
-func loadMetrics(config rabbitExporterConfig, endpoint string) (RabbitReply, error) {
+func apiRequest(config rabbitExporterConfig, endpoint string) ([]byte, error) {
 	var args string
 	enabled, exists := config.RabbitCapabilities[rabbitCapNoSort]
 	if enabled && exists {
@@ -72,6 +72,14 @@ func loadMetrics(config rabbitExporterConfig, endpoint string) (RabbitReply, err
 	}
 	log.WithFields(log.Fields{"body": string(body), "endpoint": endpoint}).Debug("Metrics loaded")
 
+	return body, nil
+}
+
+func loadMetrics(config rabbitExporterConfig, endpoint string) (RabbitReply, error) {
+	body, err := apiRequest(config, endpoint)
+	if err != nil {
+		return nil, err
+	}
 	return MakeReply(config, body)
 }
 
@@ -91,7 +99,12 @@ func getStatsInfo(config rabbitExporterConfig, apiEndpoint string, labels []stri
 func getMetricMap(config rabbitExporterConfig, apiEndpoint string) (MetricMap, error) {
 	var overview MetricMap
 
-	reply, err := loadMetrics(config, apiEndpoint)
+	body, err := apiRequest(config, apiEndpoint)
+	if err != nil {
+		return overview, err
+	}
+
+	reply, err := MakeReply(config, body)
 	if err != nil {
 		return overview, err
 	}

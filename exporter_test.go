@@ -79,8 +79,8 @@ func TestWholeApp(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_up 1`)
 
 	// overview
-	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
-	expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
+	expectSubstring(t, body, `rabbitmq_exchanges 8`)
+	expectSubstring(t, body, `rabbitmq_queues 4`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
@@ -145,12 +145,12 @@ func TestWholeAppInverted(t *testing.T) {
 
 	expectSubstring(t, body, `rabbitmq_up 1`)
 
-	// overview
-	dontExpectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
-	dontExpectSubstring(t, body, `rabbitmq_queuesTotal 4`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_total 48`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready_total 48`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_total 0`)
+	// overview is always scraped and exported
+	expectSubstring(t, body, `rabbitmq_exchanges 8`)
+	expectSubstring(t, body, `rabbitmq_queues 4`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
 
 	// node
 	dontExpectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
@@ -214,8 +214,8 @@ func TestAppMaxQueues(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_up 1`)
 
 	// overview
-	expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
-	expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
+	expectSubstring(t, body, `rabbitmq_exchanges 8`)
+	expectSubstring(t, body, `rabbitmq_queues 4`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
@@ -329,8 +329,8 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		expectSubstring(t, body, `rabbitmq_module_up{module="connections"} 1`)
 
 		// overview
-		expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
-		expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
+		expectSubstring(t, body, `rabbitmq_exchanges 8`)
+		expectSubstring(t, body, `rabbitmq_queues 4`)
 		expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
 		expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
 		expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
@@ -372,8 +372,8 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		expectSubstring(t, body, `rabbitmq_module_up{module="connections"} 1`)
 
 		// overview
-		expectSubstring(t, body, `rabbitmq_exchangesTotal 8`)
-		expectSubstring(t, body, `rabbitmq_queuesTotal 4`)
+		expectSubstring(t, body, `rabbitmq_exchanges 8`)
+		expectSubstring(t, body, `rabbitmq_queues 4`)
 		expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
 		expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
 		expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)

@@ -41,7 +41,7 @@ func TestQueueCount(t *testing.T) {
 	t.Run("Ensure there are no queues", func(t *testing.T) {
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
-		r := regexp.MustCompile("rabbitmq_queuesTotal 0")
+		r := regexp.MustCompile("rabbitmq_queues 0")
 		if s := r.FindString(body); s == "" {
 			t.Fatalf("QueueCount not found in body: %v", body)
 		}
@@ -52,7 +52,7 @@ func TestQueueCount(t *testing.T) {
 
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
-		r := regexp.MustCompile("rabbitmq_queuesTotal 1")
+		r := regexp.MustCompile("rabbitmq_queues 1")
 		if s := r.FindString(body); s == "" {
 			// t.Logf("body: %s", body)
 			t.Fatalf("QueueCount not found ")

@@ -52,7 +52,7 @@ INCLUDE_VHOST | .* | reqgex vhost filter. Only queues in matching vhosts are exp
 INCLUDE_QUEUES | .* | reqgex queue filter. just matching names are exported
 SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
 RABBIT_CAPABILITIES | bert,no_sort | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
-RABBIT_EXPORTERS | exchange,node,overview,queue | List of enabled modules. Just "connections" is not enabled by default
+RABBIT_EXPORTERS | exchange,node,queue | List of enabled modules. Just "connections" is not enabled by default
 RABBIT_TIMEOUT | 30 | timeout in seconds for retrieving data from management plugin.
 MAX_QUEUES | 0 | max number of queues before we drop metrics (disabled if set to 0)
 
@@ -86,6 +86,8 @@ All metrics (except golang/prometheus metrics) are prefixed with "rabbitmq_".
 
 ### Global
 
+Always exported.
+
 metric | description
 -------| ------------
 up | Was the last scrape of rabbitmq successful.
@@ -95,6 +97,8 @@ rabbitmq_exporter_build_info | A metric with a constant '1' value labeled by ver
 
 ### Overview
 
+Always exported.
+
 metric | description
 -------| ------------
 |channels | Number of channels|
@@ -102,11 +106,8 @@ metric | description
 |consumers | Number of message consumers|
 |queues | Number of queues in use|
 |exchangesTo | Number of exchanges in use|
-|~~queue_messages_total~~ | Number ready and unacknowledged messages in cluster.|
 |queue_messages_global | Number ready and unacknowledged messages in cluster.|
-|~~queue_messages_ready_total~~ | Number of messages ready to be delivered to clients.|
 |queue_messages_ready_global | Number of messages ready to be delivered to clients.|
-|~~queue_messages_unacknowledged_total~~ | Number of messages delivered to clients but not yet acknowledged.|
 |queue_messages_unacknowledged_global | Number of messages delivered to clients but not yet acknowledged.|
 
 ### Queues
@@ -139,9 +140,7 @@ metric | description
 
 metric | description
 -------| ------------
-|~~queue_disk_reads~~|Total number of times messages have been read from disk by this queue since it started.|
 |queue_disk_reads_total|Total number of times messages have been read from disk by this queue since it started.|
-|~~queue_disk_writes~~|Total number of times messages have been written to disk by this queue since it started.|
 |queue_disk_writes_total|Total number of times messages have been written to disk by this queue since it started.|
 |queue_messages_published_total|Count of messages published.|
 |queue_messages_confirmed_total|Count of messages confirmed. |
@@ -175,10 +174,8 @@ metric | description
 |node_disk_free_alarm|Whether the disk alarm has gone off.|
 |node_disk_free_limit|Point at which the disk alarm will go off.|
 |fd_used|Used File descriptors|
-|~~fd_total~~|File descriptors available|
 |fd_available|File descriptors available|
 |sockets_used|File descriptors used as sockets.|
-|~~sockets_total~~|File descriptors available for use as sockets|
 |sockets_available|File descriptors available for use as sockets|
 |partitions | Current Number of network partitions. 0 is ok. If the cluster is splitted the value is at least 2|
 
