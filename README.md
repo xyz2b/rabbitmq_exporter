@@ -97,17 +97,17 @@ rabbitmq_exporter_build_info | A metric with a constant '1' value labeled by ver
 
 metric | description
 -------| ------------
-|channelsTotal | Total number of open channels|
-|connectionsTotal | Total number of open connections|
-|consumersTotal | Total number of message consumers|
-|queuesTotal | Total number of queues in use|
-|exchangesTotal | Total number of exchanges in use|
-|~~queue_messages_total~~ | Total number ready and unacknowledged messages in cluster.|
-|queue_messages_global | Total number ready and unacknowledged messages in cluster.|
-|~~queue_messages_ready_total~~ | Total number of messages ready to be delivered to clients.|
-|queue_messages_ready_global | Total number of messages ready to be delivered to clients.|
-|~~queue_messages_unacknowledged_total~~ | Total number of messages delivered to clients but not yet acknowledged.|
-|queue_messages_unacknowledged_global | Total number of messages delivered to clients but not yet acknowledged.|
+|channels | Number of channels|
+|connections | Number of connections|
+|consumers | Number of message consumers|
+|queues | Number of queues in use|
+|exchangesTo | Number of exchanges in use|
+|~~queue_messages_total~~ | Number ready and unacknowledged messages in cluster.|
+|queue_messages_global | Number ready and unacknowledged messages in cluster.|
+|~~queue_messages_ready_total~~ | Number of messages ready to be delivered to clients.|
+|queue_messages_ready_global | Number of messages ready to be delivered to clients.|
+|~~queue_messages_unacknowledged_total~~ | Number of messages delivered to clients but not yet acknowledged.|
+|queue_messages_unacknowledged_global | Number of messages delivered to clients but not yet acknowledged.|
 
 ### Queues
 

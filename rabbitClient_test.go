@@ -9,6 +9,7 @@ import (
 )
 
 func expect(t *testing.T, got interface{}, expected interface{}) {
+	t.Helper()
 	if got != expected {
 		t.Errorf("Expected %v (type %v) - Got %v (type %v)", expected, reflect.TypeOf(expected), got, reflect.TypeOf(got))
 	}
