@@ -37,8 +37,18 @@ type NodeInfo struct {
 }
 
 func newExporterOverview() *exporterOverview {
+	overviewMetricDescriptionActual := overviewMetricDescription
+
+	if len(config.ExcludeMetrics) > 0 {
+		for _, metric := range config.ExcludeMetrics {
+			if overviewMetricDescriptionActual[metric] != nil {
+				delete(overviewMetricDescriptionActual, metric)
+			}
+		}
+	}
+
 	return &exporterOverview{
-		overviewMetrics: overviewMetricDescription,
+		overviewMetrics: overviewMetricDescriptionActual,
 		nodeInfo:        NodeInfo{},
 	}
 }

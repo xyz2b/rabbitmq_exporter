@@ -32,8 +32,18 @@ type exporterExchange struct {
 }
 
 func newExporterExchange() Exporter {
+	exchangeCounterVecActual := exchangeCounterVec
+
+	if len(config.ExcludeMetrics) > 0 {
+		for _, metric := range config.ExcludeMetrics {
+			if exchangeCounterVecActual[metric] != nil {
+				delete(exchangeCounterVecActual, metric)
+			}
+		}
+	}
+
 	return exporterExchange{
-		exchangeMetrics: exchangeCounterVec,
+		exchangeMetrics: exchangeCounterVecActual,
 	}
 }
 

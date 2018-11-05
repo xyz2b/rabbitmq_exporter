@@ -56,9 +56,23 @@ type exporterQueue struct {
 }
 
 func newExporterQueue() Exporter {
+	queueGaugeVecActual := queueGaugeVec
+	queueCounterVecActual := queueCounterVec
+
+	if len(config.ExcludeMetrics) > 0 {
+		for _, metric := range config.ExcludeMetrics {
+			if queueGaugeVecActual[metric] != nil {
+				delete(queueGaugeVecActual, metric)
+			}
+			if queueCounterVecActual[metric] != nil {
+				delete(queueCounterVecActual, metric)
+			}
+		}
+	}
+
 	return exporterQueue{
-		queueMetricsGauge:   queueGaugeVec,
-		queueMetricsCounter: queueCounterVec,
+		queueMetricsGauge:   queueGaugeVecActual,
+		queueMetricsCounter: queueCounterVecActual,
 		stateMetric:         newGaugeVec("queue_state", "A metric with a value of constant '1' if the queue is in a certain state", append(queueLabels, "state")),
 	}
 }
