@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -11,6 +12,14 @@ import (
 var (
 	exportersMu       sync.RWMutex
 	exporterFactories = make(map[string]func() Exporter)
+)
+
+type contextValues string
+
+const (
+	endpointScrapeDuration contextValues = "endpointScrapeDuration"
+	endpointUpMetric       contextValues = "endpointUpMetric"
+	nodeName               contextValues = "node"
 )
 
 //RegisterExporter makes an exporter available by the provided name.
@@ -35,13 +44,8 @@ type exporter struct {
 
 //Exporter interface for prometheus metrics. Collect is fetching the data and therefore can return an error
 type Exporter interface {
-	Collect(ch chan<- prometheus.Metric) error
+	Collect(ctx context.Context, ch chan<- prometheus.Metric) error
 	Describe(ch chan<- *prometheus.Desc)
-}
-
-//NodeAwareExporter are exporters where the data is located on one rabbit node. This is indicated by a self label
-type NodeAwareExporter interface {
-	SetSelfNode(string)
 }
 
 func newExporter() *exporter {
@@ -81,17 +85,18 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	allUp := true
 
-	if success := collectWithDuration(e.overviewExporter, "overview", ch, e.endpointScrapeDurationMetric, e.endpointUpMetric); !success {
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, endpointScrapeDuration, e.endpointScrapeDurationMetric)
+	ctx = context.WithValue(ctx, endpointUpMetric, e.endpointUpMetric)
+	if err := collectWithDuration(ctx, e.overviewExporter, "overview", ch); err != nil {
 		allUp = false
 	}
-	nodeName := e.overviewExporter.NodeInfo().Node
+
+	ctx = context.WithValue(ctx, nodeName, e.overviewExporter.NodeInfo().Node)
 
 	for name, ex := range e.exporter {
-		if nex, ok := ex.(NodeAwareExporter); ok {
-			nex.SetSelfNode(nodeName)
-		}
 
-		if success := collectWithDuration(ex, name, ch, e.endpointScrapeDurationMetric, e.endpointUpMetric); !success {
+		if err := collectWithDuration(ctx, ex, name, ch); err != nil {
 			allUp = false
 		}
 	}
@@ -110,15 +115,19 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 
 }
 
-func collectWithDuration(ex Exporter, name string, ch chan<- prometheus.Metric, scrapeDuration, up *prometheus.GaugeVec) bool {
+func collectWithDuration(ctx context.Context, ex Exporter, name string, ch chan<- prometheus.Metric) error {
 	startModule := time.Now()
-	err := ex.Collect(ch)
-	scrapeDuration.WithLabelValues(name).Set(time.Since(startModule).Seconds())
-	if err != nil {
-		up.WithLabelValues(name).Set(0)
-		return false
-	}
-	up.WithLabelValues(name).Set(1)
-	return true
+	err := ex.Collect(ctx, ch)
 
+	if scrapeDuration, ok := ctx.Value(endpointScrapeDuration).(*prometheus.GaugeVec); ok {
+		scrapeDuration.WithLabelValues(name).Set(time.Since(startModule).Seconds())
+	}
+	if up, ok := ctx.Value(endpointUpMetric).(*prometheus.GaugeVec); ok {
+		if err != nil {
+			up.WithLabelValues(name).Set(0)
+		} else {
+			up.WithLabelValues(name).Set(1)
+		}
+	}
+	return err
 }

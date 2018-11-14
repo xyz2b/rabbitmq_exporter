@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -42,7 +44,7 @@ func (e exporterNode) String() string {
 	return "Exporter node"
 }
 
-func (e exporterNode) Collect(ch chan<- prometheus.Metric) error {
+func (e exporterNode) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	nodeData, err := getStatsInfo(config, "nodes", nodeLabelKeys)
 
 	if err != nil {

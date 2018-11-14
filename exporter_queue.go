@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -67,7 +68,7 @@ func (e exporterQueue) String() string {
 	return "Exporter queue"
 }
 
-func (e exporterQueue) Collect(ch chan<- prometheus.Metric) error {
+func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	for _, gaugevec := range e.queueMetricsGauge {
 		gaugevec.Reset()
 	}

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -39,7 +41,7 @@ func (e exporterConnections) String() string {
 	return "Exporter connections"
 }
 
-func (e exporterConnections) Collect(ch chan<- prometheus.Metric) error {
+func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	connectionData, err := getStatsInfo(config, "connections", connectionLabelKeys)
 
 	if err != nil {

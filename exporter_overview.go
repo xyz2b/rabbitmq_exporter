@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 
@@ -51,7 +52,7 @@ func (e exporterOverview) NodeInfo() NodeInfo {
 	return e.nodeInfo
 }
 
-func (e *exporterOverview) Collect(ch chan<- prometheus.Metric) error {
+func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	body, err := apiRequest(config, "overview")
 	if err != nil {
 		return err
