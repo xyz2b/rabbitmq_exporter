@@ -53,8 +53,8 @@ func assertBertStatsEquivalence(t *testing.T, baseFileName string, labels []stri
 	t.Helper()
 	json, bert := tryReadFiles(t, baseFileName, "json", "bert")
 
-	jsonReply := makeJSONReply(json)
-	bertReply := makeBERTReply(bert)
+	jsonReply, _ := makeJSONReply(json)
+	bertReply, _ := makeBERTReply(bert)
 
 	bertParsed := bertReply.MakeStatsInfo(labels)
 	jsonParsed := jsonReply.MakeStatsInfo(labels)
@@ -67,8 +67,8 @@ func assertBertStatsEquivalence(t *testing.T, baseFileName string, labels []stri
 func assertBertMetricMapEquivalence(t *testing.T, baseFileName string) {
 	json, bert := tryReadFiles(t, baseFileName, "json", "bert")
 
-	jsonReply := makeJSONReply(json)
-	bertReply := makeBERTReply(bert)
+	jsonReply, _ := makeJSONReply(json)
+	bertReply, _ := makeBERTReply(bert)
 
 	bertParsed := bertReply.MakeMap()
 	jsonParsed := jsonReply.MakeMap()

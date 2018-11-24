@@ -11,9 +11,9 @@ func init() {
 }
 
 var (
-	connectionLabels            = []string{"vhost", "node", "peer_host", "user"}
-	connectionLabelsStateMetric = []string{"vhost", "node", "peer_host", "user", "state"}
-	connectionLabelKeys         = []string{"vhost", "node", "peer_host", "user", "state"}
+	connectionLabels            = []string{"vhost", "node", "peer_host", "user", "self"}
+	connectionLabelsStateMetric = []string{"vhost", "node", "peer_host", "user", "state", "self"}
+	connectionLabelKeys         = []string{"vhost", "node", "peer_host", "user", "state", "node"}
 
 	connectionGaugeVec = map[string]*prometheus.GaugeVec{
 		"channels":  newGaugeVec("connection_channels", "number of channels in use", connectionLabels),
@@ -52,17 +52,30 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 	}
 	e.stateMetric.Reset()
 
+	selfNode := ""
+	if n, ok := ctx.Value(nodeName).(string); ok {
+		selfNode = n
+	}
+
 	for key, gauge := range e.metricsGV {
 		for _, connD := range connectionData {
 			if value, ok := connD.metrics[key]; ok {
-				gauge.WithLabelValues(connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"]).Add(value)
+				self := "0"
+				if connD.labels["node"] == selfNode {
+					self = "1"
+				}
+				gauge.WithLabelValues(connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], self).Add(value)
 			}
 		}
 	}
 
 	for _, connD := range connectionData {
 		if _, ok := connD.metrics["channels"]; ok { // "channels" is used to retrieve one record per connection for setting the state
-			e.stateMetric.WithLabelValues(connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], connD.labels["state"]).Add(1)
+			self := "0"
+			if connD.labels["node"] == selfNode {
+				self = "1"
+			}
+			e.stateMetric.WithLabelValues(connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], connD.labels["state"], self).Add(1)
 		}
 	}
 

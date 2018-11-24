@@ -9,25 +9,25 @@ import (
 )
 
 type rabbitJSONReply struct {
-	decoder *json.Decoder
+	body []byte
+	keys map[string]interface{}
 }
 
-func makeJSONReply(body []byte) RabbitReply {
-	decoder := json.NewDecoder(bytes.NewBuffer(body))
-	return &rabbitJSONReply{decoder}
+func makeJSONReply(body []byte) (RabbitReply, error) {
+	return &rabbitJSONReply{body, nil}, nil
 }
 
 //MakeStatsInfo creates a slice of StatsInfo from json input. Only keys with float values are mapped into `metrics`.
 func (rep *rabbitJSONReply) MakeStatsInfo(labels []string) []StatsInfo {
 	var statistics []StatsInfo
 	var jsonArr []map[string]interface{}
-
-	if rep.decoder == nil {
+	decoder := json.NewDecoder(bytes.NewBuffer(rep.body))
+	if decoder == nil {
 		log.Error("JSON decoder not iniatilized")
 		return make([]StatsInfo, 0)
 	}
 
-	if err := rep.decoder.Decode(&jsonArr); err != nil {
+	if err := decoder.Decode(&jsonArr); err != nil {
 		log.WithField("error", err).Error("Error while decoding json")
 		return make([]StatsInfo, 0)
 	}
@@ -61,13 +61,13 @@ func (rep *rabbitJSONReply) MakeStatsInfo(labels []string) []StatsInfo {
 func (rep *rabbitJSONReply) MakeMap() MetricMap {
 	flMap := make(MetricMap)
 	var output map[string]interface{}
-
-	if rep.decoder == nil {
+	decoder := json.NewDecoder(bytes.NewBuffer(rep.body))
+	if decoder == nil {
 		log.Error("JSON decoder not iniatilized")
 		return flMap
 	}
 
-	if err := rep.decoder.Decode(&output); err != nil {
+	if err := decoder.Decode(&output); err != nil {
 		log.WithField("error", err).Error("Error while decoding json")
 		return flMap
 	}
@@ -98,4 +98,26 @@ func addFields(toMap *MetricMap, basename string, source map[string]interface{})
 			}
 		}
 	}
+}
+
+func (rep *rabbitJSONReply) GetString(key string) (string, bool) {
+	if rep.keys == nil {
+		keys := make(map[string]interface{})
+		decoder := json.NewDecoder(bytes.NewBuffer(rep.body))
+		if decoder == nil {
+			log.Error("JSON decoder not iniatilized")
+			return "", false
+		}
+		err := decoder.Decode(&keys)
+		if err != nil {
+			return "", false
+		}
+		rep.keys = keys
+	}
+	val, ok := rep.keys[key]
+	if !ok {
+		return "", false
+	}
+	value, ok := val.(string)
+	return value, ok
 }

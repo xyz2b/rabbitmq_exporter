@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"io"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
@@ -58,17 +55,15 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 		return err
 	}
 
-	dec := json.NewDecoder(bytes.NewReader(body))
-	var nodeInfo NodeInfo
-	if err := dec.Decode(&nodeInfo); err == io.EOF {
-		return err
-	}
-	e.nodeInfo = nodeInfo
-
 	reply, err := MakeReply(config, body)
 	if err != nil {
 		return err
 	}
+
+	e.nodeInfo.Node, _ = reply.GetString("node")
+	e.nodeInfo.ErlangVersion, _ = reply.GetString("erlang_version")
+	e.nodeInfo.RabbitmqVersion, _ = reply.GetString("rabbitmq_version")
+
 	rabbitMqOverviewData := reply.MakeMap()
 
 	log.WithField("overviewData", rabbitMqOverviewData).Debug("Overview data")

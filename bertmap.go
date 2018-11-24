@@ -12,19 +12,17 @@ import (
 // implementation) allow parsing of BERT-encoded RabbitMQ replies in a
 // way that's fully compatible with JSON parser from jsonmap.go
 type rabbitBERTReply struct {
-	body []byte
+	body    []byte
+	objects bert.Term
 }
 
-func makeBERTReply(body []byte) RabbitReply {
-	return &rabbitBERTReply{body}
+func makeBERTReply(body []byte) (RabbitReply, error) {
+	rawObjects, err := bert.Decode(body)
+	return &rabbitBERTReply{body, rawObjects}, err
 }
 
 func (rep *rabbitBERTReply) MakeStatsInfo(labels []string) []StatsInfo {
-	rawObjects, err := bert.Decode(rep.body)
-	if err != nil {
-		log.WithField("error", err).Error("Error while decoding bert")
-		return make([]StatsInfo, 0)
-	}
+	rawObjects := rep.objects
 
 	objects, ok := rawObjects.([]bert.Term)
 	if !ok {
@@ -48,12 +46,7 @@ func (rep *rabbitBERTReply) MakeStatsInfo(labels []string) []StatsInfo {
 
 func (rep *rabbitBERTReply) MakeMap() MetricMap {
 	flMap := make(MetricMap)
-	term, err := bert.Decode(rep.body)
-
-	if err != nil {
-		log.WithField("error", err).Error("Error while decoding bert")
-		return flMap
-	}
+	term := rep.objects
 
 	parseProplist(&flMap, "", term)
 	return flMap
@@ -320,4 +313,26 @@ func (err *bertDecodeError) Error() string {
 
 func bertError(message string, object interface{}) error {
 	return &bertDecodeError{message, object}
+}
+
+func (rep *rabbitBERTReply) GetString(label string) (string, bool) {
+	var resValue string
+	var result bool
+	result = false
+
+	iterateBertKV(rep.objects, func(key string, value interface{}) bool {
+		//Check if current key should be saved as label
+
+		if key == label {
+			tmp, ok := parseBertStringy(value)
+			if !ok {
+				return false
+			}
+			resValue = tmp
+			result = true
+			return false
+		}
+		return true
+	})
+	return resValue, result
 }

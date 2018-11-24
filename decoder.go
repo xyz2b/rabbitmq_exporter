@@ -25,13 +25,17 @@ type RabbitReply interface {
 	// RabbitMQ objects (i.e. list of queues, exchanges, etc.).
 	// Failure to parse should result in an empty result list.
 	MakeStatsInfo([]string) []StatsInfo
+
+	// GetString returns the string value for the given key
+	// If the key cannot be found the second return is false
+	GetString(key string) (string, bool)
 }
 
 // MakeReply instantiates the apropriate reply parser for a given
 // reply and the current configuration.
 func MakeReply(config rabbitExporterConfig, body []byte) (RabbitReply, error) {
 	if isCapEnabled(config, rabbitCapBert) {
-		return makeBERTReply(body), nil
+		return makeBERTReply(body)
 	}
-	return makeJSONReply(body), nil
+	return makeJSONReply(body)
 }

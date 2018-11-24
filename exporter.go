@@ -89,6 +89,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	ctx = context.WithValue(ctx, endpointScrapeDuration, e.endpointScrapeDurationMetric)
 	ctx = context.WithValue(ctx, endpointUpMetric, e.endpointUpMetric)
 	if err := collectWithDuration(ctx, e.overviewExporter, "overview", ch); err != nil {
+		log.WithError(err).Warn("retrieving overview failed")
 		allUp = false
 	}
 
@@ -97,6 +98,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	for name, ex := range e.exporter {
 
 		if err := collectWithDuration(ctx, ex, name, ch); err != nil {
+			log.WithError(err).Warn("retrieving " + name + " failed")
 			allUp = false
 		}
 	}
