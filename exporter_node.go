@@ -11,7 +11,7 @@ func init() {
 }
 
 var (
-	nodeLabels    = []string{"node"}
+	nodeLabels    = []string{"node", "self"}
 	nodeLabelKeys = []string{"name"}
 
 	nodeGaugeVec = map[string]*prometheus.GaugeVec{
@@ -45,6 +45,11 @@ func (e exporterNode) String() string {
 }
 
 func (e exporterNode) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
+	selfNode := ""
+	if n, ok := ctx.Value(nodeName).(string); ok {
+		selfNode = n
+	}
+
 	nodeData, err := getStatsInfo(config, "nodes", nodeLabelKeys)
 
 	if err != nil {
@@ -58,7 +63,11 @@ func (e exporterNode) Collect(ctx context.Context, ch chan<- prometheus.Metric) 
 	for key, gauge := range e.nodeMetricsGauge {
 		for _, node := range nodeData {
 			if value, ok := node.metrics[key]; ok {
-				gauge.WithLabelValues(node.labels["name"]).Set(value)
+				self := "0"
+				if node.labels["node"] == selfNode {
+					self = "1"
+				}
+				gauge.WithLabelValues(node.labels["name"], self).Set(value)
 			}
 		}
 	}

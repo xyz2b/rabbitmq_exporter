@@ -26,14 +26,14 @@ var (
 )
 
 type exporterConnections struct {
-	metricsGV   map[string]*prometheus.GaugeVec
-	stateMetric *prometheus.GaugeVec
+	connectionMetricsG map[string]*prometheus.GaugeVec
+	stateMetric        *prometheus.GaugeVec
 }
 
 func newExporterConnections() Exporter {
 	return exporterConnections{
-		metricsGV:   connectionGaugeVec,
-		stateMetric: newGaugeVec("connection_status", "Number of connections in a certain state aggregated per label combination.", connectionLabelsStateMetric),
+		connectionMetricsG: connectionGaugeVec,
+		stateMetric:        newGaugeVec("connection_status", "Number of connections in a certain state aggregated per label combination.", connectionLabelsStateMetric),
 	}
 }
 
@@ -42,12 +42,12 @@ func (e exporterConnections) String() string {
 }
 
 func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
-	connectionData, err := getStatsInfo(config, "connections", connectionLabelKeys)
+	rabbitConnectionResponses, err := getStatsInfo(config, "connections", connectionLabelKeys)
 
 	if err != nil {
 		return err
 	}
-	for _, gauge := range e.metricsGV {
+	for _, gauge := range e.connectionMetricsG {
 		gauge.Reset()
 	}
 	e.stateMetric.Reset()
@@ -57,8 +57,8 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 		selfNode = n
 	}
 
-	for key, gauge := range e.metricsGV {
-		for _, connD := range connectionData {
+	for key, gauge := range e.connectionMetricsG {
+		for _, connD := range rabbitConnectionResponses {
 			if value, ok := connD.metrics[key]; ok {
 				self := "0"
 				if connD.labels["node"] == selfNode {
@@ -69,8 +69,8 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 		}
 	}
 
-	for _, connD := range connectionData {
-		if _, ok := connD.metrics["channels"]; ok { // "channels" is used to retrieve one record per connection for setting the state
+	for _, connD := range rabbitConnectionResponses {
+		if _, ok := connD.metrics["channels"]; ok { //TODO: find better way to retrieve the data instead of using "channels"
 			self := "0"
 			if connD.labels["node"] == selfNode {
 				self = "1"
@@ -79,7 +79,7 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 		}
 	}
 
-	for _, gauge := range e.metricsGV {
+	for _, gauge := range e.connectionMetricsG {
 		gauge.Collect(ch)
 	}
 	e.stateMetric.Collect(ch)
@@ -87,7 +87,7 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 }
 
 func (e exporterConnections) Describe(ch chan<- *prometheus.Desc) {
-	for _, nodeMetric := range e.metricsGV {
+	for _, nodeMetric := range e.connectionMetricsG {
 		nodeMetric.Describe(ch)
 	}
 

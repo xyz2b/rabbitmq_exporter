@@ -86,8 +86,8 @@ func TestWholeApp(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
 
 	// node
-	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
-	expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
+	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4",self="0"} 1`)
+	expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 	// queue
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
@@ -221,8 +221,8 @@ func TestAppMaxQueues(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
 
 	// node
-	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
-	expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
+	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4",self="0"} 1`)
+	expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 	// queue
 	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
@@ -336,8 +336,8 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
 
 		// node
-		expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
-		expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
+		expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4",self="0"} 1`)
+		expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 		// queue
 		expectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
@@ -379,8 +379,8 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
 
 		// node
-		expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"} 1`)
-		expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
+		expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4",self="0"} 1`)
+		expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 		// queue
 		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"}`)
@@ -422,8 +422,8 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		dontExpectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global`)
 
 		// node
-		dontExpectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4"}`)
-		dontExpectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"}`)
+		dontExpectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4",self="0"} 1`)
+		dontExpectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 		// queue
 		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"}`)

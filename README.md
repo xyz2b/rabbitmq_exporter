@@ -112,7 +112,7 @@ metric | description
 
 ### Queues
 
-Labels: vhost, queue, durable, policy
+Labels: vhost, queue, durable, policy, self
 
 #### Queues - Gauge
 
@@ -162,7 +162,7 @@ metric | description
 
 ### Node - Counter
 
-Labels: node
+Labels: node, self
 
 metric | description
 -------| ------------
@@ -183,7 +183,7 @@ metric | description
 
 _disabled by default_. Depending on the environment and change rate it can create a high number of dead metrics. Otherwise it could be usefull and can be enabled.
 
-Labels: vhost, node, peer_host, user
+Labels: vhost, node, peer_host, user, self
 
 Please note: The data is aggregated by label values as it is possible that there are multiple connections for a certain combination of labels. 
 
@@ -195,7 +195,12 @@ metric | description
 |connection_send_bytes|send bytes|
 |connection_send_packets|send packets|
 |connection_send_pending|Send queue size|
-|connection_status|Number of connections in a certain state aggregated per label combination. Metric will disappear if there are no connections in a state. Labels: vhost, node, peer_host, user, *state* (running, flow,..)|
+
+
+Labels: vhost, node, peer_host, user, *state* (running, flow,..), self
+metric | description
+-------| ------------
+|connection_status|Number of connections in a certain state aggregated per label combination. Metric will disappear if there are no connections in a state. |
 
 ## Docker
 

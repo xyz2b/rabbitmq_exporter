@@ -76,7 +76,7 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 
 	if config.MaxQueues > 0 {
 		// Get overview info to check total queues
-		rabbitMqOverviewData, err := getMetricMap(config, "overview")
+		rabbitMqOverviewData, err := getMetricMap(config, "overview") //TODO: Replace by context value
 
 		if err != nil {
 			return err
