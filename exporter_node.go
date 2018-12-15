@@ -35,8 +35,18 @@ type exporterNode struct {
 }
 
 func newExporterNode() Exporter {
+	nodeGaugeVecActual := nodeGaugeVec
+
+	if len(config.ExcludeMetrics) > 0 {
+		for _, metric := range config.ExcludeMetrics {
+			if nodeGaugeVecActual[metric] != nil {
+				delete(nodeGaugeVecActual, metric)
+			}
+		}
+	}
+
 	return exporterNode{
-		nodeMetricsGauge: nodeGaugeVec,
+		nodeMetricsGauge: nodeGaugeVecActual,
 	}
 }
 

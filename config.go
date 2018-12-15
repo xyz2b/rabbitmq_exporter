@@ -20,6 +20,7 @@ var (
 		OutputFormat:       "TTY", //JSON
 		CAFile:             "ca.pem",
 		InsecureSkipVerify: false,
+		ExcludeMetrics:     []string{},
 		SkipQueues:         regexp.MustCompile("^$"),
 		IncludeQueues:      regexp.MustCompile(".*"),
 		SkipVHost:          regexp.MustCompile("^$"),
@@ -40,6 +41,7 @@ type rabbitExporterConfig struct {
 	OutputFormat       string
 	CAFile             string
 	InsecureSkipVerify bool
+	ExcludeMetrics     []string
 	SkipQueues         *regexp.Regexp
 	IncludeQueues      *regexp.Regexp
 	SkipVHost          *regexp.Regexp
@@ -125,6 +127,10 @@ func initConfig() {
 	}
 	if insecureSkipVerify := os.Getenv("SKIPVERIFY"); insecureSkipVerify == "true" || insecureSkipVerify == "1" || insecureSkipVerify == "TRUE" {
 		config.InsecureSkipVerify = true
+	}
+
+	if ExcludeMetrics := os.Getenv("EXCLUDE_METRICS"); ExcludeMetrics != "" {
+		config.ExcludeMetrics = strings.Split(ExcludeMetrics, ",")
 	}
 
 	if SkipQueues := os.Getenv("SKIP_QUEUES"); SkipQueues != "" {

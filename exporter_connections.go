@@ -31,8 +31,18 @@ type exporterConnections struct {
 }
 
 func newExporterConnections() Exporter {
+	connectionGaugeVecActual := connectionGaugeVec
+
+	if len(config.ExcludeMetrics) > 0 {
+		for _, metric := range config.ExcludeMetrics {
+			if connectionGaugeVecActual[metric] != nil {
+				delete(connectionGaugeVecActual, metric)
+			}
+		}
+	}
+
 	return exporterConnections{
-		connectionMetricsG: connectionGaugeVec,
+		connectionMetricsG: connectionGaugeVecActual,
 		stateMetric:        newGaugeVec("connection_status", "Number of connections in a certain state aggregated per label combination.", connectionLabelsStateMetric),
 	}
 }

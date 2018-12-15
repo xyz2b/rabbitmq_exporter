@@ -58,6 +58,7 @@ func main() {
 		"RABBIT_EXPORTERS":    config.EnabledExporters,
 		"CAFILE":              config.CAFile,
 		"SKIPVERIFY":          config.InsecureSkipVerify,
+		"EXCLUDE_METRICS":     config.ExcludeMetrics,
 		"SKIP_QUEUES":         config.SkipQueues.String(),
 		"INCLUDE_QUEUES":      config.IncludeQueues,
 		"SKIP_VHOST":          config.SkipVHost.String(),
