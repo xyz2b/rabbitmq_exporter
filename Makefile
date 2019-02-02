@@ -53,7 +53,7 @@ tarballs: promu
 	@echo ">> building crossbuild tarballs"
 	@$(PROMU) crossbuild tarballs 
 	
-docker: build
+docker: 
 	@echo ">> building docker image"
 	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
