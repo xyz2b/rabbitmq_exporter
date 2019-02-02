@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type rabbitJSONReply struct {

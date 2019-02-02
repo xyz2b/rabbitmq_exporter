@@ -1,6 +1,6 @@
 package main
 
-import log "github.com/Sirupsen/logrus"
+import log "github.com/sirupsen/logrus"
 
 func init() {
 	log.SetLevel(log.FatalLevel)

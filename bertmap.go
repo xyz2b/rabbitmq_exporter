@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math/big"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/kbudde/gobert"
+	bert "github.com/kbudde/gobert"
+	log "github.com/sirupsen/logrus"
 )
 
 // rabbitBERTReply (along with its RabbitReply interface

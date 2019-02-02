@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 var client = &http.Client{Timeout: 15 * time.Second} //default client for test. Client is initialized in initClient()
