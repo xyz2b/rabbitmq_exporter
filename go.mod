@@ -19,7 +19,10 @@ require (
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90 // indirect
 	github.com/prometheus/common v0.2.0 // indirect
 	github.com/prometheus/procfs v0.0.0-20190129233650-316cf8ccfec5 // indirect
+	github.com/prometheus/promu v0.2.0 // indirect
 	github.com/sirupsen/logrus v1.3.0
+	github.com/spf13/cobra v0.0.3 // indirect
+	github.com/spf13/viper v1.3.1 // indirect
 	github.com/streadway/amqp v0.0.0-20181205114330-a314942b2fd9
 	github.com/stretchr/testify v1.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20190131182504-b8fe1690c613 // indirect
@@ -28,5 +31,4 @@ require (
 	golang.org/x/sys v0.0.0-20190201152629-afcc84fd7533 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/ory-am/dockertest.v3 v3.3.4
-	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
