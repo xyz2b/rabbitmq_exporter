@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
 	"strings"
@@ -29,7 +30,7 @@ func main() {
 	exporter := newExporter()
 	prometheus.MustRegister(exporter)
 
-	http.Handle("/metrics", prometheus.Handler())
+	http.Handle("/metrics", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{}))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
              <head><title>RabbitMQ Exporter</title></head>
