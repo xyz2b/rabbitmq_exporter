@@ -55,6 +55,7 @@ RABBIT_CAPABILITIES | bert,no_sort | comma-separated list of extended scraping c
 RABBIT_EXPORTERS | exchange,node,queue | List of enabled modules. Just "connections" is not enabled by default
 RABBIT_TIMEOUT | 30 | timeout in seconds for retrieving data from management plugin.
 MAX_QUEUES | 0 | max number of queues before we drop metrics (disabled if set to 0)
+EXCLUDE_METRICS | | Metric names to exclude from export. comma-seperated. e.g. "recv_oct, recv_cnt". See exporter_*.go for names
 
 Example and recommended settings:
 
