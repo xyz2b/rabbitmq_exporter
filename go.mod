@@ -8,7 +8,7 @@ require (
 	github.com/docker/go-units v0.3.3 // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/gogo/protobuf v1.2.0 // indirect
-	github.com/kbudde/gobert v0.0.0-20171022204042-a6daecb9ddeb
+	github.com/kbudde/gobert v0.0.0-20180309235759-77f4c9cb2e7e
 	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
