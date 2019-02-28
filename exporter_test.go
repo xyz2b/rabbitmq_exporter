@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -33,27 +34,33 @@ func dontExpectSubstring(t *testing.T, body string, substr string) {
 	}
 }
 
-func TestWholeApp(t *testing.T) {
+func setupServer(t *testing.T, overview, queues, exchange, nodes, connections string) *httptest.Server {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
 		if r.RequestURI == "/api/overview" {
-			fmt.Fprintln(w, overviewTestData)
+			fmt.Fprintln(w, overview)
 		} else if r.RequestURI == "/api/queues" {
-			fmt.Fprintln(w, queuesTestData)
+			fmt.Fprintln(w, queues)
 		} else if r.RequestURI == "/api/exchanges" {
-			fmt.Fprintln(w, exchangeAPIResponse)
+			fmt.Fprintln(w, exchange)
 		} else if r.RequestURI == "/api/nodes" {
-			fmt.Fprintln(w, nodesAPIResponse)
+			fmt.Fprintln(w, nodes)
 		} else if r.RequestURI == "/api/connections" {
-			fmt.Fprintln(w, connectionAPIResponse)
+			fmt.Fprintln(w, connections)
 		} else {
 			t.Errorf("Invalid request. URI=%v", r.RequestURI)
 			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
 		}
 
 	}))
+	return server
+}
+
+func TestWholeApp(t *testing.T) {
+	server := setupServer(t, overviewTestData, queuesTestData, exchangeAPIResponse, nodesAPIResponse, connectionAPIResponse)
 	defer server.Close()
+
 	os.Setenv("RABBIT_URL", server.URL)
 	defer os.Unsetenv("RABBIT_URL")
 	os.Setenv("SKIP_QUEUES", "^.*3$")
@@ -103,26 +110,9 @@ func TestWholeApp(t *testing.T) {
 }
 
 func TestWholeAppInverted(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		if r.RequestURI == "/api/overview" {
-			fmt.Fprintln(w, overviewTestData)
-		} else if r.RequestURI == "/api/queues" {
-			fmt.Fprintln(w, queuesTestData)
-		} else if r.RequestURI == "/api/exchanges" {
-			fmt.Fprintln(w, exchangeAPIResponse)
-		} else if r.RequestURI == "/api/nodes" {
-			fmt.Fprintln(w, nodesAPIResponse)
-		} else if r.RequestURI == "/api/connections" {
-			fmt.Fprintln(w, connectionAPIResponse)
-		} else {
-			t.Errorf("Invalid request. URI=%v", r.RequestURI)
-			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
-		}
-
-	}))
+	server := setupServer(t, overviewTestData, queuesTestData, exchangeAPIResponse, nodesAPIResponse, connectionAPIResponse)
 	defer server.Close()
+
 	os.Setenv("RABBIT_URL", server.URL)
 	os.Setenv("SKIP_QUEUES", "^.*3$")
 	defer os.Unsetenv("SKIP_QUEUES")
@@ -170,26 +160,9 @@ func TestWholeAppInverted(t *testing.T) {
 }
 
 func TestAppMaxQueues(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		if r.RequestURI == "/api/overview" {
-			fmt.Fprintln(w, overviewTestData)
-		} else if r.RequestURI == "/api/queues" {
-			fmt.Fprintln(w, queuesTestData)
-		} else if r.RequestURI == "/api/exchanges" {
-			fmt.Fprintln(w, exchangeAPIResponse)
-		} else if r.RequestURI == "/api/nodes" {
-			fmt.Fprintln(w, nodesAPIResponse)
-		} else if r.RequestURI == "/api/connections" {
-			fmt.Fprintln(w, connectionAPIResponse)
-		} else {
-			t.Errorf("Invalid request. URI=%v", r.RequestURI)
-			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
-		}
-
-	}))
+	server := setupServer(t, overviewTestData, queuesTestData, exchangeAPIResponse, nodesAPIResponse, connectionAPIResponse)
 	defer server.Close()
+
 	os.Setenv("RABBIT_URL", server.URL)
 	os.Setenv("SKIP_QUEUES", "^.*3$")
 	defer os.Unsetenv("SKIP_QUEUES")
@@ -443,26 +416,9 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 }
 
 func TestQueueState(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		if r.RequestURI == "/api/overview" {
-			fmt.Fprintln(w, overviewTestData)
-		} else if r.RequestURI == "/api/queues" {
-			fmt.Fprintln(w, queuesTestData)
-		} else if r.RequestURI == "/api/exchanges" {
-			fmt.Fprintln(w, exchangeAPIResponse)
-		} else if r.RequestURI == "/api/nodes" {
-			fmt.Fprintln(w, nodesAPIResponse)
-		} else if r.RequestURI == "/api/connections" {
-			fmt.Fprintln(w, connectionAPIResponse)
-		} else {
-			t.Errorf("Invalid request. URI=%v", r.RequestURI)
-			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
-		}
-
-	}))
+	server := setupServer(t, overviewTestData, queuesTestData, exchangeAPIResponse, nodesAPIResponse, connectionAPIResponse)
 	defer server.Close()
+
 	os.Setenv("RABBIT_URL", server.URL)
 	os.Setenv("RABBIT_CAPABILITIES", " ")
 	defer os.Unsetenv("RABBIT_CAPABILITIES")
@@ -493,5 +449,40 @@ func TestQueueState(t *testing.T) {
 	// connections
 	expectSubstring(t, body, `rabbitmq_connection_status{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",self="0",state="running",user="rmq_oms",vhost="/"} 1`)
 	expectSubstring(t, body, `rabbitmq_connection_status{node="my-rabbit@ae74c041248b",peer_host="172.31.0.130",self="1",state="running",user="rmq_oms",vhost="/"} 1`)
+
+}
+
+func TestQueueLength(t *testing.T) {
+	testdataFile := "testdata/queue-max-length.json"
+	queuedata, err := ioutil.ReadFile(testdataFile)
+	if err != nil {
+		t.Fatalf("Error reading %s", testdataFile)
+	}
+	server := setupServer(t, "", string(queuedata), "", "", "")
+	defer server.Close()
+
+	os.Setenv("RABBIT_URL", server.URL)
+	os.Setenv("RABBIT_CAPABILITIES", " ")
+	defer os.Unsetenv("RABBIT_CAPABILITIES")
+	os.Setenv("RABBIT_EXPORTERS", "queue")
+	defer os.Unsetenv("RABBIT_EXPORTERS")
+	initConfig()
+
+	exporter := newExporter()
+	prometheus.MustRegister(exporter)
+	defer prometheus.Unregister(exporter)
+
+	req, _ := http.NewRequest("GET", "", nil)
+	w := httptest.NewRecorder()
+	prometheus.Handler().ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Errorf("Home page didn't return %v", http.StatusOK)
+	}
+	body := w.Body.String()
+	t.Log(body)
+
+	// queue
+	expectSubstring(t, body, `rabbitmq_queue_max_length{durable="true",policy="",queue="QueueWithMaxLength55",self="0",vhost="/"} 55`)
+	expectSubstring(t, body, `rabbitmq_queue_max_length_bytes{durable="true",policy="",queue="QueueWithMaxBytes99",self="0",vhost="/"} 99`)
 
 }

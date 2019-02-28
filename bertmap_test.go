@@ -23,6 +23,10 @@ func TestStatsEquivalence(t *testing.T) {
 	}
 }
 
+func TestNewFile(t *testing.T) {
+	assertBertStatsEquivalence(t, "queue-max-length", nodeLabelKeys)
+}
+
 func TestMetricMapEquivalence(t *testing.T) {
 	endpoints := []string{"overview"}
 	versions := []string{"3.6.8", "3.7.0"}
