@@ -298,6 +298,8 @@ func parseBertStringy(val interface{}) (string, bool) {
 		return stringer.String(), true
 	} else if atom, ok := val.(bert.Atom); ok {
 		return string(atom), true
+	} else if s, ok := val.(string); ok {
+		return s, true
 	}
 	return "", false
 }
