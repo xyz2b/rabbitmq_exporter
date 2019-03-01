@@ -9,9 +9,17 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/sys/windows/svc"
 )
 
-const defaultLogLevel = log.InfoLevel
+const (
+	defaultLogLevel = log.InfoLevel
+	serviceName     = "RabbitMQ_exporter"
+)
+
+type rmqExporterService struct {
+	stopCh chan<- bool
+}
 
 func initLogger() {
 	log.SetLevel(getLogLevel())
@@ -30,6 +38,15 @@ func main() {
 	exporter := newExporter()
 	prometheus.MustRegister(exporter)
 
+	isInteractive, err := svc.IsAnInteractiveSession()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stopCh := make(chan bool)
+	if !isInteractive {
+		go svc.Run(serviceName, &rmqExporterService{stopCh: stopCh})
+	}
 	http.Handle("/metrics", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{}))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
@@ -69,7 +86,15 @@ func main() {
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Active Configuration")
 
-	log.Fatal(http.ListenAndServe(config.PublishAddr+":"+config.PublishPort, nil))
+	go func() {
+		log.Fatal(http.ListenAndServe(config.PublishAddr+":"+config.PublishPort, nil))
+	}()
+	for {
+		if <-stopCh {
+			log.Info("Shutting down RMQ exporter")
+			break
+		}
+	}
 }
 
 func getLogLevel() log.Level {
@@ -92,4 +117,27 @@ func formatCapabilities(caps rabbitCapabilitySet) string {
 		buffer.WriteString(string(k))
 	}
 	return buffer.String()
+}
+
+func (s *rmqExporterService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
+	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
+	changes <- svc.Status{State: svc.StartPending}
+	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
+loop:
+	for {
+		select {
+		case c := <-r:
+			switch c.Cmd {
+			case svc.Interrogate:
+				changes <- c.CurrentStatus
+			case svc.Stop, svc.Shutdown:
+				s.stopCh <- true
+				break loop
+			default:
+				log.Error("unexpected control request ", c)
+			}
+		}
+	}
+	changes <- svc.Status{State: svc.StopPending}
+	return
 }
