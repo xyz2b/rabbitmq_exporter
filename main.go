@@ -2,16 +2,22 @@ package main
 
 import (
 	"bytes"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"context"
 	"net/http"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )
 
-const defaultLogLevel = log.InfoLevel
+const (
+	defaultLogLevel = log.InfoLevel
+	serviceName     = "RabbitMQ_exporter"
+)
 
 func initLogger() {
 	log.SetLevel(getLogLevel())
@@ -29,17 +35,6 @@ func main() {
 	initClient()
 	exporter := newExporter()
 	prometheus.MustRegister(exporter)
-
-	http.Handle("/metrics", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{}))
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`<html>
-             <head><title>RabbitMQ Exporter</title></head>
-             <body>
-             <h1>RabbitMQ Exporter</h1>
-             <p><a href='/metrics'>Metrics</a></p>
-             </body>
-             </html>`))
-	})
 
 	log.WithFields(log.Fields{
 		"VERSION":    Version,
@@ -69,7 +64,35 @@ func main() {
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Active Configuration")
 
-	log.Fatal(http.ListenAndServe(config.PublishAddr+":"+config.PublishPort, nil))
+	handler := http.NewServeMux()
+	handler.Handle("/metrics", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{}))
+	handler.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`<html>
+             <head><title>RabbitMQ Exporter</title></head>
+             <body>
+             <h1>RabbitMQ Exporter</h1>
+             <p><a href='/metrics'>Metrics</a></p>
+             </body>
+             </html>`))
+	})
+
+	server := &http.Server{Addr: config.PublishAddr + ":" + config.PublishPort, Handler: handler}
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	<-runService()
+	log.Info("Shutting down")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal(err)
+	}
+	cancel()
+
 }
 
 func getLogLevel() log.Level {
