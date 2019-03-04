@@ -13,6 +13,7 @@ var (
 	nodeLabelKeys = []string{"name"}
 
 	nodeGaugeVec = map[string]*prometheus.GaugeVec{
+		"uptime":          newGaugeVec("uptime", "Uptime in milliseconds", nodeLabels),
 		"running":         newGaugeVec("running", "number of running nodes", nodeLabels),
 		"mem_used":        newGaugeVec("node_mem_used", "Memory used in bytes", nodeLabels),
 		"mem_limit":       newGaugeVec("node_mem_limit", "Point at which the memory alarm will go off", nodeLabels),
@@ -71,5 +72,4 @@ func (e exporterNode) Describe(ch chan<- *prometheus.Desc) {
 	for _, nodeMetric := range e.nodeMetricsGauge {
 		nodeMetric.Describe(ch)
 	}
-
 }
