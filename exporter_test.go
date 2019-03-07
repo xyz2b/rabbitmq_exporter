@@ -82,7 +82,7 @@ func TestWholeApp(t *testing.T) {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
 	body := w.Body.String()
-	//t.Log(body)
+	t.Log(body)
 	expectSubstring(t, body, `rabbitmq_up 1`)
 
 	// overview
@@ -91,6 +91,7 @@ func TestWholeApp(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_queue_messages_global 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_ready_global 48`)
 	expectSubstring(t, body, `rabbitmq_queue_messages_unacknowledged_global 0`)
+	expectSubstring(t, body, `rabbitmq_version_info{cluster="my-rabbit@ae74c041248b",erlang="17.5",node="my-rabbit@ae74c041248b",rabbitmq="3.5.1"} 1`)
 
 	// node
 	expectSubstring(t, body, `rabbitmq_running{node="my-rabbit@5a00cd8fe2f4",self="0"} 1`)

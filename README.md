@@ -110,6 +110,8 @@ metric | description
 |queue_messages_global | Number ready and unacknowledged messages in cluster.|
 |queue_messages_ready_global | Number of messages ready to be delivered to clients.|
 |queue_messages_unacknowledged_global | Number of messages delivered to clients but not yet acknowledged.|
+|rabbitmq_version_info| A metric with a constant '1' value labeled by rabbitmq version, erlang version, node, cluster.|
+
 
 ### Queues
 

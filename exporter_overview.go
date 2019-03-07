@@ -22,6 +22,14 @@ var overviewMetricDescription = map[string]prometheus.Gauge{
 	"queue_totals.messages_unacknowledged": newGauge("queue_messages_unacknowledged_global", "Number of messages delivered to clients but not yet acknowledged."),
 }
 
+var rabbitmqVersionMetric = prometheus.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Name: "rabbitmq_version_info",
+		Help: "A metric with a constant '1' value labeled by rabbitmq version, erlang version, node, cluster.",
+	},
+	[]string{"rabbitmq", "erlang", "node", "cluster"},
+)
+
 type exporterOverview struct {
 	overviewMetrics map[string]prometheus.Gauge
 	nodeInfo        NodeInfo
@@ -32,6 +40,7 @@ type NodeInfo struct {
 	Node            string `json:"node"`
 	RabbitmqVersion string `json:"rabbitmq_version"`
 	ErlangVersion   string `json:"erlang_version"`
+	ClusterName     string `json:"cluster_name"`
 }
 
 func newExporterOverview() *exporterOverview {
@@ -73,6 +82,9 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 	e.nodeInfo.Node, _ = reply.GetString("node")
 	e.nodeInfo.ErlangVersion, _ = reply.GetString("erlang_version")
 	e.nodeInfo.RabbitmqVersion, _ = reply.GetString("rabbitmq_version")
+	e.nodeInfo.ClusterName, _ = reply.GetString("cluster_name")
+
+	rabbitmqVersionMetric.WithLabelValues(e.nodeInfo.RabbitmqVersion, e.nodeInfo.ErlangVersion, e.nodeInfo.Node, e.nodeInfo.ClusterName).Set(1)
 
 	rabbitMqOverviewData := reply.MakeMap()
 
@@ -84,6 +96,7 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 		}
 	}
 
+	rabbitmqVersionMetric.Collect(ch)
 	for _, gauge := range e.overviewMetrics {
 		gauge.Collect(ch)
 	}
@@ -91,6 +104,8 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 }
 
 func (e exporterOverview) Describe(ch chan<- *prometheus.Desc) {
+	rabbitmqVersionMetric.Describe(ch)
+
 	for _, gauge := range e.overviewMetrics {
 		gauge.Describe(ch)
 	}
