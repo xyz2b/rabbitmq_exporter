@@ -25,21 +25,21 @@ func (s *rmqExporterService) Execute(args []string, r <-chan svc.ChangeRequest, 
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 	changes <- svc.Status{State: svc.StartPending}
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
-	loop:
-		for {
-			select {
-			case c := <-r:
-				switch c.Cmd {
-				case svc.Interrogate:
-					changes <- c.CurrentStatus
-				case svc.Stop, svc.Shutdown:
-					s.stopCh <- true
-					break loop
-				default:
-					log.Error("unexpected control request ", c)
-				}
+loop:
+	for {
+		select {
+		case c := <-r:
+			switch c.Cmd {
+			case svc.Interrogate:
+				changes <- c.CurrentStatus
+			case svc.Stop, svc.Shutdown:
+				s.stopCh <- true
+				break loop
+			default:
+				log.Error("unexpected control request ", c)
+			}
 		}
 		changes <- svc.Status{State: svc.StopPending}
-		return
 	}
+	return
 }
