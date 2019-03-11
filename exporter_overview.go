@@ -11,27 +11,31 @@ func init() {
 	//RegisterExporter("overview", newExporterOverview)
 }
 
-var overviewMetricDescription = map[string]prometheus.Gauge{
-	"object_totals.channels":               newGauge("channels", "Number of channels."),
-	"object_totals.connections":            newGauge("connections", "Number of connections."),
-	"object_totals.consumers":              newGauge("consumers", "Number of message consumers."),
-	"object_totals.queues":                 newGauge("queues", "Number of queues in use."),
-	"object_totals.exchanges":              newGauge("exchanges", "Number of exchanges in use."),
-	"queue_totals.messages":                newGauge("queue_messages_global", "Number ready and unacknowledged messages in cluster."),
-	"queue_totals.messages_ready":          newGauge("queue_messages_ready_global", "Number of messages ready to be delivered to clients."),
-	"queue_totals.messages_unacknowledged": newGauge("queue_messages_unacknowledged_global", "Number of messages delivered to clients but not yet acknowledged."),
-}
+var (
+	overviewLabels = []string{"cluster"}
 
-var rabbitmqVersionMetric = prometheus.NewGaugeVec(
-	prometheus.GaugeOpts{
-		Name: "rabbitmq_version_info",
-		Help: "A metric with a constant '1' value labeled by rabbitmq version, erlang version, node, cluster.",
-	},
-	[]string{"rabbitmq", "erlang", "node", "cluster"},
+	overviewMetricDescription = map[string]*prometheus.GaugeVec{
+		"object_totals.channels":               newGaugeVec("channels", "Number of channels.", overviewLabels),
+		"object_totals.connections":            newGaugeVec("connections", "Number of connections.", overviewLabels),
+		"object_totals.consumers":              newGaugeVec("consumers", "Number of message consumers.", overviewLabels),
+		"object_totals.queues":                 newGaugeVec("queues", "Number of queues in use.", overviewLabels),
+		"object_totals.exchanges":              newGaugeVec("exchanges", "Number of exchanges in use.", overviewLabels),
+		"queue_totals.messages":                newGaugeVec("queue_messages_global", "Number ready and unacknowledged messages in cluster.", overviewLabels),
+		"queue_totals.messages_ready":          newGaugeVec("queue_messages_ready_global", "Number of messages ready to be delivered to clients.", overviewLabels),
+		"queue_totals.messages_unacknowledged": newGaugeVec("queue_messages_unacknowledged_global", "Number of messages delivered to clients but not yet acknowledged.", overviewLabels),
+	}
+
+	rabbitmqVersionMetric = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "rabbitmq_version_info",
+			Help: "A metric with a constant '1' value labeled by rabbitmq version, erlang version, node, cluster.",
+		},
+		[]string{"rabbitmq", "erlang", "node", "cluster"},
+	)
 )
 
 type exporterOverview struct {
-	overviewMetrics map[string]prometheus.Gauge
+	overviewMetrics map[string]*prometheus.GaugeVec
 	nodeInfo        NodeInfo
 }
 
@@ -92,7 +96,7 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 	for key, gauge := range e.overviewMetrics {
 		if value, ok := rabbitMqOverviewData[key]; ok {
 			log.WithFields(log.Fields{"key": key, "value": value}).Debug("Set overview metric for key")
-			gauge.Set(value)
+			gauge.WithLabelValues(e.nodeInfo.ClusterName).Set(value)
 		}
 	}
 
