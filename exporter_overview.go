@@ -88,6 +88,7 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 	e.nodeInfo.RabbitmqVersion, _ = reply.GetString("rabbitmq_version")
 	e.nodeInfo.ClusterName, _ = reply.GetString("cluster_name")
 
+	rabbitmqVersionMetric.Reset()
 	rabbitmqVersionMetric.WithLabelValues(e.nodeInfo.RabbitmqVersion, e.nodeInfo.ErlangVersion, e.nodeInfo.Node, e.nodeInfo.ClusterName).Set(1)
 
 	rabbitMqOverviewData := reply.MakeMap()
