@@ -84,13 +84,11 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 	}
 
 	for _, connD := range rabbitConnectionResponses {
-		if _, ok := connD.metrics["channels"]; ok { //TODO: find better way to retrieve the data instead of using "channels"
-			self := "0"
-			if connD.labels["node"] == selfNode {
-				self = "1"
-			}
-			e.stateMetric.WithLabelValues(cluster, connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], connD.labels["state"], self).Add(1)
+		self := "0"
+		if connD.labels["node"] == selfNode {
+			self = "1"
 		}
+		e.stateMetric.WithLabelValues(cluster, connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], connD.labels["state"], self).Add(1)
 	}
 
 	for _, gauge := range e.connectionMetricsG {
