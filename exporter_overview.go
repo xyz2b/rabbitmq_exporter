@@ -103,9 +103,11 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 		}
 	}
 
-	rabbitmqVersionMetric.Collect(ch)
-	for _, gauge := range e.overviewMetrics {
-		gauge.Collect(ch)
+	if ch != nil {
+		rabbitmqVersionMetric.Collect(ch)
+		for _, gauge := range e.overviewMetrics {
+			gauge.Collect(ch)
+		}
 	}
 	return nil
 }

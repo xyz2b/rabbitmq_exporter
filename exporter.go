@@ -87,21 +87,13 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	start := time.Now()
 	allUp := true
 
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, endpointScrapeDuration, e.endpointScrapeDurationMetric)
-	ctx = context.WithValue(ctx, endpointUpMetric, e.endpointUpMetric)
-	if err := collectWithDuration(ctx, e.overviewExporter, "overview", ch); err != nil {
+	if err := e.collectWithDuration(e.overviewExporter, "overview", ch); err != nil {
 		log.WithError(err).Warn("retrieving overview failed")
 		allUp = false
 	}
 
-	ctx = context.WithValue(ctx, nodeName, e.overviewExporter.NodeInfo().Node)
-	ctx = context.WithValue(ctx, clusterName, e.overviewExporter.NodeInfo().ClusterName)
-	ctx = context.WithValue(ctx, totalQueues, e.overviewExporter.NodeInfo().TotalQueues)
-
 	for name, ex := range e.exporter {
-
-		if err := collectWithDuration(ctx, ex, name, ch); err != nil {
+		if err := e.collectWithDuration(ex, name, ch); err != nil {
 			log.WithError(err).Warn("retrieving " + name + " failed")
 			allUp = false
 		}
@@ -121,17 +113,21 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 
 }
 
-func collectWithDuration(ctx context.Context, ex Exporter, name string, ch chan<- prometheus.Metric) error {
+func (e *exporter) collectWithDuration(ex Exporter, name string, ch chan<- prometheus.Metric) error {
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, endpointScrapeDuration, e.endpointScrapeDurationMetric)
+	ctx = context.WithValue(ctx, endpointUpMetric, e.endpointUpMetric)
+	//use last know value, could be outdated or empty
+	ctx = context.WithValue(ctx, nodeName, e.overviewExporter.NodeInfo().Node)
+	ctx = context.WithValue(ctx, clusterName, e.overviewExporter.NodeInfo().ClusterName)
+	ctx = context.WithValue(ctx, totalQueues, e.overviewExporter.NodeInfo().TotalQueues)
+
 	startModule := time.Now()
 	err := ex.Collect(ctx, ch)
-	node := ""
-	if n, ok := ctx.Value(clusterName).(string); ok {
-		node = n
-	}
-	cluster := ""
-	if n, ok := ctx.Value(clusterName).(string); ok {
-		cluster = n
-	}
+
+	//use current data
+	node := e.overviewExporter.NodeInfo().Node
+	cluster := e.overviewExporter.NodeInfo().ClusterName
 
 	if scrapeDuration, ok := ctx.Value(endpointScrapeDuration).(*prometheus.GaugeVec); ok {
 		if cluster != "" && node != "" { //values are not available until first scrape of overview succeeded
@@ -139,12 +135,10 @@ func collectWithDuration(ctx context.Context, ex Exporter, name string, ch chan<
 		}
 	}
 	if up, ok := ctx.Value(endpointUpMetric).(*prometheus.GaugeVec); ok {
-		if cluster != "" && node != "" { //values are not available until first scrape of overview succeeded
-			if err != nil {
-				up.WithLabelValues(cluster, node, name).Set(0)
-			} else {
-				up.WithLabelValues(cluster, node, name).Set(1)
-			}
+		if err != nil {
+			up.WithLabelValues(cluster, node, name).Set(0)
+		} else {
+			up.WithLabelValues(cluster, node, name).Set(1)
 		}
 	}
 	return err
