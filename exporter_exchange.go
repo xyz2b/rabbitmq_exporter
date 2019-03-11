@@ -11,7 +11,7 @@ func init() {
 }
 
 var (
-	exchangeLabels    = []string{"vhost", "exchange"}
+	exchangeLabels    = []string{"cluster", "vhost", "exchange"}
 	exchangeLabelKeys = []string{"vhost", "name"}
 
 	exchangeCounterVec = map[string]*prometheus.Desc{
@@ -59,12 +59,16 @@ func (e exporterExchange) Collect(ctx context.Context, ch chan<- prometheus.Metr
 	if err != nil {
 		return err
 	}
+	cluster := ""
+	if n, ok := ctx.Value(clusterName).(string); ok {
+		cluster = n
+	}
 
 	for key, countvec := range e.exchangeMetrics {
 		for _, exchange := range exchangeData {
 			if value, ok := exchange.metrics[key]; ok {
 				// log.WithFields(log.Fields{"vhost": exchange.vhost, "exchange": exchange.name, "key": key, "value": value}).Debug("Set exchange metric for key")
-				ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, exchange.labels["vhost"], exchange.labels["name"])
+				ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, cluster, exchange.labels["vhost"], exchange.labels["name"])
 			}
 		}
 	}

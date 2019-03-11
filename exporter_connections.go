@@ -11,8 +11,8 @@ func init() {
 }
 
 var (
-	connectionLabels            = []string{"vhost", "node", "peer_host", "user", "self"}
-	connectionLabelsStateMetric = []string{"vhost", "node", "peer_host", "user", "state", "self"}
+	connectionLabels            = []string{"cluster", "vhost", "node", "peer_host", "user", "self"}
+	connectionLabelsStateMetric = []string{"cluster", "vhost", "node", "peer_host", "user", "state", "self"}
 	connectionLabelKeys         = []string{"vhost", "node", "peer_host", "user", "state", "node"}
 
 	connectionGaugeVec = map[string]*prometheus.GaugeVec{
@@ -66,6 +66,10 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 	if n, ok := ctx.Value(nodeName).(string); ok {
 		selfNode = n
 	}
+	cluster := ""
+	if n, ok := ctx.Value(clusterName).(string); ok {
+		cluster = n
+	}
 
 	for key, gauge := range e.connectionMetricsG {
 		for _, connD := range rabbitConnectionResponses {
@@ -74,7 +78,7 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 				if connD.labels["node"] == selfNode {
 					self = "1"
 				}
-				gauge.WithLabelValues(connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], self).Add(value)
+				gauge.WithLabelValues(cluster, connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], self).Add(value)
 			}
 		}
 	}
@@ -85,7 +89,7 @@ func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.M
 			if connD.labels["node"] == selfNode {
 				self = "1"
 			}
-			e.stateMetric.WithLabelValues(connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], connD.labels["state"], self).Add(1)
+			e.stateMetric.WithLabelValues(cluster, connD.labels["vhost"], connD.labels["node"], connD.labels["peer_host"], connD.labels["user"], connD.labels["state"], self).Add(1)
 		}
 	}
 
