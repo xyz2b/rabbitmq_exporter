@@ -41,7 +41,7 @@ func TestQueueCount(t *testing.T) {
 	t.Run("Ensure there are no queues", func(t *testing.T) {
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
-		r := regexp.MustCompile("rabbitmq_queues.* 0")
+		r := regexp.MustCompile(`rabbitmq_queues{cluster="rabbit@localtest"} 0`)
 		if s := r.FindString(body); s == "" {
 			t.Fatalf("QueueCount 0 not found in body: %v", body)
 		}
@@ -52,7 +52,7 @@ func TestQueueCount(t *testing.T) {
 
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
-		r := regexp.MustCompile("rabbitmq_queues.* 1")
+		r := regexp.MustCompile(`rabbitmq_queues{cluster="rabbit@localtest"} 1`)
 		if s := r.FindString(body); s == "" {
 			// t.Logf("body: %s", body)
 			t.Fatalf("QueueCount 1 not found ")
@@ -68,7 +68,7 @@ func TestQueueCount(t *testing.T) {
 		// log.Println(testenv.GetOrDie(env.ManagementURL()+"/api/queues", 5*time.Second))
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
-		search := fmt.Sprintf(`rabbitmq_queue_head_message_timestamp{durable="true",policy="",queue="%s",self="1",vhost="/"} %1.9e`, queue, float64(timestamp.Unix()))
+		search := fmt.Sprintf(`rabbitmq_queue_head_message_timestamp{cluster="rabbit@localtest",durable="true",policy="",queue="%s",self="1",vhost="/"} %1.9e`, queue, float64(timestamp.Unix()))
 		i := strings.Index(body, search)
 
 		if i == -1 {
@@ -84,7 +84,7 @@ func TestQueueCount(t *testing.T) {
 		time.Sleep(5 * time.Second) // give rabbitmq management plugin a bit of time
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
-		search := fmt.Sprintf(`rabbitmq_queue_messages{durable="true",policy="",queue="%s",self="1",vhost="/"} 0`, queue)
+		search := fmt.Sprintf(`rabbitmq_queue_messages{cluster="rabbit@localtest",durable="true",policy="",queue="%s",self="1",vhost="/"} 0`, queue)
 		i := strings.Index(body, search)
 
 		if i == -1 {
@@ -101,7 +101,7 @@ func TestQueueCount(t *testing.T) {
 
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
-		search := fmt.Sprintf(`rabbitmq_queue_messages{durable="false",policy="",queue="%s",self="1",vhost="/"} 0`, queue)
+		search := fmt.Sprintf(`rabbitmq_queue_messages{cluster="rabbit@localtest",durable="false",policy="",queue="%s",self="1",vhost="/"} 0`, queue)
 		i := strings.Index(body, search)
 
 		if i == -1 {
@@ -120,7 +120,7 @@ func TestQueueCount(t *testing.T) {
 		time.Sleep(10 * time.Second) // give rabbitmq management plugin a bit of time
 		body := testenv.GetOrDie(exporterURL, 5*time.Second)
 
-		search := fmt.Sprintf(`rabbitmq_queue_messages{durable="false",policy="%s",queue="%s",self="1",vhost="/"} 0`, policy, queue)
+		search := fmt.Sprintf(`rabbitmq_queue_messages{cluster="rabbit@localtest",durable="false",policy="%s",queue="%s",self="1",vhost="/"} 0`, policy, queue)
 		i := strings.Index(body, search)
 		if i == -1 {
 			// t.Log(env.ManagementURL())

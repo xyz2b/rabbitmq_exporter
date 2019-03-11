@@ -48,7 +48,8 @@ func NewEnvironment(t *testing.T, dockerTag string) TestEnvironment {
 	tenv.docker.MaxWait = MaxWait
 
 	// pulls an image, creates a container based on it and runs it
-	resource, err := tenv.docker.Run("rabbitmq", dockerTag, []string{})
+	resource, err := tenv.docker.RunWithOptions(&dockertest.RunOptions{Repository: "rabbitmq", Tag: dockerTag, Hostname: "localtest"})
+
 	if err != nil {
 		log.Fatalf("Could not start resource: %s", err)
 	}

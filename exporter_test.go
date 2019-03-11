@@ -99,11 +99,11 @@ func TestWholeApp(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 	// queue
-	expectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
-	expectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"} 13912`)
-	expectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
-	expectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
-	expectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 0`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_ready{cluster="my-rabbit@ae74c041248b",durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
+	expectSubstring(t, body, `rabbitmq_queue_memory{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"} 13912`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_published_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
+	expectSubstring(t, body, `rabbitmq_queue_disk_writes_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
+	expectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 0`)
 	// exchange
 	expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
 	// connection
@@ -149,11 +149,11 @@ func TestWholeAppInverted(t *testing.T) {
 	dontExpectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4"} 4`)
 
 	// queue
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"} 13912`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 0`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{cluster="my-rabbit@ae74c041248b",durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_memory{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"} 13912`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 0`)
 	// exchange
 	dontExpectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
 	// connection
@@ -200,11 +200,11 @@ func TestAppMaxQueues(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 	// queue
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"} 13912`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
-	dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 0`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{cluster="my-rabbit@ae74c041248b",durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_memory{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"} 13912`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
+	dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 0`)
 
 	// exchange
 	expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
@@ -315,11 +315,11 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 		// queue
-		expectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
-		expectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"} 13912`)
-		expectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
-		expectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
-		expectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 0`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_ready{cluster="my-rabbit@ae74c041248b",durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"} 25`)
+		expectSubstring(t, body, `rabbitmq_queue_memory{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"} 13912`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_published_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
+		expectSubstring(t, body, `rabbitmq_queue_disk_writes_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 6`)
+		expectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"} 0`)
 
 		// exchange
 		expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
@@ -358,11 +358,11 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		expectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 		// queue
-		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"}`)
-		dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"}`)
-		dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
-		dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
-		dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{cluster="my-rabbit@ae74c041248b",durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_memory{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
 
 		// exchange
 		expectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"} 5`)
@@ -401,11 +401,11 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		dontExpectSubstring(t, body, `rabbitmq_partitions{node="my-rabbit@5a00cd8fe2f4",self="0"} 4`)
 
 		// queue
-		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"}`)
-		dontExpectSubstring(t, body, `rabbitmq_queue_memory{durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"}`)
-		dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
-		dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
-		dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_ready{cluster="my-rabbit@ae74c041248b",durable="true",policy="ha-2",queue="myQueue2",self="1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_memory{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue4",self="1",vhost="vhost4"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_published_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_disk_writes_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
+		dontExpectSubstring(t, body, `rabbitmq_queue_messages_delivered_total{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",vhost="/"}`)
 
 		// exchange
 		dontExpectSubstring(t, body, `rabbitmq_exchange_messages_published_in_total{exchange="myExchange",vhost="/"}`)
@@ -444,9 +444,9 @@ func TestQueueState(t *testing.T) {
 	expectSubstring(t, body, `rabbitmq_up 1`)
 
 	// queue
-	expectSubstring(t, body, `rabbitmq_queue_state{durable="true",policy="",queue="myQueue1",self="1",state="flow",vhost="/"} 1`)
-	expectSubstring(t, body, `rabbitmq_queue_state{durable="true",policy="",queue="myQueue3",self="1",state="running",vhost="/"} 1`)
-	expectSubstring(t, body, `rabbitmq_queue_state{durable="true",policy="ha-2",queue="myQueue2",self="1",state="running",vhost="/"} 1`)
+	expectSubstring(t, body, `rabbitmq_queue_state{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",state="flow",vhost="/"} 1`)
+	expectSubstring(t, body, `rabbitmq_queue_state{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue3",self="1",state="running",vhost="/"} 1`)
+	expectSubstring(t, body, `rabbitmq_queue_state{cluster="my-rabbit@ae74c041248b",durable="true",policy="ha-2",queue="myQueue2",self="1",state="running",vhost="/"} 1`)
 
 	// connections
 	expectSubstring(t, body, `rabbitmq_connection_status{node="rabbit@rmq-cluster-node-04",peer_host="172.31.0.130",self="0",state="running",user="rmq_oms",vhost="/"} 1`)
@@ -460,7 +460,7 @@ func TestQueueLength(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error reading %s", testdataFile)
 	}
-	server := setupServer(t, "", string(queuedata), "", "", "")
+	server := setupServer(t, `{"node": "rabbit@rabbitmq1","cluster_name": "my-rabbit@ae74c041248b"}`, string(queuedata), "", "", "")
 	defer server.Close()
 
 	os.Setenv("RABBIT_URL", server.URL)
@@ -484,7 +484,7 @@ func TestQueueLength(t *testing.T) {
 	t.Log(body)
 
 	// queue
-	expectSubstring(t, body, `rabbitmq_queue_max_length{durable="true",policy="",queue="QueueWithMaxLength55",self="0",vhost="/"} 55`)
-	expectSubstring(t, body, `rabbitmq_queue_max_length_bytes{durable="true",policy="",queue="QueueWithMaxBytes99",self="0",vhost="/"} 99`)
+	expectSubstring(t, body, `rabbitmq_queue_max_length{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="QueueWithMaxLength55",self="1",vhost="/"} 55`)
+	expectSubstring(t, body, `rabbitmq_queue_max_length_bytes{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="QueueWithMaxBytes99",self="1",vhost="/"} 99`)
 
 }

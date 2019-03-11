@@ -13,7 +13,7 @@ func init() {
 }
 
 var (
-	queueLabels    = []string{"vhost", "queue", "durable", "policy", "self"}
+	queueLabels    = []string{"cluster", "vhost", "queue", "durable", "policy", "self"}
 	queueLabelKeys = []string{"vhost", "name", "durable", "policy", "state", "node"}
 
 	queueGaugeVec = map[string]*prometheus.GaugeVec{
@@ -113,6 +113,10 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 	if n, ok := ctx.Value(nodeName).(string); ok {
 		selfNode = n
 	}
+	cluster := ""
+	if n, ok := ctx.Value(clusterName).(string); ok {
+		cluster = n
+	}
 
 	rabbitMqQueueData, err := getStatsInfo(config, "queues", queueLabelKeys)
 
@@ -136,7 +140,7 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 									self = "1"
 								}
 								// log.WithFields(log.Fields{"vhost": queue.labels["vhost"], "queue": queue.labels["name"], "key": key, "value": value}).Info("Set queue metric for key")
-								gaugevec.WithLabelValues(queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self).Set(value)
+								gaugevec.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self).Set(value)
 							}
 						}
 					}
@@ -158,7 +162,7 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 							if queue.labels["node"] == selfNode {
 								self = "1"
 							}
-							e.stateMetric.WithLabelValues(queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, queue.labels["state"]).Set(1)
+							e.stateMetric.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, queue.labels["state"]).Set(1)
 						}
 					}
 				}
@@ -180,9 +184,9 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 								self = "1"
 							}
 							if value, ok := queue.metrics[key]; ok {
-								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self)
+								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self)
 							} else {
-								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self)
+								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self)
 							}
 						}
 					}

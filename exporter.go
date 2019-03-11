@@ -20,6 +20,7 @@ const (
 	endpointScrapeDuration contextValues = "endpointScrapeDuration"
 	endpointUpMetric       contextValues = "endpointUpMetric"
 	nodeName               contextValues = "node"
+	clusterName            contextValues = "cluster"
 )
 
 //RegisterExporter makes an exporter available by the provided name.
@@ -94,6 +95,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	ctx = context.WithValue(ctx, nodeName, e.overviewExporter.NodeInfo().Node)
+	ctx = context.WithValue(ctx, clusterName, e.overviewExporter.NodeInfo().ClusterName)
 
 	for name, ex := range e.exporter {
 
