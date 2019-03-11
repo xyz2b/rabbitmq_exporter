@@ -41,10 +41,11 @@ type exporterOverview struct {
 
 //NodeInfo presents the name and version of fetched rabbitmq
 type NodeInfo struct {
-	Node            string `json:"node"`
-	RabbitmqVersion string `json:"rabbitmq_version"`
-	ErlangVersion   string `json:"erlang_version"`
-	ClusterName     string `json:"cluster_name"`
+	Node            string
+	RabbitmqVersion string
+	ErlangVersion   string
+	ClusterName     string
+	TotalQueues     int
 }
 
 func newExporterOverview() *exporterOverview {
@@ -83,15 +84,16 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 		return err
 	}
 
+	rabbitMqOverviewData := reply.MakeMap()
+
 	e.nodeInfo.Node, _ = reply.GetString("node")
 	e.nodeInfo.ErlangVersion, _ = reply.GetString("erlang_version")
 	e.nodeInfo.RabbitmqVersion, _ = reply.GetString("rabbitmq_version")
 	e.nodeInfo.ClusterName, _ = reply.GetString("cluster_name")
+	e.nodeInfo.TotalQueues = (int)(rabbitMqOverviewData["object_totals.queues"])
 
 	rabbitmqVersionMetric.Reset()
 	rabbitmqVersionMetric.WithLabelValues(e.nodeInfo.RabbitmqVersion, e.nodeInfo.ErlangVersion, e.nodeInfo.Node, e.nodeInfo.ClusterName).Set(1)
-
-	rabbitMqOverviewData := reply.MakeMap()
 
 	log.WithField("overviewData", rabbitMqOverviewData).Debug("Overview data")
 	for key, gauge := range e.overviewMetrics {

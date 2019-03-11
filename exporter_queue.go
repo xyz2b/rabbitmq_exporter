@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -92,15 +93,12 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 
 	if config.MaxQueues > 0 {
 		// Get overview info to check total queues
-		rabbitMqOverviewData, err := getMetricMap(config, "overview") //TODO: Replace by context value
-
-		if err != nil {
-			return err
+		totalQueues, ok := ctx.Value(totalQueues).(int)
+		if !ok {
+			return errors.New("total Queue counter missing")
 		}
 
-		totalQueues := rabbitMqOverviewData["object_totals.queues"]
-
-		if int(totalQueues) > config.MaxQueues {
+		if totalQueues > config.MaxQueues {
 			log.WithFields(log.Fields{
 				"MaxQueues":   config.MaxQueues,
 				"TotalQueues": totalQueues,
