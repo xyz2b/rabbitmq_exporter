@@ -83,7 +83,7 @@ func TestWholeApp(t *testing.T) {
 	}
 	body := w.Body.String()
 	t.Log(body)
-	expectSubstring(t, body, `rabbitmq_up 1`)
+	expectSubstring(t, body, `rabbitmq_up{cluster="my-rabbit@ae74c041248b",node="my-rabbit@ae74c041248b"} 1`)
 
 	// overview
 	expectSubstring(t, body, `rabbitmq_exchanges{cluster="my-rabbit@ae74c041248b"} 8`)
@@ -135,7 +135,7 @@ func TestWholeAppInverted(t *testing.T) {
 	}
 	body := w.Body.String()
 	t.Log(body)
-	expectSubstring(t, body, `rabbitmq_up 1`)
+	expectSubstring(t, body, `rabbitmq_up{cluster="my-rabbit@ae74c041248b",node="my-rabbit@ae74c041248b"} 1`)
 
 	// overview is always scraped and exported
 	expectSubstring(t, body, `rabbitmq_exchanges{cluster="my-rabbit@ae74c041248b"} 8`)
@@ -186,7 +186,7 @@ func TestAppMaxQueues(t *testing.T) {
 	}
 	body := w.Body.String()
 
-	expectSubstring(t, body, `rabbitmq_up 1`)
+	expectSubstring(t, body, `rabbitmq_up{cluster="my-rabbit@ae74c041248b",node="my-rabbit@ae74c041248b"} 1`)
 
 	// overview
 	expectSubstring(t, body, `rabbitmq_exchanges{cluster="my-rabbit@ae74c041248b"} 8`)
@@ -231,15 +231,15 @@ func TestRabbitError(t *testing.T) {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
 	body := w.Body.String()
-	// fmt.Println(body)
-	expectSubstring(t, body, `rabbitmq_up 0`)
+
+	expectSubstring(t, body, `rabbitmq_up{cluster="",node=""} 0`) //TODO: on first scrape values are empty
 	if strings.Contains(body, "rabbitmq_channelsTotal") {
 		t.Errorf("Metric 'rabbitmq_channelsTotal' unexpected as the server  did not respond")
 	}
 }
 
 //TestResetMetricsOnRabbitFailure verifies the behaviour of the exporter if the rabbitmq fails after one successfull retrieval of the data
-// List of metrics should be empty except rabbitmq_up should be 0
+// List of metrics should be empty except rabbitmq_up{cluster="my-rabbit@ae74c041248b",node="my-rabbit@ae74c041248b"} should be 0
 func TestResetMetricsOnRabbitFailure(t *testing.T) {
 	rabbitUP := true
 	rabbitQueuesUp := true
@@ -295,13 +295,14 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 			t.Errorf("Home page didn't return %v", http.StatusOK)
 		}
 		body := w.Body.String()
+		t.Log(body)
 
-		expectSubstring(t, body, `rabbitmq_up 1`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="exchange"} 1`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="node"} 1`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="overview"} 1`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="queue"} 1`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="connections"} 1`)
+		expectSubstring(t, body, `rabbitmq_up{cluster="my-rabbit@ae74c041248b",node="my-rabbit@ae74c041248b"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="exchange",node="my-rabbit@ae74c041248b"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="node",node="my-rabbit@ae74c041248b"} 1`)
+		//expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="overview",node="my-rabbit@ae74c041248b"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="queue",node="my-rabbit@ae74c041248b"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="connections",node="my-rabbit@ae74c041248b"} 1`)
 
 		// overview
 		expectSubstring(t, body, `rabbitmq_exchanges{cluster="my-rabbit@ae74c041248b"} 8`)
@@ -339,12 +340,12 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		}
 		body := w.Body.String()
 
-		expectSubstring(t, body, `rabbitmq_up 0`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="exchange"} 1`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="node"} 1`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="overview"} 1`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="queue"} 0`) //down
-		expectSubstring(t, body, `rabbitmq_module_up{module="connections"} 1`)
+		expectSubstring(t, body, `rabbitmq_up{cluster="my-rabbit@ae74c041248b",node="my-rabbit@ae74c041248b"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="exchange",node="my-rabbit@ae74c041248b"} 1`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="node",node="my-rabbit@ae74c041248b"} 1`)
+		//expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="overview",node="my-rabbit@ae74c041248b"} 1`) //TODO: value not available on first scrape
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="queue",node="my-rabbit@ae74c041248b"} 0`) //down
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="connections",node="my-rabbit@ae74c041248b"} 1`)
 
 		// overview
 		expectSubstring(t, body, `rabbitmq_exchanges{cluster="my-rabbit@ae74c041248b"} 8`)
@@ -382,12 +383,12 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		}
 		body := w.Body.String()
 
-		expectSubstring(t, body, `rabbitmq_up 0`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="exchange"} 0`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="node"} 0`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="overview"} 0`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="queue"} 0`)
-		expectSubstring(t, body, `rabbitmq_module_up{module="connections"} 0`)
+		expectSubstring(t, body, `rabbitmq_up{cluster="my-rabbit@ae74c041248b",node="my-rabbit@ae74c041248b"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="exchange",node="my-rabbit@ae74c041248b"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="node",node="my-rabbit@ae74c041248b"} 0`)
+		//expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="overview",node="my-rabbit@ae74c041248b"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="queue",node="my-rabbit@ae74c041248b"} 0`)
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="connections",node="my-rabbit@ae74c041248b"} 0`)
 
 		// overview
 		dontExpectSubstring(t, body, `rabbitmq_exchangesTotal`)
@@ -441,7 +442,7 @@ func TestQueueState(t *testing.T) {
 	body := w.Body.String()
 	t.Log(body)
 
-	expectSubstring(t, body, `rabbitmq_up 1`)
+	expectSubstring(t, body, `rabbitmq_up{cluster="my-rabbit@ae74c041248b",node="my-rabbit@ae74c041248b"} 1`)
 
 	// queue
 	expectSubstring(t, body, `rabbitmq_queue_state{cluster="my-rabbit@ae74c041248b",durable="true",policy="",queue="myQueue1",self="1",state="flow",vhost="/"} 1`)

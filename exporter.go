@@ -35,7 +35,7 @@ func RegisterExporter(name string, f func() Exporter) {
 
 type exporter struct {
 	mutex                        sync.RWMutex
-	upMetric                     prometheus.Gauge
+	upMetric                     *prometheus.GaugeVec
 	endpointUpMetric             *prometheus.GaugeVec
 	endpointScrapeDurationMetric *prometheus.GaugeVec
 	exporter                     map[string]Exporter
@@ -58,9 +58,9 @@ func newExporter() *exporter {
 	}
 
 	return &exporter{
-		upMetric:                     newGauge("up", "Was the last scrape of rabbitmq successful."),
-		endpointUpMetric:             newGaugeVec("module_up", "Was the last scrape of rabbitmq successful per module.", []string{"module"}),
-		endpointScrapeDurationMetric: newGaugeVec("module_scrape_duration_seconds", "Duration of the last scrape in seconds", []string{"module"}),
+		upMetric:                     newGaugeVec("up", "Was the last scrape of rabbitmq successful.", []string{"cluster", "node"}),
+		endpointUpMetric:             newGaugeVec("module_up", "Was the last scrape of rabbitmq successful per module.", []string{"cluster", "node", "module"}),
+		endpointScrapeDurationMetric: newGaugeVec("module_scrape_duration_seconds", "Duration of the last scrape in seconds", []string{"cluster", "node", "module"}),
 		exporter:                     enabledExporter,
 		overviewExporter:             newExporterOverview(),
 	}
@@ -108,9 +108,9 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	BuildInfo.Collect(ch)
 
 	if allUp {
-		e.upMetric.Set(1)
+		e.upMetric.WithLabelValues(e.overviewExporter.NodeInfo().ClusterName, e.overviewExporter.NodeInfo().Node).Set(1)
 	} else {
-		e.upMetric.Set(0)
+		e.upMetric.WithLabelValues(e.overviewExporter.NodeInfo().ClusterName, e.overviewExporter.NodeInfo().Node).Set(0)
 	}
 	e.upMetric.Collect(ch)
 	e.endpointUpMetric.Collect(ch)
@@ -122,15 +122,27 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 func collectWithDuration(ctx context.Context, ex Exporter, name string, ch chan<- prometheus.Metric) error {
 	startModule := time.Now()
 	err := ex.Collect(ctx, ch)
+	node := ""
+	if n, ok := ctx.Value(clusterName).(string); ok {
+		node = n
+	}
+	cluster := ""
+	if n, ok := ctx.Value(clusterName).(string); ok {
+		cluster = n
+	}
 
 	if scrapeDuration, ok := ctx.Value(endpointScrapeDuration).(*prometheus.GaugeVec); ok {
-		scrapeDuration.WithLabelValues(name).Set(time.Since(startModule).Seconds())
+		if cluster != "" && node != "" { //values are not available until first scrape of overview succeeded
+			scrapeDuration.WithLabelValues(cluster, node, name).Set(time.Since(startModule).Seconds())
+		}
 	}
 	if up, ok := ctx.Value(endpointUpMetric).(*prometheus.GaugeVec); ok {
-		if err != nil {
-			up.WithLabelValues(name).Set(0)
-		} else {
-			up.WithLabelValues(name).Set(1)
+		if cluster != "" && node != "" { //values are not available until first scrape of overview succeeded
+			if err != nil {
+				up.WithLabelValues(cluster, node, name).Set(0)
+			} else {
+				up.WithLabelValues(cluster, node, name).Set(1)
+			}
 		}
 	}
 	return err
