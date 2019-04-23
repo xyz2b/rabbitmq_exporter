@@ -12,7 +12,7 @@ import (
 var (
 	config        rabbitExporterConfig
 	defaultConfig = rabbitExporterConfig{
-		RabbitURL:          "http://localhost:15672",
+		RabbitURL:          "http://127.0.0.1:15672",
 		RabbitUsername:     "guest",
 		RabbitPassword:     "guest",
 		PublishPort:        "9419",
