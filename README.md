@@ -137,10 +137,10 @@ metric | description
 |queue_consumer_utilisation|Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count.|
 |queue_memory|Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures.|
 |queue_head_message_timestamp|The timestamp property of the first message in the queue, if present. Timestamps of messages only appear when they are in the paged-in state.|
-|queue_status|A metric with a value of constant '1' if the queue is in a certain state. Labels: vhost, queue, *state* (running, flow,..)|
 |queue_max_length_bytes|Total body size for ready messages a queue can contain before it starts to drop them from its head.|
 |queue_max_length|How many (ready) messages a queue can contain before it starts to drop them from its head.|
-
+|queue_idle_since_seconds|starttime where the queue switched to idle state; seconds since epoch (1970); only set if queue state is idle|
+|queue_status|A metric with a value of constant '1' if the queue is in a certain state. Labels: vhost, queue, *state* (running, idle, flow,..)|
 
 #### Queues - Counter
 

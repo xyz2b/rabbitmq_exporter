@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
@@ -15,7 +16,7 @@ func init() {
 
 var (
 	queueLabels    = []string{"cluster", "vhost", "queue", "durable", "policy", "self"}
-	queueLabelKeys = []string{"vhost", "name", "durable", "policy", "state", "node"}
+	queueLabelKeys = []string{"vhost", "name", "durable", "policy", "state", "node", "idle_since"}
 
 	queueGaugeVec = map[string]*prometheus.GaugeVec{
 		"messages_ready":               newGaugeVec("queue_messages_ready", "Number of messages ready to be delivered to clients.", queueLabels),
@@ -57,6 +58,7 @@ type exporterQueue struct {
 	queueMetricsGauge   map[string]*prometheus.GaugeVec
 	queueMetricsCounter map[string]*prometheus.Desc
 	stateMetric         *prometheus.GaugeVec
+	idleSinceMetric     *prometheus.GaugeVec
 }
 
 func newExporterQueue() Exporter {
@@ -78,6 +80,7 @@ func newExporterQueue() Exporter {
 		queueMetricsGauge:   queueGaugeVecActual,
 		queueMetricsCounter: queueCounterVecActual,
 		stateMetric:         newGaugeVec("queue_state", "A metric with a value of constant '1' if the queue is in a certain state", append(queueLabels, "state")),
+		idleSinceMetric:     newGaugeVec("queue_idle_since_seconds", "starttime where the queue switched to idle state; in seconds since epoch (1970).", queueLabels),
 	}
 }
 
@@ -90,6 +93,7 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 		gaugevec.Reset()
 	}
 	e.stateMetric.Reset()
+	e.idleSinceMetric.Reset()
 
 	if config.MaxQueues > 0 {
 		// Get overview info to check total queues
@@ -150,21 +154,40 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 	for _, queue := range rabbitMqQueueData {
 		qname := queue.labels["name"]
 		vname := queue.labels["vhost"]
-		if _, ok := queue.metrics["messages"]; ok { // "messages" is used to retrieve one record per queue for setting the queue state
 
-			if matchVhost := config.IncludeVHost.MatchString(strings.ToLower(vname)); matchVhost {
-				if skipVhost := config.SkipVHost.MatchString(strings.ToLower(vname)); !skipVhost {
-					if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
-						if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
-							self := "0"
-							if queue.labels["node"] == selfNode {
-								self = "1"
-							}
-							e.stateMetric.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, queue.labels["state"]).Set(1)
-						}
-					}
+		if vhostIncluded := config.IncludeVHost.MatchString(strings.ToLower(vname)); !vhostIncluded {
+			continue
+		}
+		if skipVhost := config.SkipVHost.MatchString(strings.ToLower(vname)); skipVhost {
+			continue
+		}
+		if queueIncluded := config.IncludeQueues.MatchString(strings.ToLower(qname)); !queueIncluded {
+			continue
+		}
+		if queueSkipped := config.SkipQueues.MatchString(strings.ToLower(qname)); queueSkipped {
+			continue
+		}
+
+		self := "0"
+		if queue.labels["node"] == selfNode {
+			self = "1"
+		}
+
+		idleSince, exists := queue.labels["idle_since"]
+		if exists && idleSince != "" {
+			if t, err := time.Parse("2006-01-02 15:04:05", idleSince); err == nil {
+				unixSeconds := float64(t.UnixNano()) / 1e9
+				state := queue.labels["state"]
+				if state == "running" { //replace running state with idle if idle_since time is provided. Other states (flow, etc.) are not replaced
+					state = "idle"
 				}
+				e.idleSinceMetric.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self).Set(unixSeconds)
+				e.stateMetric.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, state).Set(1)
+			} else {
+				log.WithError(err).WithField("idle_since", idleSince).Warn("error parsing idle since time")
 			}
+		} else {
+			e.stateMetric.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, queue.labels["state"]).Set(1)
 		}
 	}
 
