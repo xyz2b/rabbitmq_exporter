@@ -1,7 +1,10 @@
 package main
 
-import log "github.com/sirupsen/logrus"
+import (
+	log "github.com/sirupsen/logrus"
+	"io/ioutil"
+)
 
 func init() {
-	log.SetLevel(log.FatalLevel)
+	log.SetOutput(ioutil.Discard)
 }
