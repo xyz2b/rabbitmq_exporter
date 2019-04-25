@@ -65,10 +65,6 @@ func newExporterOverview() *exporterOverview {
 	}
 }
 
-func (e exporterOverview) String() string {
-	return "overview"
-}
-
 func (e exporterOverview) NodeInfo() NodeInfo {
 	return e.nodeInfo
 }

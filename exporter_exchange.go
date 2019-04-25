@@ -49,10 +49,6 @@ func newExporterExchange() Exporter {
 	}
 }
 
-func (e exporterExchange) String() string {
-	return "Exporter exchange"
-}
-
 func (e exporterExchange) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	exchangeData, err := getStatsInfo(config, "exchanges", exchangeLabelKeys)
 

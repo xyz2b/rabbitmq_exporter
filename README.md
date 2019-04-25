@@ -99,6 +99,7 @@ rabbitmq_exporter_build_info | A metric with a constant '1' value labeled by ver
 ### Overview
 
 Always exported.
+Labels: cluster
 
 metric | description
 -------| ------------
@@ -115,7 +116,7 @@ metric | description
 
 ### Queues
 
-Labels: vhost, queue, durable, policy, self
+Labels: cluster, vhost, queue, durable, policy, self
 
 #### Queues - Gauge
 
@@ -159,7 +160,7 @@ metric | description
 
 ### Exchanges - Counter
 
-Labels: vhost, exchange
+Labels: cluster, vhost, exchange
 
 metric | description
 -------| ------------
@@ -168,7 +169,7 @@ metric | description
 
 ### Node - Counter
 
-Labels: node, self
+Labels: cluster, node, self
 
 metric | description
 -------| ------------
@@ -189,7 +190,7 @@ metric | description
 
 _disabled by default_. Depending on the environment and change rate it can create a high number of dead metrics. Otherwise it could be usefull and can be enabled.
 
-Labels: vhost, node, peer_host, user, self
+Labels: cluster, vhost, node, peer_host, user, self
 
 Please note: The data is aggregated by label values as it is possible that there are multiple connections for a certain combination of labels. 
 
@@ -208,9 +209,18 @@ metric | description
 -------| ------------
 |connection_status|Number of connections in a certain state aggregated per label combination. Metric will disappear if there are no connections in a state. |
 
+### Shovel
+
+_disabled by default_
+Labels: cluster, vhost, shovel, type, self, state
+
+
+metric | description
+-------| ------------
+|shovel_status|A metric with a value of constant '1' for each shovel in a certain state|
+
 ## Docker
 
-To create a docker image locally it is recommened to use the Makefile.
-Promu is used for building the statically linked binary which is added to the scratch image.
+To create a docker image locally normal docker build can be used.
 
-       make docker
+       docker build .

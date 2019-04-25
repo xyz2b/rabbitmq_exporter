@@ -89,10 +89,6 @@ func newExporterQueue() Exporter {
 	}
 }
 
-func (e exporterQueue) String() string {
-	return "Exporter queue"
-}
-
 func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	for _, gaugevec := range e.queueMetricsGauge {
 		gaugevec.Reset()

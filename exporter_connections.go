@@ -47,10 +47,6 @@ func newExporterConnections() Exporter {
 	}
 }
 
-func (e exporterConnections) String() string {
-	return "Exporter connections"
-}
-
 func (e exporterConnections) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	rabbitConnectionResponses, err := getStatsInfo(config, "connections", connectionLabelKeys)
 

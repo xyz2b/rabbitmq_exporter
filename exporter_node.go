@@ -51,10 +51,6 @@ func newExporterNode() Exporter {
 	}
 }
 
-func (e exporterNode) String() string {
-	return "Exporter node"
-}
-
 func (e exporterNode) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
 	selfNode := ""
 	if n, ok := ctx.Value(nodeName).(string); ok {
