@@ -70,12 +70,12 @@ func (e exporterOverview) NodeInfo() NodeInfo {
 }
 
 func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Metric) error {
-	body, err := apiRequest(config, "overview")
+	body, contentType, err := apiRequest(config, "overview")
 	if err != nil {
 		return err
 	}
 
-	reply, err := MakeReply(config, body)
+	reply, err := MakeReply(contentType, body)
 	if err != nil {
 		return err
 	}

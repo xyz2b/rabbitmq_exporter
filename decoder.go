@@ -32,9 +32,9 @@ type RabbitReply interface {
 }
 
 // MakeReply instantiates the apropriate reply parser for a given
-// reply and the current configuration.
-func MakeReply(config rabbitExporterConfig, body []byte) (RabbitReply, error) {
-	if isCapEnabled(config, rabbitCapBert) {
+// reply and the content-type header
+func MakeReply(contentType string, body []byte) (RabbitReply, error) {
+	if contentType == "application/bert" {
 		return makeBERTReply(body)
 	}
 	return makeJSONReply(body)

@@ -38,7 +38,7 @@ func initClient() {
 
 }
 
-func apiRequest(config rabbitExporterConfig, endpoint string) ([]byte, error) {
+func apiRequest(config rabbitExporterConfig, endpoint string) ([]byte, string, error) {
 	var args string
 	enabled, exists := config.RabbitCapabilities[rabbitCapNoSort]
 	if enabled && exists {
@@ -48,7 +48,7 @@ func apiRequest(config rabbitExporterConfig, endpoint string) ([]byte, error) {
 	req, err := http.NewRequest("GET", config.RabbitURL+"/api/"+endpoint+args, nil)
 	if err != nil {
 		log.WithFields(log.Fields{"error": err, "host": config.RabbitURL}).Error("Error while constructing rabbitHost request")
-		return nil, errors.New("Error while constructing rabbitHost request")
+		return nil, "", errors.New("Error while constructing rabbitHost request")
 	}
 
 	req.SetBasicAuth(config.RabbitUsername, config.RabbitPassword)
@@ -62,25 +62,26 @@ func apiRequest(config rabbitExporterConfig, endpoint string) ([]byte, error) {
 			status = resp.StatusCode
 		}
 		log.WithFields(log.Fields{"error": err, "host": config.RabbitURL, "statusCode": status}).Error("Error while retrieving data from rabbitHost")
-		return nil, errors.New("Error while retrieving data from rabbitHost")
+		return nil, "", errors.New("Error while retrieving data from rabbitHost")
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
+	content := resp.Header.Get("Content-type")
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	log.WithFields(log.Fields{"body": string(body), "endpoint": endpoint}).Debug("Metrics loaded")
 
-	return body, nil
+	return body, content, nil
 }
 
 func loadMetrics(config rabbitExporterConfig, endpoint string) (RabbitReply, error) {
-	body, err := apiRequest(config, endpoint)
+	body, content, err := apiRequest(config, endpoint)
 	if err != nil {
 		return nil, err
 	}
-	return MakeReply(config, body)
+	return MakeReply(content, body)
 }
 
 func getStatsInfo(config rabbitExporterConfig, apiEndpoint string, labels []string) ([]StatsInfo, error) {
@@ -99,12 +100,12 @@ func getStatsInfo(config rabbitExporterConfig, apiEndpoint string, labels []stri
 func getMetricMap(config rabbitExporterConfig, apiEndpoint string) (MetricMap, error) {
 	var overview MetricMap
 
-	body, err := apiRequest(config, apiEndpoint)
+	body, content, err := apiRequest(config, apiEndpoint)
 	if err != nil {
 		return overview, err
 	}
 
-	reply, err := MakeReply(config, body)
+	reply, err := MakeReply(content, body)
 	if err != nil {
 		return overview, err
 	}
@@ -114,7 +115,7 @@ func getMetricMap(config rabbitExporterConfig, apiEndpoint string) (MetricMap, e
 
 func acceptContentType(config rabbitExporterConfig) string {
 	if isCapEnabled(config, rabbitCapBert) {
-		return "application/bert"
+		return "application/bert, application/json;q=0.1"
 	}
 	return "application/json"
 }
