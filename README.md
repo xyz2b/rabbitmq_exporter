@@ -205,6 +205,7 @@ metric | description
 
 
 Labels: vhost, node, peer_host, user, *state* (running, flow,..), self
+
 metric | description
 -------| ------------
 |connection_status|Number of connections in a certain state aggregated per label combination. Metric will disappear if there are no connections in a state. |
