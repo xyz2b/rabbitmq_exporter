@@ -48,8 +48,8 @@ LOG_LEVEL | info | log level. possible values: "debug", "info", "warning", "erro
 CAFILE | ca.pem | path to root certificate for access management plugin. Just needed if self signed certificate is used. Will be ignored if the file does not exist
 SKIPVERIFY | false | true/0 will ignore certificate errors of the management plugin
 SKIP_VHOST | ^$ |regex, matching vhost names are not exported. First performs INCLUDE_VHOST, then SKIP_VHOST
-INCLUDE_VHOST | .* | reqgex vhost filter. Only queues in matching vhosts are exported
-INCLUDE_QUEUES | .* | reqgex queue filter. just matching names are exported
+INCLUDE_VHOST | .* | regex vhost filter. Only queues in matching vhosts are exported
+INCLUDE_QUEUES | .* | regex queue filter. Just matching names are exported
 SKIP_QUEUES | ^$ |regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
 RABBIT_CAPABILITIES | bert,no_sort | comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
 RABBIT_EXPORTERS | exchange,node,queue | List of enabled modules. Just "connections" is not enabled by default
