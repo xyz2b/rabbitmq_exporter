@@ -221,6 +221,7 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 		gaugevec.Collect(ch)
 	}
 	e.stateMetric.Collect(ch)
+	e.idleSinceMetric.Collect(ch)
 
 	return nil
 }
@@ -230,6 +231,7 @@ func (e exporterQueue) Describe(ch chan<- *prometheus.Desc) {
 		gaugevec.Describe(ch)
 	}
 	e.stateMetric.Describe(ch)
+	e.idleSinceMetric.Describe(ch)
 	for _, countervec := range e.queueMetricsCounter {
 		ch <- countervec
 	}
