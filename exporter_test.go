@@ -20,6 +20,7 @@ const (
 	nodesAPIResponse      = `[{"mem_used":150456032,"mem_used_details":{"rate":25176},"fd_used":55,"fd_used_details":{"rate":0},"sockets_used":0,"sockets_used_details":{"rate":0},"proc_used":226,"proc_used_details":{"rate":0},"disk_free":189045161984,"disk_free_details":{"rate":0},"partitions":["rabbit@ribbit-0","rabbit@ribbit-1","rabbit@ribbit-3","rabbit@ribbit-4"],"os_pid":"113","fd_total":1048576,"sockets_total":943626,"mem_limit":838395494,"mem_alarm":false,"disk_free_limit":50000000,"disk_free_alarm":false,"proc_total":1048576,"rates_mode":"basic","uptime":3772165,"run_queue":0,"processors":4,"name":"my-rabbit@5a00cd8fe2f4","type":"disc","running":true}]`
 	connectionAPIResponse = `[{"auth_mechanism": "PLAIN","channel_max": 65535,"channels": 1,"client_properties": {"copyright": "Copyright (c) 2007-2014 VMWare Inc, Tony Garnock-Jones, and Alan Antonuk.","information": "See https://github.com/alanxz/rabbitmq-c","platform": "linux-gn","product": "rabbitmq-c","version": "0.5.3-pre"},"connected_at": 1501868641834,"frame_max": 131072,"garbage_collection": {"fullsweep_after": 65535,"min_bin_vheap_size": 46422,"min_heap_size": 233,"minor_gcs": 3},"host": "172.31.15.10","name": "172.31.0.130:32769 -> 172.31.15.10:5672","node": "my-rabbit@ae74c041248b","peer_cert_issuer": null,"peer_cert_subject": null,"peer_cert_validity": null,"peer_host": "172.31.0.130","peer_port": 32769,"port": 5672,"protocol": "AMQP 0-9-1","recv_cnt": 22708,"recv_oct": 8905713,"recv_oct_details": {"rate": 169.6},"reductions": 6257210,"reductions_details": {"rate": 148.8},"send_cnt": 6,"send_oct": 573,"send_oct_details": {"rate": 0.0},"send_pend": 0,"ssl": false,"ssl_cipher": null,"ssl_hash": null,"ssl_key_exchange": null,"ssl_protocol": null,"state": "running","timeout": 0,"type": "network","user": "rmq_oms","vhost": "/"},{"auth_mechanism": "PLAIN","channel_max": 65535,"channels": 1,"client_properties": {"copyright": "Copyright (c) 2007-2014 VMWare Inc, Tony Garnock-Jones, and Alan Antonuk.","information": "See https://github.com/alanxz/rabbitmq-c","platform": "linux-gn","product": "rabbitmq-c","version": "0.5.3-pre"},"connected_at": 1501868641834,"frame_max": 131072,"garbage_collection": {"fullsweep_after": 65535,"min_bin_vheap_size": 46422,"min_heap_size": 233,"minor_gcs": 3},"host": "172.31.15.10","name": "172.31.0.130:32769 -> 172.31.15.10:5672","node": "rabbit@rmq-cluster-node-04","peer_cert_issuer": null,"peer_cert_subject": null,"peer_cert_validity": null,"peer_host": "172.31.0.130","peer_port": 32769,"port": 5672,"protocol": "AMQP 0-9-1","recv_cnt": 22708,"recv_oct": 8905713,"recv_oct_details": {"rate": 169.6},"reductions": 6257210,"reductions_details": {"rate": 148.8},"send_cnt": 6,"send_oct": 573,"send_oct_details": {"rate": 0.0},"send_pend": 0,"ssl": false,"ssl_cipher": null,"ssl_hash": null,"ssl_key_exchange": null,"ssl_protocol": null,"state": "running","timeout": 0,"type": "network","user": "rmq_oms","vhost": "/"}]`
 	shovelAPIResponse     = `[{"node":"my-rabbit@4a6df52ebc2a","timestamp":"2019-04-23 10:32:08","name":"test-shovel","vhost":"/","type":"dynamic","state":"terminated","reason":"{failed_to_connect_using_provided_uris,\n [{rabbit_amqp091_shovel,make_conn_and_chan,2,\n [{file,\"src/rabbit_amqp091_shovel.erl\"},{line,324}]},\n {rabbit_amqp091_shovel,connect_source,1,\n [{file,\"src/rabbit_amqp091_shovel.erl\"},{line,78}]},\n {rabbit_shovel_worker,handle_cast,2,\n [{file,\"src/rabbit_shovel_worker.erl\"},{line,64}]},\n {gen_server2,handle_msg,2,[{file,\"src/gen_server2.erl\"},{line,1056}]},\n {proc_lib,init_p_do_apply,3,[{file,\"proc_lib.erl\"},{line,249}]}]}"},{"node":"my-rabbit@ae74c041248b","timestamp":"2019-04-17 1:01:11","name":"ADMIN-3779-1","vhost":"/","type":"dynamic","state":"running","src_uri":"amqp://","src_protocol":"amqp091","dest_protocol":"amqp091","dest_uri":"amqps://rabbitmq.example.com:5671/dev-1","src_exchange":"test.exchange","src_exchange_key":"EVENT_SNAPSHOT.#","dest_exchange":"test.event.snapshot.v1"}]`
+	federationAPIResponse = `[{"node":"my-rabbit@ae74c041248b","queue":"test_queue1","upstream_queue":"test_queue1","type":"queue","vhost":"/","upstream":"root","id":"d4b0c59f","status":"running","local_connection":"<rabbit@4a6df52ebc2a.3.25296.0>","uri":"amqp://192.168.34.2","timestamp":"2019-08-20 10:19:19","local_channel":{"acks_uncommitted":0,"confirm":true,"connection_details":{"name":"<rabbit@4a6df52ebc2a.3.25296.0>","peer_host":"undefined","peer_port":"undefined"},"consumer_count":0,"garbage_collection":{"fullsweep_after":65535,"max_heap_size":0,"min_bin_vheap_size":46422,"min_heap_size":233,"minor_gcs":0},"global_prefetch_count":0,"idle_since":"2019-08-20 10:19:20","messages_unacknowledged":0,"messages_uncommitted":0,"messages_unconfirmed":0,"name":"<rabbit@4a6df52ebc2a.3.25296.0> (1)","node":"my-rabbit@ae74c041248b","number":1,"prefetch_count":0,"reductions":1140,"reductions_details":{"rate":0.0},"state":"running","transactional":false,"user":"none","user_who_performed_action":"none","vhost":"/"}},{"node":"rabbit@dc1rbmq1","queue":"test_queue2","upstream_queue":"test_queue2","type":"queue","vhost":"/","upstream":"root","id":"1a398d90","status":"starting","uri":"amqp://192.168.34.2","timestamp":"2019-08-21 10:09:43"},{"node":"rabbit@dc1rbmq1","exchange":"test_exchange1","upstream_exchange":"test_exchange1","type":"exchange","vhost":"/","upstream":"root","id":"8b3dd12a","status":"running","local_connection":"<rabbit@dc1rbmq1.3.5088.1>","uri":"amqp://192.168.34.2","timestamp":"2019-08-21 10:31:47","local_channel":{"acks_uncommitted":0,"confirm":true,"connection_details":{"name":"<rabbit@dc1rbmq1.3.5088.1>","peer_host":"undefined","peer_port":"undefined"},"consumer_count":0,"garbage_collection":{"fullsweep_after":65535,"max_heap_size":0,"min_bin_vheap_size":46422,"min_heap_size":233,"minor_gcs":0},"global_prefetch_count":0,"idle_since":"2019-08-21 10:31:17","messages_unacknowledged":0,"messages_uncommitted":0,"messages_unconfirmed":0,"name":"<rabbit@dc1rbmq1.3.5088.1> (1)","node":"rabbit@dc1rbmq1","number":1,"prefetch_count":0,"reductions":1136,"reductions_details":{"rate":0.0},"state":"running","transactional":false,"user":"none","user_who_performed_action":"none","vhost":"/"}}]`
 )
 
 func expectSubstring(t *testing.T, body string, substr string) {
@@ -574,6 +575,95 @@ func TestShovel(t *testing.T) {
 		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="shovel",node="my-rabbit@ae74c041248b"} 0`)
 		dontExpectSubstring(t, body, `rabbitmq_shovel_state{cluster="my-rabbit@ae74c041248b",self="0",shovel="test-shovel",state="terminated",type="dynamic",vhost="/"} 1`)
 		dontExpectSubstring(t, body, `rabbitmq_shovel_state{cluster="my-rabbit@ae74c041248b",self="1",shovel="ADMIN-3779-1",state="running",type="dynamic",vhost="/"} 1`)
+
+	})
+
+}
+
+func TestFederation(t *testing.T) {
+	rabbitUP := true
+	federationUP := true
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !rabbitUP {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintln(w, http.StatusText(http.StatusInternalServerError))
+			return
+		}
+		if !federationUP && r.RequestURI == "/api/federation-links" {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintln(w, http.StatusText(http.StatusInternalServerError))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		if r.RequestURI == "/api/overview" {
+			fmt.Fprintln(w, overviewTestData)
+		} else if r.RequestURI == "/api/queues" {
+			fmt.Fprintln(w, queuesTestData)
+		} else if r.RequestURI == "/api/exchanges" {
+			fmt.Fprintln(w, exchangeAPIResponse)
+		} else if r.RequestURI == "/api/nodes" {
+			fmt.Fprintln(w, nodesAPIResponse)
+		} else if r.RequestURI == "/api/connections" {
+			fmt.Fprintln(w, connectionAPIResponse)
+		} else if r.RequestURI == "/api/federation-links" {
+			fmt.Fprintln(w, federationAPIResponse)
+		} else {
+			t.Errorf("Invalid request. URI=%v", r.RequestURI)
+			fmt.Fprintf(w, "Invalid request. URI=%v", r.RequestURI)
+		}
+
+	}))
+	defer server.Close()
+	os.Setenv("RABBIT_URL", server.URL)
+	os.Setenv("RABBIT_CAPABILITIES", " ")
+	defer os.Unsetenv("RABBIT_CAPABILITIES")
+	os.Setenv("RABBIT_EXPORTERS", "exchange,node,overview,queue,connections,federation")
+	defer os.Unsetenv("RABBIT_EXPORTERS")
+
+	initConfig()
+
+	exporter := newExporter()
+	prometheus.MustRegister(exporter)
+	defer prometheus.Unregister(exporter)
+
+	reg := regexp.MustCompile(`(.*federation.* \d+)`)
+
+	t.Run("RabbitMQ is up -> all metrics are ok", func(t *testing.T) {
+		rabbitUP = true
+		federationUP = true
+		req, _ := http.NewRequest("GET", "", nil)
+		w := httptest.NewRecorder()
+		prometheus.Handler().ServeHTTP(w, req)
+		if w.Code != http.StatusOK {
+			t.Errorf("Home page didn't return %v", http.StatusOK)
+		}
+		body := w.Body.String()
+
+		t.Log(strings.Join(reg.FindAllString(body, -1), "\n"))
+
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="federation",node="my-rabbit@ae74c041248b"} 1`)
+		expectSubstring(t, body, `rabbitmq_federation_state{cluster="my-rabbit@ae74c041248b",exchange="",node="my-rabbit@ae74c041248b",queue="test_queue1",self="1",status="running",vhost="/"} 1`)
+		expectSubstring(t, body, `rabbitmq_federation_state{cluster="my-rabbit@ae74c041248b",exchange="",node="rabbit@dc1rbmq1",queue="test_queue2",self="0",status="starting",vhost="/"} 1`)
+		expectSubstring(t, body, `rabbitmq_federation_state{cluster="my-rabbit@ae74c041248b",exchange="test_exchange1",node="rabbit@dc1rbmq1",queue="",self="0",status="running",vhost="/"} 1`)
+
+	})
+
+	t.Run("federation endpoint down", func(t *testing.T) {
+		federationUP = false
+		req, _ := http.NewRequest("GET", "", nil)
+		w := httptest.NewRecorder()
+		prometheus.Handler().ServeHTTP(w, req)
+		if w.Code != http.StatusOK {
+			t.Errorf("Home page didn't return %v", http.StatusOK)
+		}
+		body := w.Body.String()
+		t.Log(strings.Join(reg.FindAllString(body, -1), "\n"))
+
+		expectSubstring(t, body, `rabbitmq_module_up{cluster="my-rabbit@ae74c041248b",module="federation",node="my-rabbit@ae74c041248b"} 0`)
+		dontExpectSubstring(t, body, `rabbitmq_federation_state{cluster="my-rabbit@ae74c041248b",exchange="",node="my-rabbit@ae74c041248b",queue="test_queue1",self="0",status="running",vhost="/"} 1`)
+		dontExpectSubstring(t, body, `rabbitmq_federation_state{cluster="my-rabbit@ae74c041248b",exchange="",node="rabbit@dc1rbmq1",queue="test_queue2",self="0",status="starting",vhost="/"} 1`)
+		dontExpectSubstring(t, body, `rabbitmq_federation_state{cluster="my-rabbit@ae74c041248b",exchange="test_exchange1",node="rabbit@dc1rbmq1",queue="",self="0",status="running",vhost="/"} 1`)
 
 	})
 
