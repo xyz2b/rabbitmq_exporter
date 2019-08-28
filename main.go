@@ -53,6 +53,8 @@ func main() {
 		"RABBIT_CAPABILITIES": formatCapabilities(config.RabbitCapabilities),
 		"RABBIT_EXPORTERS":    config.EnabledExporters,
 		"CAFILE":              config.CAFile,
+		"CERTFILE":            config.CertFile,
+		"KEYFILE":             config.KeyFile,
 		"SKIPVERIFY":          config.InsecureSkipVerify,
 		"EXCLUDE_METRICS":     config.ExcludeMetrics,
 		"SKIP_QUEUES":         config.SkipQueues.String(),

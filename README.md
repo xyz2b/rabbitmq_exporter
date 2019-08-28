@@ -41,6 +41,8 @@ PUBLISH_ADDR | "" | Listening host/IP for the exporter
 OUTPUT_FORMAT | TTY | Log ouput format. TTY and JSON are suported
 LOG_LEVEL | info | log level. possible values: "debug", "info", "warning", "error", "fatal", or "panic"
 CAFILE | ca.pem | path to root certificate for access management plugin. Just needed if self signed certificate is used. Will be ignored if the file does not exist
+CERTFILE | client-cert.pem | path to client certificate used to verify the exporter's authenticity. Will be ignored if the file does not exist
+KEYFILE | client-key.pem | path to private key used with certificate to verify the exporter's authenticity. Will be ignored if the file does not exist
 SKIPVERIFY | false | true/0 will ignore certificate errors of the management plugin
 SKIP_VHOST | ^$ |regex, matching vhost names are not exported. First performs INCLUDE_VHOST, then SKIP_VHOST
 INCLUDE_VHOST | .* | regex vhost filter. Only queues in matching vhosts are exported
