@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (
@@ -80,7 +81,7 @@ func TestWholeApp(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
-	prometheus.Handler().ServeHTTP(w, req)
+	promhttp.Handler().ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
@@ -132,7 +133,7 @@ func TestWholeAppInverted(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
-	prometheus.Handler().ServeHTTP(w, req)
+	promhttp.Handler().ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
@@ -183,7 +184,7 @@ func TestAppMaxQueues(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
-	prometheus.Handler().ServeHTTP(w, req)
+	promhttp.Handler().ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
@@ -229,7 +230,7 @@ func TestRabbitError(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
-	prometheus.Handler().ServeHTTP(w, req)
+	promhttp.Handler().ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
@@ -293,7 +294,7 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		rabbitQueuesUp = true
 		req, _ := http.NewRequest("GET", "", nil)
 		w := httptest.NewRecorder()
-		prometheus.Handler().ServeHTTP(w, req)
+		promhttp.Handler().ServeHTTP(w, req)
 		if w.Code != http.StatusOK {
 			t.Errorf("Home page didn't return %v", http.StatusOK)
 		}
@@ -337,7 +338,7 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		rabbitQueuesUp = false
 		req, _ := http.NewRequest("GET", "", nil)
 		w := httptest.NewRecorder()
-		prometheus.Handler().ServeHTTP(w, req)
+		promhttp.Handler().ServeHTTP(w, req)
 		if w.Code != http.StatusOK {
 			t.Errorf("Home page didn't return %v", http.StatusOK)
 		}
@@ -380,7 +381,7 @@ func TestResetMetricsOnRabbitFailure(t *testing.T) {
 		rabbitUP = false
 		req, _ := http.NewRequest("GET", "", nil)
 		w := httptest.NewRecorder()
-		prometheus.Handler().ServeHTTP(w, req)
+		promhttp.Handler().ServeHTTP(w, req)
 		if w.Code != http.StatusOK {
 			t.Errorf("Home page didn't return %v", http.StatusOK)
 		}
@@ -438,7 +439,7 @@ func TestQueueState(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
-	prometheus.Handler().ServeHTTP(w, req)
+	promhttp.Handler().ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
@@ -480,7 +481,7 @@ func TestQueueLength(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "", nil)
 	w := httptest.NewRecorder()
-	prometheus.Handler().ServeHTTP(w, req)
+	promhttp.Handler().ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Errorf("Home page didn't return %v", http.StatusOK)
 	}
@@ -547,7 +548,7 @@ func TestShovel(t *testing.T) {
 		shovelUp = true
 		req, _ := http.NewRequest("GET", "", nil)
 		w := httptest.NewRecorder()
-		prometheus.Handler().ServeHTTP(w, req)
+		promhttp.Handler().ServeHTTP(w, req)
 		if w.Code != http.StatusOK {
 			t.Errorf("Home page didn't return %v", http.StatusOK)
 		}
@@ -565,7 +566,7 @@ func TestShovel(t *testing.T) {
 		shovelUp = false
 		req, _ := http.NewRequest("GET", "", nil)
 		w := httptest.NewRecorder()
-		prometheus.Handler().ServeHTTP(w, req)
+		promhttp.Handler().ServeHTTP(w, req)
 		if w.Code != http.StatusOK {
 			t.Errorf("Home page didn't return %v", http.StatusOK)
 		}
@@ -634,7 +635,7 @@ func TestFederation(t *testing.T) {
 		federationUP = true
 		req, _ := http.NewRequest("GET", "", nil)
 		w := httptest.NewRecorder()
-		prometheus.Handler().ServeHTTP(w, req)
+		promhttp.Handler().ServeHTTP(w, req)
 		if w.Code != http.StatusOK {
 			t.Errorf("Home page didn't return %v", http.StatusOK)
 		}
@@ -653,7 +654,7 @@ func TestFederation(t *testing.T) {
 		federationUP = false
 		req, _ := http.NewRequest("GET", "", nil)
 		w := httptest.NewRecorder()
-		prometheus.Handler().ServeHTTP(w, req)
+		promhttp.Handler().ServeHTTP(w, req)
 		if w.Code != http.StatusOK {
 			t.Errorf("Home page didn't return %v", http.StatusOK)
 		}
