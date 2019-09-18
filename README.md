@@ -94,10 +94,10 @@ Always exported.
 
 metric | description
 -------| ------------
-up | Was the last scrape of rabbitmq successful.
-module_up | Was the last scrape of rabbitmq module successful. labels: module
-module_scrape_duration_seconds | Duration of the last scrape of rabbitmq module. labels: module
-rabbitmq_exporter_build_info | A metric with a constant '1' value labeled by version, revision, branch and build date on which the rabbitmq_exporter was built.
+|up | Was the last scrape of rabbitmq successful.
+|module_up | Was the last scrape of rabbitmq module successful. labels: module
+|module_scrape_duration_seconds | Duration of the last scrape of rabbitmq module. labels: module
+|exporter_build_info | A metric with a constant '1' value labeled by version, revision, branch and build date on which the rabbitmq_exporter was built.
 
 ### Overview
 
@@ -110,11 +110,11 @@ metric | description
 |connections | Number of connections|
 |consumers | Number of message consumers|
 |queues | Number of queues in use|
-|exchangesTo | Number of exchanges in use|
+|exchanges | Number of exchanges in use|
 |queue_messages_global | Number ready and unacknowledged messages in cluster.|
 |queue_messages_ready_global | Number of messages ready to be delivered to clients.|
 |queue_messages_unacknowledged_global | Number of messages delivered to clients but not yet acknowledged.|
-|rabbitmq_version_info| A metric with a constant '1' value labeled by rabbitmq version, erlang version, node, cluster.|
+|version_info| A metric with a constant '1' value labeled by rabbitmq version, erlang version, node, cluster.|
 
 
 ### Queues
@@ -128,6 +128,7 @@ metric | description
 |queue_messages_ready|Number of messages ready to be delivered to clients.|
 |queue_messages_unacknowledged|Number of messages delivered to clients but not yet acknowledged.|
 |queue_messages|Sum of ready and unacknowledged messages (queue depth).|
+|queue_messages_ack_total|Number of messages delivered in acknowledgement mode in response to basic.get.|
 |queue_messages_ready_ram|Number of messages from messages_ready which are resident in ram.|
 |queue_messages_unacknowledged_ram|Number of messages from messages_unacknowledged which are resident in ram.|
 |queue_messages_ram|Total number of messages which are resident in ram.|
@@ -144,7 +145,8 @@ metric | description
 |queue_max_length_bytes|Total body size for ready messages a queue can contain before it starts to drop them from its head.|
 |queue_max_length|How many (ready) messages a queue can contain before it starts to drop them from its head.|
 |queue_idle_since_seconds|starttime where the queue switched to idle state; seconds since epoch (1970); only set if queue state is idle|
-|queue_status|A metric with a value of constant '1' if the queue is in a certain state. Labels: vhost, queue, *state* (running, idle, flow,..)|
+|queue_reductions_total|Number of reductions which take place on this process.|
+|queue_state|A metric with a value of constant '1' if the queue is in a certain state. Labels: vhost, queue, *state* (running, idle, flow,..)|
 
 #### Queues - Counter
 
@@ -176,6 +178,7 @@ Labels: cluster, node, self
 
 metric | description
 -------| ------------
+|uptime|Uptime in milliseconds|
 |running|number of running nodes|
 |node_mem_used|Memory used in bytes|
 |node_mem_limit|Point at which the memory alarm will go off|
@@ -221,7 +224,7 @@ Labels: cluster, vhost, shovel, type, self, state
 
 metric | description
 -------| ------------
-|shovel_status|A metric with a value of constant '1' for each shovel in a certain state|
+|shovel_state|A metric with a value of constant '1' for each shovel in a certain state|
 
 ## Docker
 
