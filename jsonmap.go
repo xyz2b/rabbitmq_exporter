@@ -31,9 +31,17 @@ func (rep *rabbitJSONReply) MakeStatsInfo(labels []string) []StatsInfo {
 		log.WithField("error", err).Error("Error while decoding json")
 		return make([]StatsInfo, 0)
 	}
+
 	for _, el := range jsonArr {
-		log.WithFields(log.Fields{"element": el, "vhost": el["vhost"], "name": el["name"]}).Debug("Iterate over array")
-		if _, ok := el["name"]; ok {
+		field := ""
+		if _, fieldName := el["name"]; fieldName {
+			field = "name"
+		}
+		if _, fieldID := el["id"]; fieldID {
+			field = "id"
+		}
+		if field != "" {
+			log.WithFields(log.Fields{"element": el, "vhost": el["vhost"], field: el[field]}).Debug("Iterate over array")
 			statsinfo := StatsInfo{}
 			statsinfo.labels = make(map[string]string)
 
