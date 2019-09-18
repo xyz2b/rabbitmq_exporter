@@ -19,6 +19,8 @@ var (
 		PublishAddr:        "",
 		OutputFormat:       "TTY", //JSON
 		CAFile:             "ca.pem",
+		CertFile:           "client-cert.pem",
+		KeyFile:            "client-key.pem",
 		InsecureSkipVerify: false,
 		ExcludeMetrics:     []string{},
 		SkipQueues:         regexp.MustCompile("^$"),
@@ -40,6 +42,8 @@ type rabbitExporterConfig struct {
 	PublishAddr        string
 	OutputFormat       string
 	CAFile             string
+	CertFile           string
+	KeyFile            string
 	InsecureSkipVerify bool
 	ExcludeMetrics     []string
 	SkipQueues         *regexp.Regexp
@@ -124,6 +128,12 @@ func initConfig() {
 
 	if cafile := os.Getenv("CAFILE"); cafile != "" {
 		config.CAFile = cafile
+	}
+	if certfile := os.Getenv("CERTFILE"); certfile != "" {
+		config.CertFile = certfile
+	}
+	if keyfile := os.Getenv("KEYFILE"); keyfile != "" {
+		config.KeyFile = keyfile
 	}
 	if insecureSkipVerify := os.Getenv("SKIPVERIFY"); insecureSkipVerify == "true" || insecureSkipVerify == "1" || insecureSkipVerify == "TRUE" {
 		config.InsecureSkipVerify = true

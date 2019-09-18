@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -36,6 +37,20 @@ func initClient() {
 			InsecureSkipVerify: config.InsecureSkipVerify,
 			RootCAs:            roots,
 		},
+	}
+
+	_, errCertFile := os.Stat(config.CertFile)
+	_, errKeyFile := os.Stat(config.KeyFile)
+	if errCertFile == nil && errKeyFile == nil {
+		log.Info("Using client certificate: " + config.CertFile + " and key: " + config.KeyFile)
+		if cert, err := tls.LoadX509KeyPair(config.CertFile, config.KeyFile); err == nil {
+			tr.TLSClientConfig.ClientAuth = tls.RequireAndVerifyClientCert
+			tr.TLSClientConfig.Certificates = []tls.Certificate{cert}
+		} else {
+			log.WithField("certFile", config.CertFile).
+				WithField("keyFile", config.KeyFile).
+				Error("Loading client certificate and key failed: ", err)
+		}
 	}
 
 	client = &http.Client{
