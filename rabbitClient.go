@@ -14,14 +14,21 @@ import (
 var client = &http.Client{Timeout: 15 * time.Second} //default client for test. Client is initialized in initClient()
 
 func initClient() {
-	roots := x509.NewCertPool()
+	var roots *x509.CertPool
 
 	if data, err := ioutil.ReadFile(config.CAFile); err == nil {
+		roots = x509.NewCertPool()
 		if !roots.AppendCertsFromPEM(data) {
 			log.WithField("filename", config.CAFile).Error("Adding certificate to rootCAs failed")
 		}
 	} else {
+		var err error
 		log.Info("Using default certificate pool")
+		roots, err = x509.SystemCertPool()
+		if err != nil {
+			log.WithError(err).Error("retriving system cert pool failed")
+		}
+
 	}
 
 	tr := &http.Transport{
