@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/tkanos/gonfig"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -35,25 +36,26 @@ var (
 )
 
 type rabbitExporterConfig struct {
-	RabbitURL          string
-	RabbitUsername     string
-	RabbitPassword     string
-	PublishPort        string
-	PublishAddr        string
-	OutputFormat       string
-	CAFile             string
-	CertFile           string
-	KeyFile            string
-	InsecureSkipVerify bool
-	ExcludeMetrics     []string
-	SkipQueues         *regexp.Regexp
-	IncludeQueues      *regexp.Regexp
-	SkipVHost          *regexp.Regexp
-	IncludeVHost       *regexp.Regexp
-	RabbitCapabilities rabbitCapabilitySet
-	EnabledExporters   []string
-	Timeout            int
-	MaxQueues          int
+	RabbitURL                string   `json:"rabbit_url"`
+	RabbitUsername           string   `json:"rabbit_user"`
+	RabbitPassword           string   `json:"rabbit_pass"`
+	PublishPort              string   `json:"publish_port"`
+	PublishAddr              string   `json:"publish_addr"`
+	OutputFormat             string   `json:"output_format"`
+	CAFile                   string   `json:"ca_file"`
+	CertFile                 string   `json:"cert_file"`
+	KeyFile                  string   `json:"key_file"`
+	InsecureSkipVerify       bool     `json:"insecure_skip_verify"`
+	ExcludeMetrics           []string `json:"exlude_metrics"`
+	SkipQueues               *regexp.Regexp
+	IncludeQueues            *regexp.Regexp
+	SkipVHost                *regexp.Regexp
+	IncludeVHost             *regexp.Regexp
+	RabbitCapabilitiesString string `json:"rabbit_capabilities"`
+	RabbitCapabilities       rabbitCapabilitySet
+	EnabledExporters         []string `json:"enabled_exporters"`
+	Timeout                  int      `json:"timeout"`
+	MaxQueues                int      `json:"max_queues"`
 }
 
 type rabbitCapability string
@@ -67,6 +69,28 @@ const (
 var allRabbitCapabilities = rabbitCapabilitySet{
 	rabbitCapNoSort: true,
 	rabbitCapBert:   true,
+}
+
+
+func initConfigFromFile(config_file string) {
+	config = rabbitExporterConfig{}
+	err := gonfig.GetConf(config_file, &config)
+	if err != nil {
+		panic(err)
+	}
+
+	if url := config.RabbitURL; url != "" {
+		if valid, _ := regexp.MatchString("https?://[a-zA-Z.0-9]+", strings.ToLower(url)); !valid {
+			panic(fmt.Errorf("Rabbit URL must start with http:// or https://"))
+		}
+	}
+
+	config.SkipQueues = regexp.MustCompile("^$")
+	config.IncludeQueues = regexp.MustCompile(".*")
+	config.SkipVHost = regexp.MustCompile("^$")
+	config.IncludeVHost = regexp.MustCompile(".*")
+	config.RabbitCapabilities=parseCapabilities(config.RabbitCapabilitiesString)
+
 }
 
 func initConfig() {
