@@ -51,6 +51,10 @@ type rabbitExporterConfig struct {
 	IncludeQueues            *regexp.Regexp
 	SkipVHost                *regexp.Regexp
 	IncludeVHost             *regexp.Regexp
+	IncludeQueuesString      string `json:"include_queues"`
+	SkipQueuesString         string `json:"skip_queues"`
+	SkipVHostString          string `json:"skip_vhost"`
+	IncludeVHostString       string `json:"include_vhost"`
 	RabbitCapabilitiesString string `json:"rabbit_capabilities"`
 	RabbitCapabilities       rabbitCapabilitySet
 	EnabledExporters         []string `json:"enabled_exporters"`
@@ -71,7 +75,6 @@ var allRabbitCapabilities = rabbitCapabilitySet{
 	rabbitCapBert:   true,
 }
 
-
 func initConfigFromFile(config_file string) {
 	config = rabbitExporterConfig{}
 	err := gonfig.GetConf(config_file, &config)
@@ -85,11 +88,11 @@ func initConfigFromFile(config_file string) {
 		}
 	}
 
-	config.SkipQueues = regexp.MustCompile("^$")
-	config.IncludeQueues = regexp.MustCompile(".*")
-	config.SkipVHost = regexp.MustCompile("^$")
-	config.IncludeVHost = regexp.MustCompile(".*")
-	config.RabbitCapabilities=parseCapabilities(config.RabbitCapabilitiesString)
+	config.SkipQueues = regexp.MustCompile(config.SkipQueuesString)
+	config.IncludeQueues = regexp.MustCompile(config.IncludeQueuesString)
+	config.SkipVHost = regexp.MustCompile(config.SkipVHostString)
+	config.IncludeVHost = regexp.MustCompile(config.IncludeVHostString)
+	config.RabbitCapabilities = parseCapabilities(config.RabbitCapabilitiesString)
 
 }
 
