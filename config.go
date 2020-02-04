@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/tkanos/gonfig"
 	"io/ioutil"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/tkanos/gonfig"
 )
 
 var (
@@ -36,30 +37,30 @@ var (
 )
 
 type rabbitExporterConfig struct {
-	RabbitURL                string   `json:"rabbit_url"`
-	RabbitUsername           string   `json:"rabbit_user"`
-	RabbitPassword           string   `json:"rabbit_pass"`
-	PublishPort              string   `json:"publish_port"`
-	PublishAddr              string   `json:"publish_addr"`
-	OutputFormat             string   `json:"output_format"`
-	CAFile                   string   `json:"ca_file"`
-	CertFile                 string   `json:"cert_file"`
-	KeyFile                  string   `json:"key_file"`
-	InsecureSkipVerify       bool     `json:"insecure_skip_verify"`
-	ExcludeMetrics           []string `json:"exlude_metrics"`
-	SkipQueues               *regexp.Regexp
-	IncludeQueues            *regexp.Regexp
-	SkipVHost                *regexp.Regexp
-	IncludeVHost             *regexp.Regexp
-	IncludeQueuesString      string `json:"include_queues"`
-	SkipQueuesString         string `json:"skip_queues"`
-	SkipVHostString          string `json:"skip_vhost"`
-	IncludeVHostString       string `json:"include_vhost"`
-	RabbitCapabilitiesString string `json:"rabbit_capabilities"`
-	RabbitCapabilities       rabbitCapabilitySet
-	EnabledExporters         []string `json:"enabled_exporters"`
-	Timeout                  int      `json:"timeout"`
-	MaxQueues                int      `json:"max_queues"`
+	RabbitURL                string              `json:"rabbit_url"`
+	RabbitUsername           string              `json:"rabbit_user"`
+	RabbitPassword           string              `json:"rabbit_pass"`
+	PublishPort              string              `json:"publish_port"`
+	PublishAddr              string              `json:"publish_addr"`
+	OutputFormat             string              `json:"output_format"`
+	CAFile                   string              `json:"ca_file"`
+	CertFile                 string              `json:"cert_file"`
+	KeyFile                  string              `json:"key_file"`
+	InsecureSkipVerify       bool                `json:"insecure_skip_verify"`
+	ExcludeMetrics           []string            `json:"exlude_metrics"`
+	SkipQueues               *regexp.Regexp      `json:"-"`
+	IncludeQueues            *regexp.Regexp      `json:"-"`
+	SkipVHost                *regexp.Regexp      `json:"-"`
+	IncludeVHost             *regexp.Regexp      `json:"-"`
+	IncludeQueuesString      string              `json:"include_queues"`
+	SkipQueuesString         string              `json:"skip_queues"`
+	SkipVHostString          string              `json:"skip_vhost"`
+	IncludeVHostString       string              `json:"include_vhost"`
+	RabbitCapabilitiesString string              `json:"rabbit_capabilities"`
+	RabbitCapabilities       rabbitCapabilitySet `json:"-"`
+	EnabledExporters         []string            `json:"enabled_exporters"`
+	Timeout                  int                 `json:"timeout"`
+	MaxQueues                int                 `json:"max_queues"`
 }
 
 type rabbitCapability string
@@ -75,11 +76,11 @@ var allRabbitCapabilities = rabbitCapabilitySet{
 	rabbitCapBert:   true,
 }
 
-func initConfigFromFile(config_file string) {
+func initConfigFromFile(config_file string) error {
 	config = rabbitExporterConfig{}
 	err := gonfig.GetConf(config_file, &config)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if url := config.RabbitURL; url != "" {
@@ -93,7 +94,7 @@ func initConfigFromFile(config_file string) {
 	config.SkipVHost = regexp.MustCompile(config.SkipVHostString)
 	config.IncludeVHost = regexp.MustCompile(config.IncludeVHostString)
 	config.RabbitCapabilities = parseCapabilities(config.RabbitCapabilitiesString)
-
+	return nil
 }
 
 func initConfig() {

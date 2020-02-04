@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"flag"
 	"net/http"
 	"os"
 	"strings"
@@ -13,17 +13,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-)
-
-var (
-	is_conf = kingpin.Flag(
-		"gi",
-		"Enable config file.",
-	).Default("true").Bool()
-	config_file = kingpin.Flag(
-		"config-path",
-		"Path to config file.",
-	).Default("conf/rabbitmq.conf").String()
 )
 
 const (
@@ -42,16 +31,17 @@ func initLogger() {
 }
 
 func main() {
-	//log.AddFlags(kingpin.CommandLine)
-	//kingpin.Version(version.Print("node_exporter_sd"))
-	kingpin.HelpFlag.Short('h')
-	kingpin.Parse()
-	log.Infoln(*is_conf)
-	if *is_conf {
-		initConfigFromFile(*config_file)
-	} else {
+
+	var configFile = flag.String("config-file", "conf/rabbitmq.conf", "path to json config")
+	flag.Parse()
+
+	err := initConfigFromFile(*configFile)                  //Try parsing config file
+	if _, isPathError := err.(*os.PathError); isPathError { // No file => use environment variables
 		initConfig()
+	} else if err != nil {
+		panic(err)
 	}
+
 	initLogger()
 	initClient()
 	exporter := newExporter()
@@ -115,7 +105,6 @@ func main() {
 		log.Fatal(err)
 	}
 	cancel()
-
 }
 
 func getLogLevel() log.Level {

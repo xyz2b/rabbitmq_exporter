@@ -26,8 +26,18 @@ Now your metrics are exposed through [http://host:9419/metrics](http://host:9419
 
 ## Configuration
 
-Rabbitmq_exporter uses environment variables for configuration.
-Settings:
+Rabbitmq_exporter can be configured using json config file or environment variables for configuration.
+
+### Config file:
+
+Rabbitmq_exporter expects config file in "conf/rabbitmq.conf". If the file is found it is used as configuration source.
+The name of the file can be overriden with flag:
+
+    ./rabbitmq_exporter -config-file config.example.json
+
+You can find an example [here](config.example.json).
+
+### Settings:
 
 Environment variable|default|description
 --------------------|-------|------------

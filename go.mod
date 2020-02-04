@@ -27,7 +27,6 @@ require (
 	github.com/tkanos/gonfig v0.0.0-20181112185242-896f3d81fadf
 	golang.org/x/net v0.0.0-20190918130420-a8b05e9114ab // indirect
 	golang.org/x/sys v0.0.0-20190916202348-b4ddaad3f8a3
-	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ory-am/dockertest.v3 v3.3.5
 	gotest.tools v2.2.0+incompatible // indirect
 )
