@@ -8,6 +8,7 @@ require (
 	github.com/containerd/continuity v0.0.0-20190827140505-75bee3e2ccb6 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/kbudde/gobert v0.0.0-20180309235759-77f4c9cb2e7e
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
@@ -23,8 +24,10 @@ require (
 	github.com/prometheus/procfs v0.0.5 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
+	github.com/tkanos/gonfig v0.0.0-20181112185242-896f3d81fadf
 	golang.org/x/net v0.0.0-20190918130420-a8b05e9114ab // indirect
 	golang.org/x/sys v0.0.0-20190916202348-b4ddaad3f8a3
+	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ory-am/dockertest.v3 v3.3.5
 	gotest.tools v2.2.0+incompatible // indirect
 )
