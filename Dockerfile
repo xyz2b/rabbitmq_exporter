@@ -36,9 +36,6 @@ RUN CGO_ENABLED=0 go build \
         -X main.BuildDate=$(date -u ""+%Y%m%d-%H:%M:%S"")" \
     -o /app .
 
-# Second stage: get statically linked curl
-FROM wmark/curl:latest as curl
-
 # Final stage: the running container.
 FROM scratch AS final
 
@@ -54,9 +51,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # Import the compiled executable from the first stage.
 COPY --from=builder /app /app
 
-# Get curl from image
-COPY --from=curl /usr/bin/curl /usr/bin/curl
-
 # Declare the port on which the webserver will be exposed.
 # As we're going to run the executable as an unprivileged user, we can't bind
 # to ports below 1024.
@@ -66,6 +60,6 @@ EXPOSE 9419
 USER nobody:nobody
 
 # Check if exporter is alive; 10 retries gives prometheus some time to retrieve bad data (5 minutes)
-HEALTHCHECK --retries=10 CMD "/usr/bin/curl -s -f http://localhost:9419/health || exit 1"]
+HEALTHCHECK --retries=10 CMD ["/app", "-check-url", "http://localhost:9419/health"]
 # Run the compiled binary.
 ENTRYPOINT ["/app"]

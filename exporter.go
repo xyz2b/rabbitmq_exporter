@@ -49,7 +49,6 @@ type exporter struct {
 type Exporter interface {
 	Collect(ctx context.Context, ch chan<- prometheus.Metric) error
 	Describe(ch chan<- *prometheus.Desc)
-	LastScrapeOK() bool
 }
 
 func newExporter() *exporter {
