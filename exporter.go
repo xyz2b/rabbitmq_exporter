@@ -42,12 +42,14 @@ type exporter struct {
 	exporter                     map[string]Exporter
 	overviewExporter             *exporterOverview
 	self                         string
+	lastScrapeOK                 bool
 }
 
 //Exporter interface for prometheus metrics. Collect is fetching the data and therefore can return an error
 type Exporter interface {
 	Collect(ctx context.Context, ch chan<- prometheus.Metric) error
 	Describe(ch chan<- *prometheus.Desc)
+	LastScrapeOK() bool
 }
 
 func newExporter() *exporter {
@@ -64,7 +66,14 @@ func newExporter() *exporter {
 		endpointScrapeDurationMetric: newGaugeVec("module_scrape_duration_seconds", "Duration of the last scrape in seconds", []string{"cluster", "node", "module"}),
 		exporter:                     enabledExporter,
 		overviewExporter:             newExporterOverview(),
+		lastScrapeOK:                 true, //return true after start. Value will be updated with each scraping
 	}
+}
+
+func (e *exporter) LastScrapeOK() bool {
+	e.mutex.Lock() // To protect metrics from concurrent collects.
+	defer e.mutex.Unlock()
+	return e.lastScrapeOK
 }
 
 func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
@@ -106,6 +115,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		e.upMetric.WithLabelValues(e.overviewExporter.NodeInfo().ClusterName, e.overviewExporter.NodeInfo().Node).Set(0)
 	}
+	e.lastScrapeOK = allUp
 	e.upMetric.Collect(ch)
 	e.endpointUpMetric.Collect(ch)
 	e.endpointScrapeDurationMetric.Collect(ch)

@@ -88,6 +88,13 @@ func main() {
              </body>
              </html>`))
 	})
+	handler.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		if exporter.LastScrapeOK() {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusGatewayTimeout)
+		}
+	})
 
 	server := &http.Server{Addr: config.PublishAddr + ":" + config.PublishPort, Handler: handler}
 
