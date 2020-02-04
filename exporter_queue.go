@@ -40,6 +40,8 @@ var (
 		"garbage_collection.min_heap_size":      newGaugeVec("queue_gc_min_heap", "Minimum heap size in words", queueLabels),
 		"garbage_collection.min_bin_vheap_size": newGaugeVec("queue_gc_min_vheap", "Minimum binary virtual heap size in words", queueLabels),
 		"garbage_collection.fullsweep_after":    newGaugeVec("queue_gc_collections_before_fullsweep", "Maximum generational collections before fullsweep", queueLabels),
+		"slave_nodes_len":                       newGaugeVec("queue_slaves_nodes_len", "Number of slave nodes attached to the queue", queueLabels),
+		"synchronised_slave_nodes_len":          newGaugeVec("queue_synchronised_slave_nodes_len", "Number of slave nodes in sync to the queue", queueLabels),
 	}
 
 	queueCounterVec = map[string]*prometheus.Desc{
