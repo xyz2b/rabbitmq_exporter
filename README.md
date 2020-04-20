@@ -243,3 +243,12 @@ metric | description
 To create a docker image locally normal docker build can be used.
 
        docker build .
+
+
+## common errors: Error while retrieving data from rabbitHost / code 500
+
+msg: Error while retrieving data from rabbitHost
+statusCode: 500
+
+This exporter expects capabilities from rabbitmq 3.6.8 or newer by default.
+If you are running older than 3.6.8 you have to set RABBIT_CAPABILITIES=compat.
