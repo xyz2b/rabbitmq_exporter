@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -136,10 +135,10 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 			vname := queue.labels["vhost"]
 			if value, ok := queue.metrics[key]; ok {
 
-				if matchVhost := config.IncludeVHost.MatchString(strings.ToLower(vname)); matchVhost {
-					if skipVhost := config.SkipVHost.MatchString(strings.ToLower(vname)); !skipVhost {
-						if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
-							if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
+				if matchVhost := config.IncludeVHost.MatchString(vname); matchVhost {
+					if skipVhost := config.SkipVHost.MatchString(vname); !skipVhost {
+						if matchInclude := config.IncludeQueues.MatchString(qname); matchInclude {
+							if matchSkip := config.SkipQueues.MatchString(qname); !matchSkip {
 								self := "0"
 								if queue.labels["node"] == selfNode {
 									self = "1"
@@ -158,16 +157,16 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 		qname := queue.labels["name"]
 		vname := queue.labels["vhost"]
 
-		if vhostIncluded := config.IncludeVHost.MatchString(strings.ToLower(vname)); !vhostIncluded {
+		if vhostIncluded := config.IncludeVHost.MatchString(vname); !vhostIncluded {
 			continue
 		}
-		if skipVhost := config.SkipVHost.MatchString(strings.ToLower(vname)); skipVhost {
+		if skipVhost := config.SkipVHost.MatchString(vname); skipVhost {
 			continue
 		}
-		if queueIncluded := config.IncludeQueues.MatchString(strings.ToLower(qname)); !queueIncluded {
+		if queueIncluded := config.IncludeQueues.MatchString(qname); !queueIncluded {
 			continue
 		}
-		if queueSkipped := config.SkipQueues.MatchString(strings.ToLower(qname)); queueSkipped {
+		if queueSkipped := config.SkipQueues.MatchString(qname); queueSkipped {
 			continue
 		}
 
@@ -199,10 +198,10 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 			qname := queue.labels["name"]
 			vname := queue.labels["vhost"]
 
-			if matchVhost := config.IncludeVHost.MatchString(strings.ToLower(vname)); matchVhost {
-				if skipVhost := config.SkipVHost.MatchString(strings.ToLower(vname)); !skipVhost {
-					if matchInclude := config.IncludeQueues.MatchString(strings.ToLower(qname)); matchInclude {
-						if matchSkip := config.SkipQueues.MatchString(strings.ToLower(qname)); !matchSkip {
+			if matchVhost := config.IncludeVHost.MatchString(vname); matchVhost {
+				if skipVhost := config.SkipVHost.MatchString(vname); !skipVhost {
+					if matchInclude := config.IncludeQueues.MatchString(qname); matchInclude {
+						if matchSkip := config.SkipQueues.MatchString(qname); !matchSkip {
 							self := "0"
 							if queue.labels["node"] == selfNode {
 								self = "1"
