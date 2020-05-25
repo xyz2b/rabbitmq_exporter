@@ -5,13 +5,13 @@ services:
 
 language: go
 go:
-  - "1.13"
+  - "1.14"
 
 env:
   global:
     - PATH=/home/travis/gopath/bin:$PATH
     - COMMIT=${TRAVIS_COMMIT::8}
-    - REPO=kbudde/rabbitmq-exporter
+    # - REPO=kbudde/rabbitmq-exporter
     - GO111MODULE=on
 before_install:
   - go get github.com/mitchellh/gox
@@ -28,12 +28,12 @@ install:
 script:
   - go test -tags integration -covermode=count -coverprofile=coverage.out ./
 
-after_success:
-#Build Docker image
-  - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-  - make docker DOCKER_IMAGE_NAME=$REPO DOCKER_IMAGE_TAG=$TAG
-  - docker push $REPO
+# after_success:
+# #Build Docker image
+#   - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+#   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+#   - make docker DOCKER_IMAGE_NAME=$REPO DOCKER_IMAGE_TAG=$TAG
+#   - docker push $REPO
   
 #Build dist releases 
   - if [ -n "$TRAVIS_TAG" ]; then make tarballs && promu release .tarballs ; fi
