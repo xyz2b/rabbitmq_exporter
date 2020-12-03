@@ -145,7 +145,7 @@ func (e *exporter) collectWithDuration(ex Exporter, name string, ch chan<- prome
 	// 新增: 子系统ID，来自配置文件的SubsystemID
 	ctx = context.WithValue(ctx, subSystemID, config.SubSystemID)
 	// 上报的额外标签信息（附加到所有指标之上）
-	ctx = context.WithValue(ctx, extraLabels, config.ExtraLabels)
+	//ctx = context.WithValue(ctx, extraLabels, config.ExtraLabels)
 
 	startModule := time.Now()
 	err := ex.Collect(ctx, ch)
