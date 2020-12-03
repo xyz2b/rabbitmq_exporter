@@ -20,7 +20,7 @@ func TestPProf(t *testing.T) {
 	t.Run("Preparation", func(t *testing.T) {
 		env = testenv.NewEnvironment(t, testenv.RabbitMQ3Latest)
 
-		exporterURL = fmt.Sprintf("http://localhost:%s/metrics", defaultConfig.PublishPort)
+		exporterURL = fmt.Sprintf("http://localhost:%s/metrics", config.defaultConfig.PublishPort)
 		rabbitManagementURL = env.ManagementURL()
 		os.Setenv("LOG_LEVEL", "FATAL")
 		defer os.Unsetenv("LOG_LEVEL")
@@ -40,7 +40,7 @@ func TestPProf(t *testing.T) {
 	t.Run("Fetch Exporter Bert, no sort", func(t *testing.T) {
 		os.Setenv("RABBIT_CAPABILITIES", "bert,no_sort")
 		defer os.Unsetenv("RABBIT_CAPABILITIES")
-		initConfig()
+		config.initConfig()
 		for i := 0; i < 100; i++ {
 			testenv.GetOrDie(exporterURL, 5*time.Second)
 		}
@@ -48,7 +48,7 @@ func TestPProf(t *testing.T) {
 	t.Run("Fetch Exporter Json, no sort", func(t *testing.T) {
 		os.Setenv("RABBIT_CAPABILITIES", "no_sort")
 		defer os.Unsetenv("RABBIT_CAPABILITIES")
-		initConfig()
+		config.initConfig()
 		for i := 0; i < 100; i++ {
 			testenv.GetOrDie(exporterURL, 5*time.Second)
 		}

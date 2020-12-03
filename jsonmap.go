@@ -47,6 +47,7 @@ func (rep *rabbitJSONReply) MakeStatsInfo(labels []string) []StatsInfo {
 
 			for _, label := range labels {
 				statsinfo.labels[label] = ""
+				// 从返回的结果中根据所需要的label的key获取需要的label的值
 				if tmp, ok := el[label]; ok {
 					if v, ok := tmp.(string); ok {
 						statsinfo.labels[label] = v

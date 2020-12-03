@@ -27,7 +27,7 @@ func TestQueueCount(t *testing.T) {
 	defer env.CleanUp() // do not panic or exit fatally or the container will stay up
 
 	t.Run("Preparation", func(t *testing.T) {
-		exporterURL = fmt.Sprintf("http://localhost:%s/metrics", defaultConfig.PublishPort)
+		exporterURL = fmt.Sprintf("http://localhost:%s/metrics", config.defaultConfig.PublishPort)
 		rabbitManagementURL = env.ManagementURL()
 		os.Setenv("RABBIT_URL", rabbitManagementURL)
 		os.Setenv("RABBIT_CAPABILITIES", "bert,no_sort")

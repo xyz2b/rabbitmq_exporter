@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	config2 "github.com/kbudde/rabbitmq_exporter/config"
+	"github.com/kbudde/rabbitmq_exporter/exporter"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -28,7 +30,7 @@ func TestGetMetricMap(t *testing.T) {
 	server := createTestserver(200, `{"nonFloat":"bob@example.com","float1":1.23456789101112,"number":2}`)
 	defer server.Close()
 
-	config := &rabbitExporterConfig{
+	config := &config2.rabbitExporterConfig{
 		RabbitURL: server.URL,
 	}
 
@@ -42,7 +44,7 @@ func TestGetMetricMap(t *testing.T) {
 	errorServer := createTestserver(500, http.StatusText(500))
 	defer errorServer.Close()
 
-	config = &rabbitExporterConfig{
+	config = &config2.rabbitExporterConfig{
 		RabbitURL: errorServer.URL,
 	}
 
@@ -56,11 +58,11 @@ func TestQueues(t *testing.T) {
 	server := createTestserver(200, `[{"name":"Queue1","nonFloat":"bob@example.com","float1":1.23456789101112,"number":2},{"name":"Queue2","vhost":"Vhost2","nonFloat":"bob@example.com","float1":3.23456789101112,"number":3}]`)
 	defer server.Close()
 
-	config := &rabbitExporterConfig{
+	config := &config2.rabbitExporterConfig{
 		RabbitURL: server.URL,
 	}
 
-	queues, err := getStatsInfo(*config, "queues", queueLabelKeys)
+	queues, err := getStatsInfo(*config, "queues", exporter.queueLabelKeys)
 	expect(t, err, nil)
 	expect(t, len(queues), 2)
 	expect(t, queues[0].labels["name"], "Queue1")
@@ -78,11 +80,11 @@ func TestQueues(t *testing.T) {
 	errorServer := createTestserver(500, http.StatusText(500))
 	defer errorServer.Close()
 
-	config = &rabbitExporterConfig{
+	config = &config2.rabbitExporterConfig{
 		RabbitURL: errorServer.URL,
 	}
 
-	queues, err = getStatsInfo(*config, "queues", queueLabelKeys)
+	queues, err = getStatsInfo(*config, "queues", exporter.queueLabelKeys)
 	if err == nil {
 		t.Errorf("Request failed. An error was expected but not found")
 	}
@@ -92,14 +94,14 @@ func TestQueues(t *testing.T) {
 func TestExchanges(t *testing.T) {
 
 	// Test server that always responds with 200 code, and specific payload
-	server := createTestserver(200, exchangeAPIResponse)
+	server := createTestserver(200, exporter.exchangeAPIResponse)
 	defer server.Close()
 
-	config := &rabbitExporterConfig{
+	config := &config2.rabbitExporterConfig{
 		RabbitURL: server.URL,
 	}
 
-	exchanges, err := getStatsInfo(*config, "exchanges", exchangeLabelKeys)
+	exchanges, err := getStatsInfo(*config, "exchanges", exporter.exchangeLabelKeys)
 	expect(t, err, nil)
 	expect(t, len(exchanges), 9)
 	expect(t, exchanges[0].labels["name"], "")
@@ -120,11 +122,11 @@ func TestExchanges(t *testing.T) {
 	errorServer := createTestserver(500, http.StatusText(500))
 	defer errorServer.Close()
 
-	config = &rabbitExporterConfig{
+	config = &config2.rabbitExporterConfig{
 		RabbitURL: errorServer.URL,
 	}
 
-	exchanges, err = getStatsInfo(*config, "exchanges", exchangeLabels)
+	exchanges, err = getStatsInfo(*config, "exchanges", exporter.exchangeLabels)
 	if err == nil {
 		t.Errorf("Request failed. An error was expected but not found")
 	}
@@ -155,9 +157,9 @@ func assertNoSortRespected(t *testing.T, enabled bool) {
 	}))
 	defer server.Close()
 
-	config := &rabbitExporterConfig{
+	config := &config2.rabbitExporterConfig{
 		RabbitURL:          server.URL,
-		RabbitCapabilities: rabbitCapabilitySet{rabbitCapNoSort: enabled},
+		RabbitCapabilities: config2.rabbitCapabilitySet{config2.rabbitCapNoSort: enabled},
 	}
 
 	getMetricMap(*config, "overview")

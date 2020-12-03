@@ -14,7 +14,7 @@ func init() {
 }
 
 var (
-	queueLabels    = []string{"cluster", "vhost", "queue", "durable", "policy", "self"}
+	queueLabels    = []string{"cluster", "host", "subsystemName", "subsystemID", "vhost", "queue", "durable", "policy", "self"}
 	queueLabelKeys = []string{"vhost", "name", "durable", "policy", "state", "node", "idle_since"}
 
 	queueGaugeVec = map[string]*prometheus.GaugeVec{
@@ -121,6 +121,18 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 	if n, ok := ctx.Value(clusterName).(string); ok {
 		cluster = n
 	}
+	host := ""
+	if n, ok := ctx.Value(hostInfo).(string); ok {
+		host = n
+	}
+	subsystemName := ""
+	if n, ok := ctx.Value(subSystemName).(string); ok {
+		subsystemName = n
+	}
+	subsystemID := ""
+	if n, ok := ctx.Value(subSystemID).(string); ok {
+		subsystemID = n
+	}
 
 	rabbitMqQueueData, err := getStatsInfo(config, "queues", queueLabelKeys)
 
@@ -144,7 +156,7 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 									self = "1"
 								}
 								// log.WithFields(log.Fields{"vhost": queue.labels["vhost"], "queue": queue.labels["name"], "key": key, "value": value}).Info("Set queue metric for key")
-								gaugevec.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self).Set(value)
+								gaugevec.WithLabelValues(cluster, host, subsystemName, subsystemID, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self).Set(value)
 							}
 						}
 					}
@@ -183,13 +195,13 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 				if state == "running" { //replace running state with idle if idle_since time is provided. Other states (flow, etc.) are not replaced
 					state = "idle"
 				}
-				e.idleSinceMetric.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self).Set(unixSeconds)
-				e.stateMetric.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, state).Set(1)
+				e.idleSinceMetric.WithLabelValues(cluster, host, subsystemName, subsystemID, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self).Set(unixSeconds)
+				e.stateMetric.WithLabelValues(cluster, host, subsystemName, subsystemID, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, state).Set(1)
 			} else {
 				log.WithError(err).WithField("idle_since", idleSince).Warn("error parsing idle since time")
 			}
 		} else {
-			e.stateMetric.WithLabelValues(cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, queue.labels["state"]).Set(1)
+			e.stateMetric.WithLabelValues(cluster, host, subsystemName, subsystemID, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self, queue.labels["state"]).Set(1)
 		}
 	}
 
@@ -207,9 +219,9 @@ func (e exporterQueue) Collect(ctx context.Context, ch chan<- prometheus.Metric)
 								self = "1"
 							}
 							if value, ok := queue.metrics[key]; ok {
-								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self)
+								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, cluster, host, subsystemName, subsystemID, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self)
 							} else {
-								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, cluster, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self)
+								ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, 0, cluster, host, subsystemName, subsystemID, queue.labels["vhost"], queue.labels["name"], queue.labels["durable"], queue.labels["policy"], self)
 							}
 						}
 					}

@@ -11,7 +11,7 @@ func init() {
 }
 
 var (
-	nodeLabels    = []string{"cluster", "node", "self"}
+	nodeLabels    = []string{"cluster", "host", "subsystemName", "subsystemID", "node", "self"}
 	nodeLabelKeys = []string{"name"}
 
 	nodeGaugeVec = map[string]*prometheus.GaugeVec{
@@ -60,6 +60,19 @@ func (e exporterNode) Collect(ctx context.Context, ch chan<- prometheus.Metric) 
 	if n, ok := ctx.Value(clusterName).(string); ok {
 		cluster = n
 	}
+	host := ""
+	if n, ok := ctx.Value(hostInfo).(string); ok {
+		host = n
+	}
+	subsystemName := ""
+	if n, ok := ctx.Value(subSystemName).(string); ok {
+		subsystemName = n
+	}
+	subsystemID := ""
+	if n, ok := ctx.Value(subSystemID).(string); ok {
+		subsystemID = n
+	}
+
 
 	nodeData, err := getStatsInfo(config, "nodes", nodeLabelKeys)
 
@@ -78,7 +91,7 @@ func (e exporterNode) Collect(ctx context.Context, ch chan<- prometheus.Metric) 
 				if node.labels["name"] == selfNode {
 					self = "1"
 				}
-				gauge.WithLabelValues(cluster, node.labels["name"], self).Set(value)
+				gauge.WithLabelValues(cluster, host, subsystemName, subsystemID, node.labels["name"], self).Set(value)
 			}
 		}
 	}

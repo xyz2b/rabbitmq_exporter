@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,6 +23,10 @@ const (
 	nodeName               contextValues = "node"
 	clusterName            contextValues = "cluster"
 	totalQueues            contextValues = "totalQueues"
+	hostInfo               contextValues = "hostInfo"
+	subSystemName          contextValues = "subSystemName"
+	subSystemID            contextValues = "subsystemID"
+	extraLabels            contextValues = "extraLabels"
 )
 
 //RegisterExporter makes an exporter available by the provided name.
@@ -88,6 +93,8 @@ func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 	BuildInfo.Describe(ch)
 }
 
+// 实现了prometheus client相关接口的exporter，prometheus会调用这个Collect方法
+// 在该方法内部，在调用各个注册进enabledExporter的对象的Collect方法，然后将ctx传给它们
 func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	e.mutex.Lock() // To protect metrics from concurrent collects.
 	defer e.mutex.Unlock()
@@ -123,6 +130,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (e *exporter) collectWithDuration(ex Exporter, name string, ch chan<- prometheus.Metric) error {
+	// 定义传给各个模块Collect的上下文
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, endpointScrapeDuration, e.endpointScrapeDurationMetric)
 	ctx = context.WithValue(ctx, endpointUpMetric, e.endpointUpMetric)
@@ -130,6 +138,14 @@ func (e *exporter) collectWithDuration(ex Exporter, name string, ch chan<- prome
 	ctx = context.WithValue(ctx, nodeName, e.overviewExporter.NodeInfo().Node)
 	ctx = context.WithValue(ctx, clusterName, e.overviewExporter.NodeInfo().ClusterName)
 	ctx = context.WithValue(ctx, totalQueues, e.overviewExporter.NodeInfo().TotalQueues)
+	// 新增: 实例信息(IP:PORT)，来自配置文件的RabbitURL
+	ctx = context.WithValue(ctx, hostInfo, strings.Split(config.RabbitURL, "/")[2])
+	// 新增: 子系统名称，来自配置文件的SubsystemName
+	ctx = context.WithValue(ctx, subSystemName, config.SubSystemName)
+	// 新增: 子系统ID，来自配置文件的SubsystemID
+	ctx = context.WithValue(ctx, subSystemID, config.SubSystemID)
+	// 上报的额外标签信息（附加到所有指标之上）
+	ctx = context.WithValue(ctx, extraLabels, config.ExtraLabels)
 
 	startModule := time.Now()
 	err := ex.Collect(ctx, ch)

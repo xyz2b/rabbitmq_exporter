@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
@@ -12,7 +13,7 @@ func init() {
 }
 
 var (
-	overviewLabels = []string{"cluster"}
+	overviewLabels = []string{"cluster", "host", "subsystemName", "subsystemID"}
 
 	overviewMetricDescription = map[string]*prometheus.GaugeVec{
 		"object_totals.channels":               newGaugeVec("channels", "Number of channels.", overviewLabels),
@@ -95,7 +96,7 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 	for key, gauge := range e.overviewMetrics {
 		if value, ok := rabbitMqOverviewData[key]; ok {
 			log.WithFields(log.Fields{"key": key, "value": value}).Debug("Set overview metric for key")
-			gauge.WithLabelValues(e.nodeInfo.ClusterName).Set(value)
+			gauge.WithLabelValues(e.nodeInfo.ClusterName, strings.Split(config.RabbitURL, "/")[2], config.SubSystemName, config.SubSystemID).Set(value)
 		}
 	}
 

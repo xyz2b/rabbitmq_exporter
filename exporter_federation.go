@@ -11,7 +11,7 @@ func init() {
 }
 
 var (
-	federationLabels     = []string{"cluster", "vhost", "node", "queue", "exchange", "self", "status"}
+	federationLabels     = []string{"cluster","host", "subsystemName", "subsystemID", "vhost", "node", "queue", "exchange", "self", "status"}
 	federationLabelsKeys = []string{"vhost", "status", "node", "queue", "exchange"}
 )
 
@@ -41,13 +41,25 @@ func (e exporterFederation) Collect(ctx context.Context, ch chan<- prometheus.Me
 	if n, ok := ctx.Value(nodeName).(string); ok {
 		selfNode = n
 	}
+	host := ""
+	if n, ok := ctx.Value(hostInfo).(string); ok {
+		host = n
+	}
+	subsystemName := ""
+	if n, ok := ctx.Value(subSystemName).(string); ok {
+		subsystemName = n
+	}
+	subsystemID := ""
+	if n, ok := ctx.Value(subSystemID).(string); ok {
+		subsystemID = n
+	}
 
 	for _, federation := range federationData {
 		self := "0"
 		if federation.labels["node"] == selfNode {
 			self = "1"
 		}
-		e.stateMetric.WithLabelValues(cluster, federation.labels["vhost"], federation.labels["node"], federation.labels["queue"], federation.labels["exchange"], self, federation.labels["status"]).Set(1)
+		e.stateMetric.WithLabelValues(cluster, host, subsystemName, subsystemID, federation.labels["vhost"], federation.labels["node"], federation.labels["queue"], federation.labels["exchange"], self, federation.labels["status"]).Set(1)
 	}
 
 	e.stateMetric.Collect(ch)

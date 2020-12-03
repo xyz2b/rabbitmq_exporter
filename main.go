@@ -40,7 +40,7 @@ func main() {
 		return
 	}
 
-	err := initConfigFromFile(*configFile)                  //Try parsing config file
+	err := initConfigFromFile(*configFile)           //Try parsing config file
 	if _, isPathError := err.(*os.PathError); isPathError { // No file => use environment variables
 		initConfig()
 	} else if err != nil {
@@ -79,6 +79,8 @@ func main() {
 		"INCLUDE_VHOST":       config.IncludeVHost,
 		"RABBIT_TIMEOUT":      config.Timeout,
 		"MAX_QUEUES":          config.MaxQueues,
+		"SubSystemName":       config.SubSystemName,
+		"SubsystemID":         config.SubSystemID,
 		//		"RABBIT_PASSWORD": config.RABBIT_PASSWORD,
 	}).Info("Active Configuration")
 

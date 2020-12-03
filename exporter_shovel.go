@@ -12,7 +12,7 @@ func init() {
 
 var (
 	//shovelLabels are the labels for all shovel mertrics
-	shovelLabels = []string{"cluster", "vhost", "shovel", "type", "self", "state"}
+	shovelLabels = []string{"cluster", "host", "subsystemName", "subsystemID", "vhost", "shovel", "type", "self", "state"}
 	//shovelLabelKeys are the important keys to be extracted from json
 	shovelLabelKeys = []string{"vhost", "name", "type", "node", "state"}
 )
@@ -43,13 +43,25 @@ func (e exporterShovel) Collect(ctx context.Context, ch chan<- prometheus.Metric
 	if n, ok := ctx.Value(nodeName).(string); ok {
 		selfNode = n
 	}
+	host := ""
+	if n, ok := ctx.Value(hostInfo).(string); ok {
+		host = n
+	}
+	subsystemName := ""
+	if n, ok := ctx.Value(subSystemName).(string); ok {
+		subsystemName = n
+	}
+	subsystemID := ""
+	if n, ok := ctx.Value(subSystemID).(string); ok {
+		subsystemID = n
+	}
 
 	for _, shovel := range shovelData {
 		self := "0"
 		if shovel.labels["node"] == selfNode {
 			self = "1"
 		}
-		e.stateMetric.WithLabelValues(cluster, shovel.labels["vhost"], shovel.labels["name"], shovel.labels["type"], self, shovel.labels["state"]).Set(1)
+		e.stateMetric.WithLabelValues(cluster, host, subsystemName, subsystemID, shovel.labels["vhost"], shovel.labels["name"], shovel.labels["type"], self, shovel.labels["state"]).Set(1)
 	}
 
 	e.stateMetric.Collect(ch)
