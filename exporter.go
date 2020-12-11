@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,6 +23,10 @@ const (
 	nodeName               contextValues = "node"
 	clusterName            contextValues = "cluster"
 	totalQueues            contextValues = "totalQueues"
+	hostInfo               contextValues = "hostInfo"
+	subSystemName          contextValues = "subSystemName"
+	subSystemID            contextValues = "subSystemID"
+	//extraLabels            contextValues = "extraLabels"
 )
 
 //RegisterExporter makes an exporter available by the provided name.
@@ -89,19 +94,37 @@ func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *exporter) Collect(ch chan<- prometheus.Metric) {
+	// 定义传给各个模块Collect的上下文
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, endpointScrapeDuration, e.endpointScrapeDurationMetric)
+	ctx = context.WithValue(ctx, endpointUpMetric, e.endpointUpMetric)
+	//use last know value, could be outdated or empty
+	ctx = context.WithValue(ctx, nodeName, e.overviewExporter.NodeInfo().Node)
+	ctx = context.WithValue(ctx, clusterName, e.overviewExporter.NodeInfo().ClusterName)
+	ctx = context.WithValue(ctx, totalQueues, e.overviewExporter.NodeInfo().TotalQueues)
+
+	// 新增: 实例信息(IP:PORT)，来自配置文件的RabbitURL
+	ctx = context.WithValue(ctx, hostInfo, strings.Split(config.RabbitURL, "/")[2])
+	// 新增: 子系统名称，来自配置文件的SubsystemName
+	ctx = context.WithValue(ctx, subSystemName, config.SubSystemName)
+	// 新增: 子系统ID，来自配置文件的SubsystemID
+	ctx = context.WithValue(ctx, subSystemID, config.SubSystemID)
+	// 上报的额外标签信息（附加到所有指标之上）
+	//ctx = context.WithValue(ctx, extraLabels, config.ExtraLabels)
+
 	e.mutex.Lock() // To protect metrics from concurrent collects.
 	defer e.mutex.Unlock()
 
 	start := time.Now()
 	allUp := true
 
-	if err := e.collectWithDuration(e.overviewExporter, "overview", ch); err != nil {
+	if err := e.collectWithDuration(ctx, e.overviewExporter, "overview", ch); err != nil {
 		log.WithError(err).Warn("retrieving overview failed")
 		allUp = false
 	}
 
 	for name, ex := range e.exporter {
-		if err := e.collectWithDuration(ex, name, ch); err != nil {
+		if err := e.collectWithDuration(ctx, ex, name, ch); err != nil {
 			log.WithError(err).Warn("retrieving " + name + " failed")
 			allUp = false
 		}
@@ -110,9 +133,9 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	BuildInfo.Collect(ch)
 
 	if allUp {
-		e.upMetric.WithLabelValues(e.overviewExporter.NodeInfo().ClusterName, e.overviewExporter.NodeInfo().Node).Set(1)
+		gaugeVecWithLabelValues(&ctx, e.upMetric, e.overviewExporter.NodeInfo().ClusterName, e.overviewExporter.NodeInfo().Node).Set(1)
 	} else {
-		e.upMetric.WithLabelValues(e.overviewExporter.NodeInfo().ClusterName, e.overviewExporter.NodeInfo().Node).Set(0)
+		gaugeVecWithLabelValues(&ctx, e.upMetric, e.overviewExporter.NodeInfo().ClusterName, e.overviewExporter.NodeInfo().Node).Set(0)
 	}
 	e.lastScrapeOK = allUp
 	e.upMetric.Collect(ch)
@@ -122,15 +145,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 
 }
 
-func (e *exporter) collectWithDuration(ex Exporter, name string, ch chan<- prometheus.Metric) error {
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, endpointScrapeDuration, e.endpointScrapeDurationMetric)
-	ctx = context.WithValue(ctx, endpointUpMetric, e.endpointUpMetric)
-	//use last know value, could be outdated or empty
-	ctx = context.WithValue(ctx, nodeName, e.overviewExporter.NodeInfo().Node)
-	ctx = context.WithValue(ctx, clusterName, e.overviewExporter.NodeInfo().ClusterName)
-	ctx = context.WithValue(ctx, totalQueues, e.overviewExporter.NodeInfo().TotalQueues)
-
+func (e *exporter) collectWithDuration(ctx context.Context, ex Exporter, name string, ch chan<- prometheus.Metric) error {
 	startModule := time.Now()
 	err := ex.Collect(ctx, ch)
 
@@ -140,14 +155,14 @@ func (e *exporter) collectWithDuration(ex Exporter, name string, ch chan<- prome
 
 	if scrapeDuration, ok := ctx.Value(endpointScrapeDuration).(*prometheus.GaugeVec); ok {
 		if cluster != "" && node != "" { //values are not available until first scrape of overview succeeded
-			scrapeDuration.WithLabelValues(cluster, node, name).Set(time.Since(startModule).Seconds())
+			gaugeVecWithLabelValues(&ctx, scrapeDuration, cluster, node, name).Set(time.Since(startModule).Seconds())
 		}
 	}
 	if up, ok := ctx.Value(endpointUpMetric).(*prometheus.GaugeVec); ok {
 		if err != nil {
-			up.WithLabelValues(cluster, node, name).Set(0)
+			gaugeVecWithLabelValues(&ctx, up, cluster, node, name).Set(0)
 		} else {
-			up.WithLabelValues(cluster, node, name).Set(1)
+			gaugeVecWithLabelValues(&ctx, up, cluster, node, name).Set(1)
 		}
 	}
 	return err

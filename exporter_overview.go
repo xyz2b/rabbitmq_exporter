@@ -25,11 +25,9 @@ var (
 		"queue_totals.messages_unacknowledged": newGaugeVec("queue_messages_unacknowledged_global", "Number of messages delivered to clients but not yet acknowledged.", overviewLabels),
 	}
 
-	rabbitmqVersionMetric = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "rabbitmq_version_info",
-			Help: "A metric with a constant '1' value labeled by rabbitmq version, erlang version, node, cluster.",
-		},
+	rabbitmqVersionMetric = newGaugeVec(
+		"rabbitmq_version_info",
+		"A metric with a constant '1' value labeled by rabbitmq version, erlang version, node, cluster.",
 		[]string{"rabbitmq", "erlang", "node", "cluster"},
 	)
 )
@@ -89,13 +87,13 @@ func (e *exporterOverview) Collect(ctx context.Context, ch chan<- prometheus.Met
 	e.nodeInfo.TotalQueues = (int)(rabbitMqOverviewData["object_totals.queues"])
 
 	rabbitmqVersionMetric.Reset()
-	rabbitmqVersionMetric.WithLabelValues(e.nodeInfo.RabbitmqVersion, e.nodeInfo.ErlangVersion, e.nodeInfo.Node, e.nodeInfo.ClusterName).Set(1)
+	gaugeVecWithLabelValues(&ctx, rabbitmqVersionMetric, e.nodeInfo.RabbitmqVersion, e.nodeInfo.ErlangVersion, e.nodeInfo.Node, e.nodeInfo.ClusterName).Set(1)
 
 	log.WithField("overviewData", rabbitMqOverviewData).Debug("Overview data")
 	for key, gauge := range e.overviewMetrics {
 		if value, ok := rabbitMqOverviewData[key]; ok {
 			log.WithFields(log.Fields{"key": key, "value": value}).Debug("Set overview metric for key")
-			gauge.WithLabelValues(e.nodeInfo.ClusterName).Set(value)
+			gaugeVecWithLabelValues(&ctx, gauge, e.nodeInfo.ClusterName).Set(value)
 		}
 	}
 

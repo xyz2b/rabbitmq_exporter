@@ -33,6 +33,9 @@ var (
 		EnabledExporters:   []string{"exchange", "node", "overview", "queue"},
 		Timeout:            30,
 		MaxQueues:          0,
+		SubSystemName:      "",
+		SubSystemID:        "",
+		//ExtraLabels:		[]map[string]string{},
 	}
 )
 
@@ -61,6 +64,9 @@ type rabbitExporterConfig struct {
 	EnabledExporters         []string            `json:"enabled_exporters"`
 	Timeout                  int                 `json:"timeout"`
 	MaxQueues                int                 `json:"max_queues"`
+	SubSystemName            string              `json:"sub_system_name"`
+	SubSystemID              string              `json:"sub_system_id"`
+	//ExtraLabels              []map[string]string `json:"extra_labels"`
 }
 
 type rabbitCapability string
@@ -209,6 +215,14 @@ func initConfig() {
 			panic(fmt.Errorf("maxQueues is not a number: %v", err))
 		}
 		config.MaxQueues = m
+	}
+
+	if subSystemName := os.Getenv("SUB_SYSTEM_NAME"); subSystemName != "" {
+		config.SubSystemName = subSystemName
+	}
+
+	if subSystemID := os.Getenv("SUB_SYSTEM_ID"); subSystemID != "" {
+		config.SubSystemID = subSystemID
 	}
 }
 

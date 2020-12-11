@@ -64,7 +64,7 @@ func (e exporterExchange) Collect(ctx context.Context, ch chan<- prometheus.Metr
 		for _, exchange := range exchangeData {
 			if value, ok := exchange.metrics[key]; ok {
 				// log.WithFields(log.Fields{"vhost": exchange.vhost, "exchange": exchange.name, "key": key, "value": value}).Debug("Set exchange metric for key")
-				ch <- prometheus.MustNewConstMetric(countvec, prometheus.CounterValue, value, cluster, exchange.labels["vhost"], exchange.labels["name"])
+				ch <- mustNewConstMetric(&ctx, countvec, prometheus.CounterValue, value, cluster, exchange.labels["vhost"], exchange.labels["name"])
 			}
 		}
 	}

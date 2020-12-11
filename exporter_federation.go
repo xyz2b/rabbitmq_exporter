@@ -47,7 +47,7 @@ func (e exporterFederation) Collect(ctx context.Context, ch chan<- prometheus.Me
 		if federation.labels["node"] == selfNode {
 			self = "1"
 		}
-		e.stateMetric.WithLabelValues(cluster, federation.labels["vhost"], federation.labels["node"], federation.labels["queue"], federation.labels["exchange"], self, federation.labels["status"]).Set(1)
+		gaugeVecWithLabelValues(&ctx, e.stateMetric, cluster, federation.labels["vhost"], federation.labels["node"], federation.labels["queue"], federation.labels["exchange"], self, federation.labels["status"]).Set(1)
 	}
 
 	e.stateMetric.Collect(ch)
