@@ -93,6 +93,8 @@ func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 	BuildInfo.Describe(ch)
 }
 
+// 实现了prometheus client相关接口的exporter，prometheus会调用这个Collect方法
+// 在该方法内部，在调用各个注册进enabledExporter的对象的Collect方法，然后将ctx传给它们
 func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	// 定义传给各个模块Collect的上下文
 	ctx := context.Background()

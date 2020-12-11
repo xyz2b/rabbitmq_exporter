@@ -11,7 +11,7 @@ func init() {
 }
 
 var (
-	exchangeLabels    = []string{"cluster", "vhost", "exchange"}
+	exchangeLabels    = []string{"cluster", "host", "subsystemName", "subsystemID", "vhost", "exchange"}
 	exchangeLabelKeys = []string{"vhost", "name"}
 
 	exchangeCounterVec = map[string]*prometheus.Desc{

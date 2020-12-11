@@ -12,7 +12,7 @@ func init() {
 }
 
 var (
-	overviewLabels = []string{"cluster"}
+	overviewLabels = []string{"cluster", "host", "subsystemName", "subsystemID"}
 
 	overviewMetricDescription = map[string]*prometheus.GaugeVec{
 		"object_totals.channels":               newGaugeVec("channels", "Number of channels.", overviewLabels),

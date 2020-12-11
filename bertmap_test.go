@@ -10,9 +10,9 @@ import (
 func TestStatsEquivalence(t *testing.T) {
 	endpoints := []string{"queues", "exchanges", "nodes"}
 	labels := map[string][]string{
-		"queues":    queueLabelKeys,
-		"exchanges": exchangeLabelKeys,
-		"nodes":     nodeLabelKeys,
+		"queues":    QueueLabelKeys,
+		"exchanges": ExchangeLabelKeys,
+		"nodes":     NodeLabelKeys,
 	}
 	versions := []string{"3.6.8", "3.7.0"}
 	for _, version := range versions {
@@ -24,7 +24,7 @@ func TestStatsEquivalence(t *testing.T) {
 }
 
 func TestNewFile(t *testing.T) {
-	assertBertStatsEquivalence(t, "queue-max-length", nodeLabelKeys)
+	assertBertStatsEquivalence(t, "queue-max-length", NodeLabelKeys)
 }
 
 func TestMetricMapEquivalence(t *testing.T) {
