@@ -11,7 +11,7 @@ func init() {
 }
 
 var (
-	nodeLabels    = []string{"cluster", "host", "subsystemName", "subsystemID", "node", "self"}
+	nodeLabels    = []string{"cluster", "node", "self"}
 	nodeLabelKeys = []string{"name"}
 
 	nodeGaugeVec = map[string]*prometheus.GaugeVec{
